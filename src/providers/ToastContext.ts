@@ -1,0 +1,11 @@
+import { createContext } from 'react';
+
+export type ToastType = 'success' | 'error' | 'info' | 'warning';
+
+interface ToastContextType {
+  showToast: (message: string, type?: ToastType) => void;
+}
+
+export const ToastContext = createContext<ToastContextType>({
+  showToast: () => {},
+});
