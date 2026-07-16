@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { TrendingUp, Search } from 'lucide-react';
 
 const TOP_STUDENTS = [
@@ -12,7 +13,10 @@ const TOP_STUDENTS = [
 
 const PODIUM_HEIGHTS = ['h-32', 'h-24', 'h-20'];
 
+const TABS = ['Global', 'Weekly', 'Monthly', 'Subject'] as const;
+
 export default function Leaderboard() {
+  const [activeTab, setActiveTab] = useState<string>('Global');
   const top3 = TOP_STUDENTS.slice(0, 3);
   const rest = TOP_STUDENTS.slice(3);
 
@@ -24,18 +28,22 @@ export default function Leaderboard() {
           <p className="text-secondary/70 mt-1">See how you rank among top exam preparers in Pakistan.</p>
         </div>
         <div className="flex gap-2">
-          {['Global', 'Weekly', 'Monthly', 'Subject'].map(tab => (
-            <button key={tab} className={`px-4 py-1.5 rounded-xl text-sm font-medium transition-colors ${tab === 'Global' ? 'bg-primary text-white' : 'bg-secondary/5 text-secondary/70 hover:bg-secondary/10'}`}>
+          {TABS.map(tab => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`px-4 py-1.5 rounded-xl text-sm font-medium transition-colors ${
+                activeTab === tab ? 'bg-primary text-white' : 'bg-secondary/5 text-secondary/70 hover:bg-secondary/10'
+              }`}
+            >
               {tab}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Podium */}
       <div className="bg-gradient-to-br from-primary/5 via-accent/5 to-warning/5 border border-border/50 rounded-3xl p-8">
         <div className="flex items-end justify-center gap-6 mb-8">
-          {/* 2nd Place */}
           <div className="flex flex-col items-center gap-2">
             <img src={top3[1].avatar} alt={top3[1].name} className="w-16 h-16 rounded-full border-4 border-[#94A3B8] object-cover" />
             <p className="font-semibold text-secondary text-sm">{top3[1].name}</p>
@@ -44,7 +52,6 @@ export default function Leaderboard() {
               <span className="text-2xl">🥈</span>
             </div>
           </div>
-          {/* 1st Place */}
           <div className="flex flex-col items-center gap-2">
             <div className="relative">
               <img src={top3[0].avatar} alt={top3[0].name} className="w-20 h-20 rounded-full border-4 border-[#F59E0B] object-cover" />
@@ -56,7 +63,6 @@ export default function Leaderboard() {
               <span className="text-2xl">🏆</span>
             </div>
           </div>
-          {/* 3rd Place */}
           <div className="flex flex-col items-center gap-2">
             <img src={top3[2].avatar} alt={top3[2].name} className="w-16 h-16 rounded-full border-4 border-[#CD7C2F] object-cover" />
             <p className="font-semibold text-secondary text-sm">{top3[2].name}</p>
@@ -68,7 +74,6 @@ export default function Leaderboard() {
         </div>
       </div>
 
-      {/* Rankings Table */}
       <div className="bg-card border border-border/50 rounded-2xl overflow-hidden shadow-sm">
         <div className="flex items-center justify-between p-4 border-b border-border/50">
           <h3 className="font-semibold text-secondary">Rankings</h3>

@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import {
   Zap, Menu, X, ArrowRight, BookOpen, BarChart2, Target, Users,
-  Star, CheckCircle, ChevronRight, Flame, Award, Shield, Globe,
-  Clock, TrendingUp, Brain, Play,
+  Star, CheckCircle, ChevronRight, Flame, Globe,
+  Brain, Play,
 } from 'lucide-react';
+import { useAuth } from '@/Auth/AuthContext';
 
 // ── Animated Counter ─────────────────────────────────────────────────────────
 function Counter({ end, suffix = '' }: { end: number; suffix?: string }) {
@@ -59,15 +60,32 @@ const PLANS = [
 const NAV_LINKS = ['Exams', 'Features', 'Pricing', 'Community'];
 
 export default function Home() {
+  const { user, isAuthenticated, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const navigate = useNavigate();
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', onScroll);
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
+
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setShowUserMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
+  const handleLogout = () => {
+    logout();
+    setShowUserMenu(false);
+  };
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] font-sans">
@@ -93,13 +111,71 @@ export default function Home() {
           </div>
 
           {/* Desktop CTA */}
-          <div className="hidden md:flex items-center gap-3">
-            <Link to="/dashboard/overview" className="text-sm font-medium text-[#0F172A]/70 hover:text-primary transition-colors px-3 py-2">
-              Sign In
-            </Link>
-            <Link to="/dashboard/overview" className="text-sm font-semibold bg-primary text-white px-4 py-2 rounded-xl hover:bg-[#1D4ED8] transition-colors shadow-sm">
-              Start Free →
-            </Link>
+          <div className="hidden md:flex items-center gap-3" ref={userMenuRef}>
+            {isAuthenticated ? (
+              <div className="relative">
+                <button
+                  onClick={() => setShowUserMenu(m => !m)}
+                  className="flex items-center gap-2 hover:bg-secondary/5 rounded-xl px-2 py-1.5 transition-colors"
+                >
+                  <img
+                    src={user?.avatar || 'https://i.pravatar.cc/150?u=default'}
+                    alt={user?.name || 'User'}
+                    className="w-8 h-8 rounded-lg object-cover"
+                  />
+                  <div className="text-left">
+                    <p className="text-xs font-semibold text-[#0F172A] leading-tight">{user?.name}</p>
+                  </div>
+                  <svg className={`w-3.5 h-3.5 text-[#0F172A]/50 transition-transform ${showUserMenu ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                </button>
+
+                {showUserMenu && (
+                  <div className="absolute right-0 top-full mt-2 w-56 bg-card rounded-2xl shadow-xl border border-border/50 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                    <div className="px-4 py-3 border-b border-border/50">
+                      <p className="text-sm font-semibold text-secondary">{user?.name}</p>
+                      <p className="text-xs text-secondary/50">{user?.email}</p>
+                    </div>
+                    <div className="py-1.5">
+                      {[
+                        { label: 'Dashboard', path: '/dashboard/overview', icon: '📊' },
+                        { label: 'My Profile', path: '/dashboard/profile', icon: '👤' },
+                        { label: 'Settings', path: '/dashboard/settings', icon: '⚙️' },
+                        { label: 'Study Planner', path: '/dashboard/study-planner', icon: '📅' },
+                        { label: 'Leaderboard', path: '/dashboard/leaderboard', icon: '🏆' },
+                      ].map(item => (
+                        <Link
+                          key={item.label}
+                          to={item.path}
+                          onClick={() => setShowUserMenu(false)}
+                          className="flex items-center gap-2.5 px-4 py-2 text-sm text-secondary/70 hover:bg-secondary/5 hover:text-secondary transition-colors"
+                        >
+                          <span>{item.icon}</span>
+                          {item.label}
+                        </Link>
+                      ))}
+                    </div>
+                    <div className="border-t border-border/50 py-1.5">
+                      <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-danger hover:bg-danger/5 transition-colors"
+                      >
+                        <span>🚪</span>
+                        Sign Out
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <>
+                <Link to="/login" className="text-sm font-medium text-[#0F172A]/70 hover:text-primary transition-colors px-3 py-2">
+                  Sign In
+                </Link>
+                <Link to="/register" className="text-sm font-semibold bg-primary text-white px-4 py-2 rounded-xl hover:bg-[#1D4ED8] transition-colors shadow-sm">
+                  Start Free →
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -118,9 +194,20 @@ export default function Home() {
                 </a>
               ))}
               <div className="pt-2 border-t border-border/50 space-y-2">
-                <Link to="/dashboard/overview" onClick={() => setMobileMenuOpen(false)} className="block w-full text-center py-2.5 text-sm font-semibold bg-primary text-white rounded-xl hover:bg-[#1D4ED8] transition-colors">
-                  Get Started Free
-                </Link>
+                {isAuthenticated ? (
+                  <Link to="/dashboard/overview" onClick={() => setMobileMenuOpen(false)} className="block w-full text-center py-2.5 text-sm font-semibold bg-primary text-white rounded-xl hover:bg-[#1D4ED8] transition-colors">
+                    Go to Dashboard
+                  </Link>
+                ) : (
+                  <>
+                    <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="block w-full text-center py-2.5 text-sm font-medium text-secondary border border-border/50 rounded-xl hover:bg-secondary/5 transition-colors">
+                      Sign In
+                    </Link>
+                    <Link to="/register" onClick={() => setMobileMenuOpen(false)} className="block w-full text-center py-2.5 text-sm font-semibold bg-primary text-white rounded-xl hover:bg-[#1D4ED8] transition-colors">
+                      Get Started Free
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -164,7 +251,7 @@ export default function Home() {
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-8">
             <Link
-              to="/dashboard/overview"
+              to={isAuthenticated ? '/dashboard/overview' : '/register'}
               className="flex items-center gap-2 bg-primary text-white font-semibold px-6 py-3 rounded-2xl hover:bg-[#1D4ED8] transition-all hover:shadow-lg hover:shadow-primary/25 hover:-translate-y-0.5 text-sm"
             >
               <Zap className="w-4 h-4" />
@@ -217,11 +304,11 @@ export default function Home() {
                 <div className="grid grid-cols-3 gap-3">
                   <div className="col-span-2 h-36 bg-gradient-to-br from-primary/5 to-accent/5 rounded-2xl border border-border/50" />
                   <div className="space-y-2">
-                    <div className="h-17 bg-[#F8FAFC] rounded-2xl border border-border/50 p-3">
+                    <div className="h-[4.25rem] bg-[#F8FAFC] rounded-2xl border border-border/50 p-3">
                       <div className="h-2 bg-[#0F172A]/10 rounded w-3/4 mb-2" />
                       <div className="h-4 bg-primary/20 rounded w-full" />
                     </div>
-                    <div className="h-17 bg-[#F8FAFC] rounded-2xl border border-border/50 p-3">
+                    <div className="h-[4.25rem] bg-[#F8FAFC] rounded-2xl border border-border/50 p-3">
                       <div className="h-2 bg-[#0F172A]/10 rounded w-3/4 mb-2" />
                       <div className="h-4 bg-emerald-500/20 rounded w-full" />
                     </div>

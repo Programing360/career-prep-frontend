@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { CheckCircle2, Circle, Calendar, Clock, Target, Flame } from 'lucide-react';
 
 
@@ -30,12 +30,43 @@ const INTENSITY_COLORS = ['bg-secondary/10', 'bg-primary/20', 'bg-primary/40', '
 export default function StudyPlanner() {
   const [tasks, setTasks] = useState(TASKS);
   const [pomodoroActive, setPomodoroActive] = useState(false);
-  const [timeLeft] = useState(25 * 60);
+  const [timeLeft, setTimeLeft] = useState(25 * 60);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const toggleTask = (id: number) => setTasks(t => t.map(task => task.id === id ? { ...task, done: !task.done } : task));
   const completedCount = tasks.filter(t => t.done).length;
 
   const formatTime = (secs: number) => `${String(Math.floor(secs / 60)).padStart(2, '0')}:${String(secs % 60).padStart(2, '0')}`;
+
+  const resetTimer = useCallback(() => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+    setTimeLeft(25 * 60);
+    setPomodoroActive(false);
+  }, []);
+
+  useEffect(() => {
+    if (pomodoroActive && timeLeft > 0) {
+      intervalRef.current = setInterval(() => {
+        setTimeLeft(prev => {
+          if (prev <= 1) {
+            if (intervalRef.current) clearInterval(intervalRef.current);
+            setPomodoroActive(false);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+  }, [pomodoroActive, timeLeft]);
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -45,9 +76,7 @@ export default function StudyPlanner() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main column */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Today's Tasks */}
           <div className="bg-card border border-border/50 rounded-2xl p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <div>
@@ -79,7 +108,6 @@ export default function StudyPlanner() {
             </div>
           </div>
 
-          {/* Weekly Plan */}
           <div className="bg-card border border-border/50 rounded-2xl p-6 shadow-sm">
             <h3 className="font-semibold text-secondary mb-4">Weekly Study Plan</h3>
             <div className="space-y-2">
@@ -98,7 +126,6 @@ export default function StudyPlanner() {
             </div>
           </div>
 
-          {/* Study Heatmap */}
           <div className="bg-card border border-border/50 rounded-2xl p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold text-secondary">Study Heatmap</h3>
@@ -117,9 +144,7 @@ export default function StudyPlanner() {
           </div>
         </div>
 
-        {/* Right sidebar */}
         <div className="space-y-6">
-          {/* Pomodoro Timer */}
           <div className="bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/20 rounded-2xl p-6 text-center shadow-sm">
             <div className="flex items-center justify-center gap-2 mb-3">
               <Clock className="w-4 h-4 text-primary" />
@@ -143,10 +168,17 @@ export default function StudyPlanner() {
             >
               {pomodoroActive ? '⏸ Pause' : '▶ Start Focus'}
             </button>
+            {timeLeft === 0 && (
+              <button
+                onClick={resetTimer}
+                className="w-full py-2.5 mt-2 rounded-xl text-sm font-medium bg-secondary/10 text-secondary hover:bg-secondary/20 transition-all"
+              >
+                Reset (25:00)
+              </button>
+            )}
             <p className="text-xs text-secondary/50 mt-2">25 min work · 5 min break</p>
           </div>
 
-          {/* Upcoming Exams */}
           <div className="bg-card border border-border/50 rounded-2xl p-5 shadow-sm">
             <h3 className="font-semibold text-secondary mb-4 flex items-center gap-2">
               <Calendar className="w-4 h-4 text-primary" />Upcoming Exams
@@ -175,7 +207,6 @@ export default function StudyPlanner() {
             </div>
           </div>
 
-          {/* Quick Stats */}
           <div className="bg-card border border-border/50 rounded-2xl p-5 shadow-sm">
             <h3 className="font-semibold text-secondary mb-3">This Week's Stats</h3>
             <div className="grid grid-cols-2 gap-3">

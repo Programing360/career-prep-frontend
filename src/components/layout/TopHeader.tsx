@@ -67,7 +67,7 @@ export const TopHeader = ({ onMobileMenuOpen }: TopHeaderProps) => {
       {/* Right: Actions */}
       <div className="flex items-center gap-2">
         <button className="p-2 text-secondary/60 hover:bg-secondary/10 rounded-lg transition-colors hidden sm:flex">
-          <Moon className="w-4.5 h-4.5" />
+          <Moon className="w-[18px] h-[18px]" />
         </button>
 
         {/* Notifications */}
@@ -76,7 +76,7 @@ export const TopHeader = ({ onMobileMenuOpen }: TopHeaderProps) => {
             onClick={() => { setShowNotifs(n => !n); setShowProfile(false); }}
             className="relative p-2 text-secondary/60 hover:bg-secondary/10 rounded-lg transition-colors"
           >
-            <Bell className="w-4.5 h-4.5" />
+            <Bell className="w-[18px] h-[18px]" />
             <span className="absolute top-1.5 right-1.5 flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-danger opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-danger" />

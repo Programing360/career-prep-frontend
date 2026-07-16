@@ -1,9 +1,13 @@
-import React, { Suspense } from "react";
+import React, { Suspense, Component } from "react";
+import type { ReactNode } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { ProtectedRoute } from "@/routes/ProtectedRoute";
 import Home from "./pages/Home/Home";
+import Login from "./Auth/login";
+import Register from "./Auth/register";
+import OtpVerification from "./Auth/OtpVerification";
+import Onboarding from "./Auth/Onboarding";
 
-// Lazy load all pages
 const Overview = React.lazy(
   () => import("@/pages/Dashboard/Overview/Overview"),
 );
@@ -34,6 +38,44 @@ const Settings = React.lazy(
 );
 const Help = React.lazy(() => import("@/pages/Dashboard/Help/Help"));
 
+class ErrorBoundary extends Component<
+  { children: ReactNode },
+  { hasError: boolean }
+> {
+  state = { hasError: false };
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="flex items-center justify-center min-h-screen bg-background">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-secondary mb-2">
+              Something went wrong
+            </h1>
+            <p className="text-secondary/60 mb-4">
+              Failed to load this page.
+            </p>
+            <button
+              onClick={() => {
+                this.setState({ hasError: false });
+                window.location.reload();
+              }}
+              className="px-4 py-2 bg-primary text-white rounded-xl hover:bg-primary-hover transition-colors text-sm font-medium"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 function PageLoader() {
   return (
     <div className="space-y-6 animate-pulse">
@@ -54,39 +96,60 @@ function PageLoader() {
   );
 }
 
+function NotFound() {
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-background">
+      <div className="text-center">
+        <h1 className="text-6xl font-bold text-primary mb-4">404</h1>
+        <p className="text-xl text-secondary mb-2">Page not found</p>
+        <p className="text-secondary/60 mb-6">
+          The page you're looking for doesn't exist.
+        </p>
+        <a
+          href="/"
+          className="px-4 py-2 bg-primary text-white rounded-xl hover:bg-primary-hover transition-colors text-sm font-medium"
+        >
+          Go Home
+        </a>
+      </div>
+    </div>
+  );
+}
+
 function App() {
   return (
     <div className="min-h-screen bg-background text-secondary font-sans antialiased">
-      <Suspense fallback={<PageLoader />}>
-        <Routes>
-          {/* Home Page */}
-          <Route path="/" element={<Home />} />
+      <ErrorBoundary>
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/verify-otp" element={<OtpVerification />} />
+            <Route path="/onboarding" element={<Onboarding />} />
 
-          <Route path="/dashboard" element={<ProtectedRoute />}>
-            <Route
-              index
-              element={<Navigate to="/dashboard/overview" replace />}
-            />
-            <Route path="overview" element={<Overview />} />
-            <Route path="my-learning" element={<MyLearning />} />
-            <Route path="practice" element={<Practice />} />
-            <Route path="mock-tests" element={<MockTests />} />
-            <Route path="study-planner" element={<StudyPlanner />} />
-            <Route path="leaderboard" element={<Leaderboard />} />
-            <Route path="community" element={<Community />} />
-            <Route path="analytics" element={<Analytics />} />
-            <Route path="profile" element={<Profile />} />
-            <Route path="settings" element={<Settings />} />
-            <Route path="help" element={<Help />} />
-          </Route>
+            <Route path="/dashboard" element={<ProtectedRoute />}>
+              <Route
+                index
+                element={<Navigate to="/dashboard/overview" replace />}
+              />
+              <Route path="overview" element={<Overview />} />
+              <Route path="my-learning" element={<MyLearning />} />
+              <Route path="practice" element={<Practice />} />
+              <Route path="mock-tests" element={<MockTests />} />
+              <Route path="study-planner" element={<StudyPlanner />} />
+              <Route path="leaderboard" element={<Leaderboard />} />
+              <Route path="community" element={<Community />} />
+              <Route path="analytics" element={<Analytics />} />
+              <Route path="profile" element={<Profile />} />
+              <Route path="settings" element={<Settings />} />
+              <Route path="help" element={<Help />} />
+            </Route>
 
-          {/* Catch-all */}
-          <Route
-            path="*"
-            element={<Navigate to="/dashboard/overview" replace />}
-          />
-        </Routes>
-      </Suspense>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Suspense>
+      </ErrorBoundary>
     </div>
   );
 }

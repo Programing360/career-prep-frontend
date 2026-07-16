@@ -2,7 +2,7 @@ import { Link, NavLink } from 'react-router-dom';
 import {
   LayoutDashboard, BookOpen, PenTool, ClipboardList, Calendar,
   Award, Users, BarChart2, Settings, HelpCircle, LogOut, X,
-  ChevronLeft, ChevronRight, Zap, Shield
+  ChevronLeft, ChevronRight, Zap, Shield, User
 } from 'lucide-react';
 import clsx from 'clsx';
 
@@ -18,7 +18,7 @@ const MENU_ITEMS = [
 ];
 
 const BOTTOM_MENU_ITEMS = [
-  { name: 'Profile', path: '/dashboard/profile', icon: Settings },
+  { name: 'Profile', path: '/dashboard/profile', icon: User },
   { name: 'Settings', path: '/dashboard/settings', icon: Settings },
   { name: 'Help Center', path: '/dashboard/help', icon: HelpCircle },
 ];

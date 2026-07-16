@@ -1,9 +1,27 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@plugin "tailwindcss-animate";
+
+@theme {
+  --color-primary: #2563EB;
+  --color-primary-hover: #1D4ED8;
+  --color-secondary: #0F172A;
+  --color-accent: #3B82F6;
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+  --color-danger: #EF4444;
+  --color-background: #F8FAFC;
+  --color-card: #FFFFFF;
+  --color-border: #E2E8F0;
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
 
 @layer base {
   body {
-    @apply bg-background text-secondary font-sans antialiased;
+    background-color: var(--color-background);
+    color: var(--color-secondary);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
