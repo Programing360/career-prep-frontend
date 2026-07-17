@@ -1,4 +1,7 @@
+import { lazy, Suspense } from 'react';
 import { Route, Routes } from 'react-router-dom';
+
+const ComponentShowcase = lazy(() => import('@/pages/dev/ComponentShowcase'));
 
 function Home() {
   return (
@@ -26,10 +29,19 @@ function NotFound() {
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-500 border-t-transparent" />
+        </div>
+      }
+    >
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/dev/components" element={<ComponentShowcase />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Suspense>
   );
 }
