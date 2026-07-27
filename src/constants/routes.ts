@@ -2,18 +2,35 @@ export const ROUTES = {
   HOME: '/',
   LOGIN: '/login',
   REGISTER: '/register',
+  FORGOT_PASSWORD: '/forgot-password',
+  RESET_PASSWORD: '/reset-password',
+
   DASHBOARD: '/dashboard',
   PROFILE: '/profile',
   EXAMS: '/exams',
-  EXAM_DETAIL: '/exams/:id',
+  EXAM_DETAIL: '/exams/:slug',
   EXAM_ATTEMPT: '/exams/:id/attempt',
   EXAM_RESULT: '/exams/:id/result',
   PRACTICE: '/practice',
   PRACTICE_QUESTION: '/practice/:id',
   RESULTS: '/results',
   SETTINGS: '/settings',
-  FORGOT_PASSWORD: '/forgot-password',
-  RESET_PASSWORD: '/reset-password',
+
+  AI_TUTOR: '/ai-tutor',
+  ANALYTICS: '/analytics',
+  PREMIUM: '/premium',
+
+  ADMIN_DASHBOARD: '/admin',
+  ADMIN_EXAMS: '/admin/exams',
+  ADMIN_EXAMS_NEW: '/admin/exams/new',
+  ADMIN_USERS: '/admin/users',
+  ADMIN_AI_TOKENS: '/admin/tokens',
+  ADMIN_SETTINGS: '/admin/settings',
+
+  ABOUT: '/about',
+  FAQ: '/faq',
+  CONTACT: '/contact',
+
   NOT_FOUND: '*',
 } as const;
 

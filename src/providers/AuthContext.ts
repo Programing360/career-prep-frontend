@@ -1,14 +1,10 @@
 import { createContext } from 'react';
-
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-}
+import type { User } from '@/types';
 
 export interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
+  isInitializing: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
 }
@@ -24,6 +20,7 @@ const stubLogout = (): void => {
 export const AuthContext = createContext<AuthContextType>({
   user: null,
   isAuthenticated: false,
+  isInitializing: true,
   login: stubLogin,
   logout: stubLogout,
 });

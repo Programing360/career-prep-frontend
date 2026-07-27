@@ -1,1 +1,17 @@
-// Placeholder — feature slices will be added in later tickets
+export { default as Home } from './public/Home';
+export { default as ExamDetail } from './public/ExamDetail';
+export { default as Login } from './auth/Login';
+export { default as Register } from './auth/Register';
+export { default as DashboardHome } from './dashboard/DashboardHome';
+export { default as PracticePage } from './dashboard/PracticePage';
+export { default as AiTutorPage } from './dashboard/AiTutorPage';
+export { default as ExamAttemptPage } from './exams/ExamAttemptPage';
+export { default as ExamResultPage } from './exams/ExamResultPage';
+export { default as ExamsPage } from './exams/ExamsPage';
+export { default as AnalyticsPage } from './dashboard/AnalyticsPage';
+export { default as PremiumPage } from './dashboard/PremiumPage';
+export { default as SettingsPage } from './dashboard/SettingsPage';
+export { default as AdminOverviewPage } from './admin/AdminOverviewPage';
+export { default as AdminUsersPage } from './admin/AdminUsersPage';
+export { default as AdminExamsPage } from './admin/AdminExamsPage';
+export { default as AdminTokenSettingsPage } from './admin/AdminTokenSettingsPage';

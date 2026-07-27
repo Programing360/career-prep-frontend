@@ -1,1 +1,2 @@
-// Placeholder — layout components will be added in later tickets
+export { PublicLayout } from './PublicLayout';
+export { DashboardLayout } from './DashboardLayout';

@@ -4,6 +4,7 @@ import type {
   AxiosResponse,
   InternalAxiosRequestConfig,
 } from 'axios';
+import { getStorageItem } from '@/utils/storageHelpers';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL as string,
@@ -15,7 +16,7 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    const token = localStorage.getItem('token');
+    const token = getStorageItem<string | null>('auth_token', null);
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
