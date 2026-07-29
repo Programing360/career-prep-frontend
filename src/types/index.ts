@@ -29,3 +29,10 @@ export type {
   PaymentPayload,
   PaymentResponse,
 } from './premium';
+
+export type {
+  MCQOption,
+  MCQQuestion,
+  MCQFilterState,
+  MCQUserProgress,
+} from './mcq';

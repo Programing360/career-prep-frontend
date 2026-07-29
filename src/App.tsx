@@ -7,6 +7,7 @@ import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { AdminProtectedRoute } from '@/components/auth/AdminProtectedRoute';
 
 import { ROUTES } from '@/constants/routes';
+import TestMCQPage from './pages/TestMCQPage';
 
 const ComponentShowcase = lazy(() => import('@/pages/dev/ComponentShowcase'));
 const Home = lazy(() => import('@/pages/public/Home'));
@@ -34,6 +35,7 @@ const ExamCategoriesPage = lazy(
 const AboutPage = lazy(() => import('@/pages/public/AboutPage'));
 const FAQPage = lazy(() => import('@/pages/public/FAQPage'));
 const ContactPage = lazy(() => import('@/pages/public/ContactPage'));
+const SubjectsLibrary = lazy(() => import('@/pages/public/SubjectsLibrary'));
 
 function NotFound() {
   return (
@@ -58,9 +60,11 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path={ROUTES.EXAMS} element={<ExamCategoriesPage />} />
+          <Route path={ROUTES.SUBJECTS} element={<SubjectsLibrary />} />
           <Route path={ROUTES.ABOUT} element={<AboutPage />} />
           <Route path={ROUTES.FAQ} element={<FAQPage />} />
           <Route path={ROUTES.CONTACT} element={<ContactPage />} />
+          <Route path="/test-mcq" element={<TestMCQPage />} />
         </Route>
 
         <Route element={<DashboardLayout />}>

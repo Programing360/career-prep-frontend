@@ -8,6 +8,7 @@ export const ROUTES = {
   DASHBOARD: '/dashboard',
   PROFILE: '/profile',
   EXAMS: '/exams',
+  SUBJECTS: '/subjects',
   EXAM_DETAIL: '/exams/:slug',
   EXAM_ATTEMPT: '/exams/:id/attempt',
   EXAM_RESULT: '/exams/:id/result',

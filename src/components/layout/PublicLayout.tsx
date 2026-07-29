@@ -1,34 +1,7 @@
 import type { ReactNode } from 'react';
-import { Link, Outlet } from 'react-router-dom';
-import { GraduationCap } from 'lucide-react';
-import { ROUTES } from '@/constants/routes';
+import { Outlet } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
-
-const footerLinks = [
-  {
-    title: 'Platform',
-    links: [
-      { label: 'About Us', to: ROUTES.ABOUT },
-      { label: 'Contact', to: ROUTES.CONTACT },
-      { label: 'Careers', to: '#' },
-    ],
-  },
-  {
-    title: 'Resources',
-    links: [
-      { label: 'Blog', to: '#' },
-      { label: 'FAQs', to: ROUTES.FAQ },
-      { label: 'Support', to: '#' },
-    ],
-  },
-  {
-    title: 'Legal',
-    links: [
-      { label: 'Privacy Policy', to: '#' },
-      { label: 'Terms of Service', to: '#' },
-    ],
-  },
-];
+import Footer from './Footer';
 
 interface PublicLayoutProps {
   children?: ReactNode;
@@ -41,7 +14,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
 
       <main className="flex-1 pt-16">{children ?? <Outlet />}</main>
 
-      <footer className="border-t border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface-elevated))]">
+      {/* <footer className="border-t border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface-elevated))]">
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
             <div className="col-span-2 md:col-span-1">
@@ -82,6 +55,9 @@ export function PublicLayout({ children }: PublicLayoutProps) {
             reserved.
           </div>
         </div>
+      </footer> */}
+      <footer>
+        <Footer></Footer>
       </footer>
     </div>
   );

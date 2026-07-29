@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import {
   Brain,
@@ -8,11 +9,18 @@ import {
   Zap,
   FileText,
 } from 'lucide-react';
+import { Spinner } from '@/components/ui/Spinner';
 import {
   sampleMCQs,
   samplePastPapers,
 } from '@/components/exams/examDetailData';
 import type { ExamData } from '@/components/exams/examDetailData';
+
+const MCQPracticeContainer = lazy(() =>
+  import('@/components/mcq/MCQPracticeContainer').then((m) => ({
+    default: m.MCQPracticeContainer,
+  }))
+);
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 16 },
@@ -80,34 +88,18 @@ export function MockTestTab({ exam }: { exam: ExamData }) {
         <div className="mb-4 flex items-center gap-2">
           <Brain size={18} className="text-primary-500" />
           <h4 className="text-sm font-semibold text-gray-900 dark:text-white">
-            Free Sample MCQs ({sampleMCQs.length} questions)
+            Sample MCQs ({sampleMCQs.length} questions)
           </h4>
         </div>
-        <div className="space-y-3">
-          {sampleMCQs.slice(0, 4).map((mcq, i) => (
-            <div
-              key={mcq.id}
-              className="rounded-lg border border-gray-100 bg-gray-50/50 p-3 dark:border-gray-800 dark:bg-gray-800/50"
-            >
-              <p className="text-xs font-medium text-gray-400 dark:text-gray-500">
-                Q{i + 1}
-              </p>
-              <p className="mt-1 text-sm font-medium text-gray-900 dark:text-white">
-                {mcq.question}
-              </p>
-              <div className="mt-2 flex flex-wrap gap-1.5">
-                {mcq.options.map((opt, j) => (
-                  <span
-                    key={j}
-                    className="rounded-md border border-gray-200 bg-white px-2 py-0.5 text-[11px] text-gray-600 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400"
-                  >
-                    {String.fromCharCode(65 + j)}. {opt}
-                  </span>
-                ))}
-              </div>
+        <Suspense
+          fallback={
+            <div className="flex items-center justify-center py-10">
+              <Spinner size={24} />
             </div>
-          ))}
-        </div>
+          }
+        >
+          <MCQPracticeContainer examSlug={exam.slug} isEmbedded />
+        </Suspense>
       </motion.div>
 
       <motion.div variants={fadeInUp}>
