@@ -36,3 +36,5 @@ export type {
   MCQFilterState,
   MCQUserProgress,
 } from './mcq';
+
+export type { SourceType, PastPaper, PastPaperFilterState } from './pastPaper';

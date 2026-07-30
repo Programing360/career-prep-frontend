@@ -291,19 +291,19 @@ export default function SubjectsLibrary() {
 
   return (
     <div className="min-h-screen">
-      <section className="relative overflow-hidden border-b border-white/20 bg-white/70 backdrop-blur-md dark:border-gray-800/50 dark:bg-gray-900/70">
+      <section className="relative overflow-hidden border-b border-white/20 bg-white/70 backdrop-blur-md dark:border-gray-800/50 dark:bg-gray-900/70 shadow-sm">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute -right-20 -top-20 h-72 w-72 rounded-full bg-primary-400/10 blur-3xl" />
           <div className="absolute -left-20 -bottom-20 h-96 w-96 rounded-full bg-emerald-400/10 blur-3xl" />
         </div>
 
-        <div className="relative mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+        <div className="relative mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8 ">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+            <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 ">
               <Link
                 to={ROUTES.HOME}
                 className="hover:text-gray-700 dark:hover:text-gray-200"
@@ -346,7 +346,7 @@ export default function SubjectsLibrary() {
                 role="listitem"
                 onClick={() => handleSelectSubject(subject)}
                 className={cn(
-                  'group relative overflow-hidden rounded-xl border bg-gradient-to-br p-5 text-left transition-all hover:shadow-lg focus-ring',
+                  'group relative overflow-hidden rounded-xl border bg-gradient-to-br p-5 text-left transition-all shadow-lg focus-ring hover:shadow-2xl',
                   subject.color
                 )}
               >

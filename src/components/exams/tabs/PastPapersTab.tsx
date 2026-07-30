@@ -1,20 +1,20 @@
+import { useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import {
-  FileText,
-  Download,
-  Lock,
-  Calendar,
-  BookOpen,
-  Brain,
-  Zap,
-} from 'lucide-react';
-import { samplePastPapers } from '@/components/exams/examDetailData';
+import { Brain, Zap } from 'lucide-react';
+import { PastPaperFilters } from '@/components/past-papers/PastPaperFilters';
+import { PastPaperCard } from '@/components/past-papers/PastPaperCard';
+import { PastPaperSkeleton } from '@/components/past-papers/PastPaperSkeleton';
+import { PastPaperEmptyState } from '@/components/past-papers/PastPaperEmptyState';
+import { LazyPastPaperViewer } from '@/components/past-papers/LazyPastPaperViewer';
+import { getPastPapers } from '@/services/pastPaperService';
 import type { ExamData } from '@/components/exams/examDetailData';
+import type { PastPaper, PastPaperFilterState } from '@/types/pastPaper';
 
-const fadeInUp = {
-  hidden: { opacity: 0, y: 16 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' } },
-};
+function getPastPaperKey(slug: string): string {
+  if (slug.includes('css')) return 'css';
+  if (slug.includes('pms')) return 'pms';
+  return '';
+}
 
 const stagger = {
   hidden: { opacity: 0 },
@@ -22,79 +22,119 @@ const stagger = {
 };
 
 export function PastPapersTab({ exam }: { exam: ExamData }) {
+  const [papers, setPapers] = useState<PastPaper[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [filters, setFilters] = useState<PastPaperFilterState>({
+    year: null,
+    subject: null,
+    paperType: null,
+    sourceType: null,
+  });
+  const [previewPaper, setPreviewPaper] = useState<PastPaper | null>(null);
+
+  const examKey = getPastPaperKey(exam.slug);
+
+  const fetchPapers = useCallback(async () => {
+    if (!examKey) return;
+    setIsLoading(true);
+    try {
+      const data = await getPastPapers(examKey, filters);
+      setPapers(data);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [examKey, filters]);
+
+  useEffect(() => {
+    if (!examKey) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchPapers();
+  }, [examKey, fetchPapers]);
+
+  const handlePreview = useCallback(
+    (id: string) => {
+      const found = papers.find((p) => p.id === id);
+      if (found && !found.isLocked) {
+        setPreviewPaper(found);
+      }
+    },
+    [papers]
+  );
+
   return (
     <motion.div variants={stagger} initial="hidden" animate="show">
       <motion.h3
-        variants={fadeInUp}
+        variants={{
+          hidden: { opacity: 0, y: 16 },
+          show: { opacity: 1, y: 0, transition: { duration: 0.4 } },
+        }}
         className="mb-2 text-lg font-bold font-heading text-gray-900 dark:text-white"
       >
         Past Papers
       </motion.h3>
       <motion.p
-        variants={fadeInUp}
+        variants={{
+          hidden: { opacity: 0, y: 16 },
+          show: { opacity: 1, y: 0, transition: { duration: 0.4 } },
+        }}
         className="mb-6 text-sm text-gray-500 dark:text-gray-400"
       >
-        Download previous year question papers for {exam.title}.
+        Browse and preview previous year question papers for {exam.title}.
       </motion.p>
 
-      <div className="space-y-3">
-        {samplePastPapers.map((paper) => (
-          <motion.div
-            key={paper.id}
-            variants={fadeInUp}
-            className="flex items-center justify-between rounded-xl border border-white/20 bg-white/70 p-4 backdrop-blur-md transition-all hover:shadow-md dark:border-gray-800/50 dark:bg-gray-900/70"
-          >
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800">
-                <FileText
-                  size={18}
-                  className="text-gray-600 dark:text-gray-400"
-                />
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                  {paper.title}
-                </p>
-                <div className="mt-0.5 flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
-                  <span className="inline-flex items-center gap-1">
-                    <Calendar size={11} />
-                    {paper.year}
-                  </span>
-                  <span className="inline-flex items-center gap-1">
-                    <BookOpen size={11} />
-                    {paper.questionCount} questions
-                  </span>
-                  <span className="font-mono text-[10px] text-gray-400 dark:text-gray-500">
-                    {paper.paperCode}
-                  </span>
-                </div>
-              </div>
-            </div>
+      {examKey && (
+        <motion.div
+          variants={{
+            hidden: { opacity: 0, y: 16 },
+            show: { opacity: 1, y: 0, transition: { duration: 0.4 } },
+          }}
+          className="mb-8"
+        >
+          <PastPaperFilters
+            filters={filters}
+            onChange={setFilters}
+            resultCount={papers.length}
+            totalCount={papers.length}
+          />
+        </motion.div>
+      )}
 
-            <div className="flex items-center gap-2">
-              {paper.isFree ? (
-                <button className="inline-flex items-center gap-1.5 rounded-lg border border-primary-200 bg-primary-50 px-3 py-1.5 text-xs font-semibold text-primary-700 transition-colors hover:bg-primary-100 dark:border-primary-800 dark:bg-primary-950 dark:text-primary-300 dark:hover:bg-primary-900">
-                  <Download size={12} />
-                  Free
-                </button>
-              ) : (
-                <button className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-500 transition-colors hover:border-gray-300 hover:text-gray-700 dark:border-gray-700 dark:text-gray-400 dark:hover:border-gray-600 dark:hover:text-gray-300">
-                  <Lock size={12} />
-                  Premium
-                </button>
-              )}
-            </div>
-          </motion.div>
-        ))}
-      </div>
+      {isLoading ? (
+        <PastPaperSkeleton count={6} />
+      ) : papers.length > 0 ? (
+        <motion.div
+          variants={{
+            hidden: { opacity: 0 },
+            show: { opacity: 1, transition: { staggerChildren: 0.06 } },
+          }}
+          initial="hidden"
+          animate="show"
+          className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
+        >
+          {papers.map((paper) => (
+            <PastPaperCard
+              key={paper.id}
+              paper={paper}
+              onPreview={handlePreview}
+            />
+          ))}
+        </motion.div>
+      ) : (
+        <PastPaperEmptyState examName={exam.title} />
+      )}
 
       {/* Teaser Widgets */}
-      <motion.div variants={fadeInUp} className="mt-8">
+      <motion.div
+        variants={{
+          hidden: { opacity: 0, y: 16 },
+          show: { opacity: 1, y: 0, transition: { duration: 0.4 } },
+        }}
+        className="mt-8"
+      >
         <h4 className="mb-3 text-base font-bold font-heading text-gray-900 dark:text-white">
           Also Try
         </h4>
         <div className="grid gap-4 sm:grid-cols-2">
-          {/* Sample MCQs Teaser */}
           <div className="rounded-xl border border-white/20 bg-white/70 p-5 backdrop-blur-md transition-all hover:shadow-md dark:border-gray-800/50 dark:bg-gray-900/70">
             <div className="flex items-center gap-2">
               <Brain size={18} className="text-primary-500" />
@@ -110,7 +150,6 @@ export function PastPapersTab({ exam }: { exam: ExamData }) {
             </button>
           </div>
 
-          {/* Demo Mock Test Teaser */}
           <div className="rounded-xl border border-white/20 bg-white/70 p-5 backdrop-blur-md transition-all hover:shadow-md dark:border-gray-800/50 dark:bg-gray-900/70">
             <div className="flex items-center gap-2">
               <Zap size={18} className="text-primary-500" />
@@ -127,6 +166,14 @@ export function PastPapersTab({ exam }: { exam: ExamData }) {
           </div>
         </div>
       </motion.div>
+
+      {/* Preview Modal */}
+      {previewPaper && (
+        <LazyPastPaperViewer
+          paper={previewPaper}
+          onClose={() => setPreviewPaper(null)}
+        />
+      )}
     </motion.div>
   );
 }
