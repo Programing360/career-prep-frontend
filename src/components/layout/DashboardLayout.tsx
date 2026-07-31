@@ -17,6 +17,7 @@ import {
   Moon,
   Settings,
   Eye,
+  User,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
@@ -31,6 +32,7 @@ const sidebarLinks = [
   { label: 'AI Tutor', to: ROUTES.AI_TUTOR, icon: Bot },
   { label: 'Analytics', to: ROUTES.ANALYTICS, icon: BarChart3 },
   { label: 'Premium', to: ROUTES.PREMIUM, icon: Crown },
+  { label: 'Profile', to: ROUTES.PROFILE, icon: User },
   { label: 'Settings', to: ROUTES.SETTINGS, icon: Settings },
 ];
 
@@ -137,8 +139,6 @@ export function DashboardLayout({ children }: { children?: ReactNode }) {
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const admin = user?.role === 'admin';
-
-  console.log(user);
 
   return (
     <div className="flex h-screen overflow-hidden bg-[hsl(var(--background))] bg-slate-400/30">

@@ -55,7 +55,7 @@ const freeValueCards = [
     description:
       'Experience a full-length mock test with real exam conditions and instant scoring.',
     cta: 'Start Demo',
-    href: ROUTES.EXAMS,
+    href: ROUTES.MOCK_TEST_DEMO,
   },
   {
     icon: Zap,

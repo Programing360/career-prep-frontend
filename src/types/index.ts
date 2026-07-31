@@ -38,3 +38,15 @@ export type {
 } from './mcq';
 
 export type { SourceType, PastPaper, PastPaperFilterState } from './pastPaper';
+
+export type {
+  TestType,
+  QuestionType,
+  MockTestStatus,
+  MockOption,
+  MockQuestion,
+  UserAnswer,
+  MockTestSession,
+  SubjectBreakdown,
+  MockTestResult,
+} from './mockTest';

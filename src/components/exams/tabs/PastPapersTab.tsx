@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Brain, Zap } from 'lucide-react';
 import { PastPaperFilters } from '@/components/past-papers/PastPaperFilters';
@@ -7,6 +8,7 @@ import { PastPaperSkeleton } from '@/components/past-papers/PastPaperSkeleton';
 import { PastPaperEmptyState } from '@/components/past-papers/PastPaperEmptyState';
 import { LazyPastPaperViewer } from '@/components/past-papers/LazyPastPaperViewer';
 import { getPastPapers } from '@/services/pastPaperService';
+import { ROUTES } from '@/constants/routes';
 import type { ExamData } from '@/components/exams/examDetailData';
 import type { PastPaper, PastPaperFilterState } from '@/types/pastPaper';
 
@@ -160,9 +162,12 @@ export function PastPapersTab({ exam }: { exam: ExamData }) {
             <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
               Simulate real exam conditions with a timed practice test.
             </p>
-            <button className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-gray-900 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-gray-800 dark:bg-primary-600 dark:hover:bg-primary-700">
+            <Link
+              to={ROUTES.MOCK_TEST_VERBAL_NONVERBAL}
+              className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-gray-900 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-gray-800 dark:bg-primary-600 dark:hover:bg-primary-700"
+            >
               Try Free Preview
-            </button>
+            </Link>
           </div>
         </div>
       </motion.div>

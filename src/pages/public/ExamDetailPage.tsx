@@ -351,10 +351,10 @@ export default function ExamDetailPage({
         role="tablist"
         aria-label="Exam detail tabs"
         onKeyDown={handleKeyDown}
-        className="sticky top-16 z-30 border-b border-white/20 bg-white/70 backdrop-blur-md dark:border-gray-800/50 dark:bg-gray-900/70"
+        className="sticky  z-30 border-b border-white/20 bg-white/70 backdrop-blur-md dark:border-gray-800/50 dark:bg-gray-900/70"
       >
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-          <div className="-mb-px flex gap-1 overflow-x-auto scrollbar-none">
+          <div className="-mb-px flex gap-1 overflow-x-auto md: overflow-hidden ">
             {TABS.map((tab) => {
               const isActive = activeTab === tab.id;
               const TabIcon = tab.icon;
@@ -369,7 +369,7 @@ export default function ExamDetailPage({
                   tabIndex={isActive ? 0 : -1}
                   onClick={() => handleTabChange(tab.id)}
                   className={cn(
-                    'relative inline-flex items-center gap-2 whitespace-nowrap px-4 py-3 text-sm font-medium transition-colors',
+                    'relative inline-flex items-center gap-2 whitespace-nowrap px-4 py-3 text-sm font-medium transition-colors hover:bg-slate-500/30 rounded-sm transition-all duration-300',
                     isActive
                       ? 'text-primary-600 dark:text-primary-400'
                       : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'

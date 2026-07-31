@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -16,7 +16,11 @@ type RegisterFormValues = z.infer<typeof registerSchema>;
 
 export default function Register() {
   const { showToast } = useToast();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
+
+  const redirectTo = searchParams.get('redirect');
 
   const {
     register,
@@ -39,7 +43,10 @@ export default function Register() {
       // Mock API call — replace with actual registration API
       await new Promise((resolve) => setTimeout(resolve, 1500));
       console.log('Register payload:', data);
-      showToast('Account created successfully! Please log in.', 'success');
+      showToast('Account created successfully!', 'success');
+      const target =
+        redirectTo && redirectTo.startsWith('/') ? redirectTo : ROUTES.LOGIN;
+      navigate(target, { replace: true });
     } catch (err) {
       showToast(
         err instanceof Error

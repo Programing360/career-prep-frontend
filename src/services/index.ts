@@ -3,3 +3,4 @@ export * from './examApi';
 export * from './aiApi';
 export * from './mcqService';
 export * from './pastPaperService';
+export * from './mockTestService';

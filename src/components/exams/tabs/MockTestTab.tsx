@@ -1,4 +1,5 @@
 import { lazy, Suspense } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   Brain,
@@ -10,6 +11,7 @@ import {
   FileText,
 } from 'lucide-react';
 import { Spinner } from '@/components/ui/Spinner';
+import { ROUTES } from '@/constants/routes';
 import {
   sampleMCQs,
   samplePastPapers,
@@ -115,10 +117,13 @@ export function MockTestTab({ exam }: { exam: ExamData }) {
             {exam.totalQuestions.toLocaleString()} questions, automatic scoring,
             and detailed performance analytics.
           </p>
-          <button className="mt-3 inline-flex items-center gap-2 rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-800 dark:bg-primary-600 dark:hover:bg-primary-700">
+          <Link
+            to={ROUTES.MOCK_TEST_DEMO}
+            className="mt-3 inline-flex items-center gap-2 rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-800 dark:bg-primary-600 dark:hover:bg-primary-700"
+          >
             <Zap size={14} />
             Start Mock Test
-          </button>
+          </Link>
         </div>
       </motion.div>
 

@@ -22,6 +22,7 @@ const ExamResultPage = lazy(() => import('@/pages/exams/ExamResultPage'));
 const AnalyticsPage = lazy(() => import('@/pages/dashboard/AnalyticsPage'));
 const PremiumPage = lazy(() => import('@/pages/dashboard/PremiumPage'));
 const SettingsPage = lazy(() => import('@/pages/dashboard/SettingsPage'));
+const ProfilePage = lazy(() => import('@/pages/dashboard/ProfilePage'));
 const AdminOverviewPage = lazy(() => import('@/pages/admin/AdminOverviewPage'));
 const AdminUsersPage = lazy(() => import('@/pages/admin/AdminUsersPage'));
 const AdminExamsPage = lazy(() => import('@/pages/admin/AdminExamsPage'));
@@ -36,6 +37,9 @@ const AboutPage = lazy(() => import('@/pages/public/AboutPage'));
 const FAQPage = lazy(() => import('@/pages/public/FAQPage'));
 const ContactPage = lazy(() => import('@/pages/public/ContactPage'));
 const SubjectsLibrary = lazy(() => import('@/pages/public/SubjectsLibrary'));
+const MockTestRunnerPage = lazy(
+  () => import('@/pages/public/MockTestRunnerPage')
+);
 
 function NotFound() {
   return (
@@ -75,6 +79,7 @@ export default function App() {
             <Route path={ROUTES.ANALYTICS} element={<AnalyticsPage />} />
             <Route path={ROUTES.PREMIUM} element={<PremiumPage />} />
             <Route path={ROUTES.SETTINGS} element={<SettingsPage />} />
+            <Route path={ROUTES.PROFILE} element={<ProfilePage />} />
           </Route>
         </Route>
 
@@ -84,6 +89,11 @@ export default function App() {
           <Route path={ROUTES.EXAM_ATTEMPT} element={<ExamAttemptPage />} />
           <Route path={ROUTES.EXAM_RESULT} element={<ExamResultPage />} />
         </Route>
+
+        <Route
+          path={ROUTES.MOCK_TEST_RUNNER}
+          element={<MockTestRunnerPage />}
+        />
 
         <Route element={<AdminLayout />}>
           <Route element={<AdminProtectedRoute />}>

@@ -52,7 +52,7 @@ function SidebarInner({ collapsed, onNavigate }: SidebarInnerProps) {
     <>
       <div className="flex h-16 items-center justify-between border-b border-[rgb(var(--color-border))] px-4">
         <Link
-          to={ROUTES.ADMIN_DASHBOARD}
+          to={ROUTES.HOME}
           onClick={onNavigate}
           className="flex items-center gap-2 overflow-hidden"
         >
