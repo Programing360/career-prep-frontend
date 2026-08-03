@@ -30,9 +30,9 @@ export const registerSchema = z
     email: emailSchema,
     phone: pakistaniPhoneSchema.optional(),
     password: passwordSchema,
-    confirmPassword: z.string().min(1, 'Please confirm your password'),
+    passwordConfirm: z.string().min(1, 'Please confirm your password'),
   })
-  .refine((data) => data.password === data.confirmPassword, {
+  .refine((data) => data.password === data.passwordConfirm, {
     message: 'Passwords do not match',
-    path: ['confirmPassword'],
+    path: ['passwordConfirm'],
   });

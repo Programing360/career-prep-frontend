@@ -14,6 +14,7 @@ const Home = lazy(() => import('@/pages/public/Home'));
 const ExamDetailWrapper = lazy(() => import('@/pages/exams/ExamDetailWrapper'));
 const Login = lazy(() => import('@/pages/auth/Login'));
 const Register = lazy(() => import('@/pages/auth/Register'));
+const VerifyEmail = lazy(() => import('@/pages/auth/VerifyEmail'));
 const DashboardHome = lazy(() => import('@/pages/dashboard/DashboardHome'));
 const PracticePage = lazy(() => import('@/pages/dashboard/PracticePage'));
 const AiTutorPage = lazy(() => import('@/pages/dashboard/AiTutorPage'));
@@ -40,6 +41,11 @@ const SubjectsLibrary = lazy(() => import('@/pages/public/SubjectsLibrary'));
 const MockTestRunnerPage = lazy(
   () => import('@/pages/public/MockTestRunnerPage')
 );
+const CurrentAffairsPage = lazy(
+  () => import('@/pages/public/CurrentAffairsPage')
+);
+const DailyQuizPage = lazy(() => import('@/pages/public/DailyQuizPage'));
+const LeaderboardPage = lazy(() => import('@/pages/public/LeaderboardPage'));
 
 function NotFound() {
   return (
@@ -63,11 +69,18 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path={ROUTES.VERIFY_EMAIL} element={<VerifyEmail />} />
           <Route path={ROUTES.EXAMS} element={<ExamCategoriesPage />} />
           <Route path={ROUTES.SUBJECTS} element={<SubjectsLibrary />} />
           <Route path={ROUTES.ABOUT} element={<AboutPage />} />
           <Route path={ROUTES.FAQ} element={<FAQPage />} />
           <Route path={ROUTES.CONTACT} element={<ContactPage />} />
+          <Route
+            path={ROUTES.CURRENT_AFFAIRS}
+            element={<CurrentAffairsPage />}
+          />
+          <Route path={ROUTES.DAILY_QUIZ} element={<DailyQuizPage />} />
+          <Route path={ROUTES.LEADERBOARD} element={<LeaderboardPage />} />
           <Route path="/test-mcq" element={<TestMCQPage />} />
         </Route>
 

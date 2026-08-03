@@ -46,50 +46,44 @@ export interface TokenBalance {
 
 /**
  * Generate AI explanation for a specific MCQ.
- * POST /api/ai/explain
+ * POST /ai/explain
  */
 export async function generateExplanation(
   payload: ExplanationPayload
 ): Promise<ExplanationResponse> {
-  const { data } = await api.post<ExplanationResponse>(
-    '/api/ai/explain',
-    payload
-  );
+  const { data } = await api.post<ExplanationResponse>('/ai/explain', payload);
   return data;
 }
 
 /**
  * Generate a personalized study plan based on weak areas.
- * POST /api/ai/study-plan
+ * POST /ai/study-plan
  */
 export async function createStudyPlan(
   payload: StudyPlanPayload
 ): Promise<StudyPlanResponse> {
-  const { data } = await api.post<StudyPlanResponse>(
-    '/api/ai/study-plan',
-    payload
-  );
+  const { data } = await api.post<StudyPlanResponse>('/ai/study-plan', payload);
   return data;
 }
 
 /**
  * Get current AI token balance for the authenticated user.
- * GET /api/ai/tokens
+ * GET /ai/tokens
  */
 export async function getTokenBalance(): Promise<TokenBalance> {
-  const { data } = await api.get<TokenBalance>('/api/ai/tokens');
+  const { data } = await api.get<TokenBalance>('/ai/tokens');
   return data;
 }
 
 /**
  * Deduct tokens (called internally before making AI requests).
- * POST /api/ai/tokens/deduct
+ * POST /ai/tokens/deduct
  */
 export async function deductTokens(
   amount: number,
   feature: string
 ): Promise<TokenBalance> {
-  const { data } = await api.post<TokenBalance>('/api/ai/tokens/deduct', {
+  const { data } = await api.post<TokenBalance>('/ai/tokens/deduct', {
     amount,
     feature,
   });
@@ -98,18 +92,18 @@ export async function deductTokens(
 
 /**
  * Get AI tutor chat history.
- * GET /api/ai/tutor/history
+ * GET /ai/tutor/history
  */
 export async function getTutorHistory(): Promise<
   { role: 'user' | 'assistant'; content: string; timestamp: string }[]
 > {
-  const { data } = await api.get('/api/ai/tutor/history');
+  const { data } = await api.get('/ai/tutor/history');
   return data;
 }
 
 /**
  * Send a message to AI tutor.
- * POST /api/ai/tutor/chat
+ * POST /ai/tutor/chat
  */
 export async function sendTutorMessage(
   message: string,
@@ -118,7 +112,7 @@ export async function sendTutorMessage(
   reply: string;
   tokensUsed: number;
 }> {
-  const { data } = await api.post('/api/ai/tutor/chat', {
+  const { data } = await api.post('/ai/tutor/chat', {
     message,
     ...context,
   });

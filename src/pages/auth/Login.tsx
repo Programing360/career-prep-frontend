@@ -2,20 +2,24 @@ import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { GraduationCap, Mail, ArrowRight } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { Input } from '@/components/ui/Input';
 import { PasswordInput } from '@/components/ui/PasswordInput';
 import { Button } from '@/components/ui/Button';
 import { Spinner } from '@/components/ui/Spinner';
-import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
+import { useAppDispatch } from '@/store/hooks';
+import { setCredentials } from '@/store/slices/authSlice';
 import { ROUTES } from '@/constants/routes';
 import { loginSchema } from '@/utils/validationHelpers';
 import type { LoginPayload } from '@/types';
+import { loginUser } from '@/services';
+
+import DotLottieReact from '../../assets/login orange.svg';
 
 export default function Login() {
-  const { login } = useAuth();
   const { showToast } = useToast();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const location = useLocation();
   const [isLoading, setIsLoading] = useState(false);
@@ -37,11 +41,15 @@ export default function Login() {
 
   const onSubmit = async (data: LoginPayload) => {
     setIsLoading(true);
+    console.log(data);
     try {
-      await login(data.email, data.password);
+      const res = await loginUser(data);
+      console.log(res, data);
+      dispatch(setCredentials({ user: res.user, token: res.accessToken }));
       showToast('Welcome back!', 'success');
       navigate(redirectTo, { replace: true });
     } catch (err) {
+      console.log(err);
       showToast(
         err instanceof Error ? err.message : 'Login failed. Please try again.',
         'error'
@@ -52,79 +60,94 @@ export default function Login() {
   };
 
   return (
-    <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md">
-        <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-100 dark:bg-primary-900">
-            <GraduationCap
-              size={28}
-              className="text-primary-600 dark:text-primary-400"
-            />
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-600 via-purple-600 to-violet-900 dark:from-slate-950 dark:via-purple-950 dark:to-slate-900 p-4 sm:p-6 transition-colors duration-300">
+      {/* Animated Main Container */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: 'easeOut' }}
+        className="flex w-full max-w-4xl overflow-hidden rounded-3xl bg-white dark:bg-slate-900 border border-transparent dark:border-purple-900/40 shadow-2xl transition-colors duration-300"
+      >
+        {/* Left Side: Illustration & Branding Section */}
+        <div className="hidden flex-1 flex-col justify-between bg-gradient-to-b from-purple-500 to-indigo-600 dark:from-purple-900/80 dark:to-indigo-950 p-8 text-white md:flex">
+          <div className="flex justify-center pt-6">
+            <div className="relative flex h-64 w-64 items-center justify-center rounded-full bg-indigo-300/30 dark:bg-purple-800/20 backdrop-blur-sm">
+              <img
+                src={DotLottieReact}
+                alt="Illustration"
+                className="h-80 w-80 object-contain"
+              />
+            </div>
           </div>
-          <h1 className="text-2xl font-bold font-heading text-[rgb(var(--color-text-primary))]">
-            Welcome back
-          </h1>
-          <p className="mt-1 text-sm text-[rgb(var(--color-text-secondary))]">
-            Sign in to continue your preparation
-          </p>
+          <div className="px-4 pb-4 text-center">
+            <p className="text-xs font-light tracking-wide text-purple-100 dark:text-purple-200/80">
+              Sign in to continue your preparation and reach your goals.
+            </p>
+          </div>
         </div>
 
-        <div className="rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] p-6 shadow-sm sm:p-8">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <Input
-              label="Email address"
-              type="email"
-              placeholder="you@example.com"
-              leftIcon={<Mail size={16} />}
-              error={errors.email?.message}
-              {...register('email')}
-            />
+        {/* Right Side: Form Section */}
+        <div className="relative flex flex-1 flex-col justify-between p-8 sm:p-12">
+          {/* Top Pill / Badge */}
+          <div className="self-end md:self-start">
+            <span className="inline-block rounded-full bg-purple-500 dark:bg-purple-600/90 px-5 py-2 text-xs font-semibold tracking-wide text-white shadow-sm">
+              Welcome back
+            </span>
+          </div>
 
-            <PasswordInput
-              label="Password"
-              placeholder="Enter your password"
-              error={errors.password?.message}
-              {...register('password')}
-            />
+          <div className="my-auto py-6">
+            <h2 className="mb-6 text-xl font-bold text-purple-900 dark:text-purple-200 sm:text-2xl">
+              Login your account
+            </h2>
 
-            <div className="flex items-center justify-between text-sm">
-              <label className="flex items-center gap-2 text-[rgb(var(--color-text-secondary))]">
-                <input
-                  type="checkbox"
-                  className="h-4 w-4 rounded border-[rgb(var(--color-border))] text-primary-500 focus:ring-primary-500"
-                />
-                Remember me
-              </label>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+              <Input
+                label="Email address"
+                type="email"
+                placeholder="you@example.com"
+                error={errors.email?.message}
+                {...register('email')}
+                className="border-b-2 border-t-0 border-x-0 border-purple-200 dark:border-purple-800/60 bg-transparent px-2 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-purple-600 dark:focus:border-purple-400 focus:ring-0"
+              />
+
+              <PasswordInput
+                label="Password"
+                placeholder="Enter your password"
+                error={errors.password?.message}
+                {...register('password')}
+                className="border-b-2 border-t-0 border-x-0 border-purple-200 dark:border-purple-800/60 bg-transparent px-2 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-purple-600 dark:focus:border-purple-400 focus:ring-0"
+              />
+
+              <div className="pt-2 text-center">
+                <Button
+                  type="submit"
+                  size="lg"
+                  disabled={isLoading}
+                  className="w-40 rounded-full bg-gradient-to-r from-purple-500 to-indigo-600 dark:from-purple-600 dark:to-indigo-500 py-2.5 font-medium text-white transition-all duration-200 hover:shadow-lg hover:shadow-purple-500/25 hover:brightness-110 active:scale-95"
+                >
+                  {isLoading ? <Spinner size={16} /> : 'Login'}
+                </Button>
+              </div>
+            </form>
+
+            {/* Additional Links */}
+            <div className="mt-8 flex flex-col items-center gap-3 text-xs">
+              <Link
+                to={ROUTES.REGISTER}
+                className="font-medium text-purple-400 dark:text-purple-300 transition-colors hover:text-purple-600 dark:hover:text-purple-200"
+              >
+                Create Account
+              </Link>
               <Link
                 to={ROUTES.FORGOT_PASSWORD}
-                className="font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400"
+                className="font-medium text-purple-400 dark:text-purple-300 underline underline-offset-4 transition-colors hover:text-purple-600 dark:hover:text-purple-200"
               >
-                Forgot password?
+                Forgot Password?
               </Link>
             </div>
-
-            <Button
-              type="submit"
-              fullWidth
-              size="lg"
-              isLoading={isLoading}
-              rightIcon={!isLoading ? <ArrowRight size={16} /> : undefined}
-            >
-              {isLoading ? <Spinner size={16} /> : 'Sign in'}
-            </Button>
-          </form>
-
-          <div className="mt-6 text-center text-sm text-[rgb(var(--color-text-secondary))]">
-            Do not have an account?{' '}
-            <Link
-              to={ROUTES.REGISTER}
-              className="font-semibold text-primary-600 hover:text-primary-700 dark:text-primary-400"
-            >
-              Create one now
-            </Link>
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

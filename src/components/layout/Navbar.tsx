@@ -20,6 +20,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { ROUTES } from '@/constants/routes';
 import { cn } from '@/lib/utils';
 import type { UserRole } from '@/types';
+// import { getProfile } from '@/services';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -90,6 +91,8 @@ export default function Navbar() {
 
   const isAdmin = user ? ADMIN_ROLES.includes(user.role) : false;
   const menuItems = isAdmin ? adminMenuItems : studentMenuItems;
+
+  // console.log(user);
 
   // Close dropdown on outside click
   useEffect(() => {

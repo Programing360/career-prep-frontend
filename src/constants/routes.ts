@@ -2,6 +2,7 @@ export const ROUTES = {
   HOME: '/',
   LOGIN: '/login',
   REGISTER: '/register',
+  VERIFY_EMAIL: '/verify-email',
   FORGOT_PASSWORD: '/forgot-password',
   RESET_PASSWORD: '/reset-password',
 
@@ -9,6 +10,9 @@ export const ROUTES = {
   PROFILE: '/profile',
   EXAMS: '/exams',
   SUBJECTS: '/subjects',
+  CURRENT_AFFAIRS: '/current-affairs',
+  DAILY_QUIZ: '/daily-quiz',
+  LEADERBOARD: '/leaderboard',
   EXAM_DETAIL: '/exams/:slug',
   EXAM_ATTEMPT: '/exams/:id/attempt',
   EXAM_RESULT: '/exams/:id/result',

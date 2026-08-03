@@ -4,6 +4,13 @@ export type {
   StudentProgress,
   Badge,
   Streak,
+  RegisterInput,
+  RegisterResponse,
+  LoginInput,
+  LoginResponse,
+  VerifyOtpInput,
+  ResendOtpInput,
+  AuthMeResponse,
   AuthResponse,
   LoginPayload,
   RegisterPayload,
@@ -40,13 +47,37 @@ export type {
 export type { SourceType, PastPaper, PastPaperFilterState } from './pastPaper';
 
 export type {
+  CurrentAffairsItem,
+  CurrentAffairsFilter,
+} from './currentAffairs';
+
+export type {
+  DailyQuizOption,
+  DailyQuizQuestion,
+  DailyQuiz,
+  DailyQuizAttempt,
+} from './dailyQuiz';
+
+export type {
+  LeaderboardTimeWindow,
+  LeaderboardEntry,
+  LeaderboardFilter,
+  LeaderboardPaginatedResponse,
+  LeaderboardExamOption,
+} from './leaderboard';
+
+export type {
   TestType,
   QuestionType,
   MockTestStatus,
+  ApiResponse,
   MockOption,
   MockQuestion,
   UserAnswer,
   MockTestSession,
   SubjectBreakdown,
   MockTestResult,
+  MockTestStartRequest,
+  MockTestSubmitRequest,
+  MockTestSessionDetail,
 } from './mockTest';

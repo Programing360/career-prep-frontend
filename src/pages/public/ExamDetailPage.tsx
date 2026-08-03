@@ -32,6 +32,7 @@ import {
   getExamBySlug,
   categoryColorMap,
 } from '@/components/exams/examDetailData';
+import { LeaderboardCompactWidget } from '@/components/leaderboard/LeaderboardCompactWidget';
 
 const OverviewTab = lazy(() =>
   import('@/components/exams/tabs/OverviewTab').then((m) => ({
@@ -415,6 +416,11 @@ export default function ExamDetailPage({
             </motion.div>
           </AnimatePresence>
         </Suspense>
+      </div>
+
+      {/* ── Leaderboard Widget ────────────────────────────────────────── */}
+      <div className="mx-auto max-w-5xl px-4 pb-8 sm:px-6 lg:px-8">
+        <LeaderboardCompactWidget examSlug={slug} examTitle={exam.title} />
       </div>
 
       {/* ── Sticky Registration CTA ───────────────────────────────────── */}

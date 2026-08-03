@@ -46,12 +46,12 @@ export interface ExamResult {
 
 /**
  * Fetch paginated list of exams with optional filters.
- * GET /api/exams
+ * GET /exams
  */
 export async function getExams(
   params?: ExamListParams
 ): Promise<PaginatedResponse<Exam>> {
-  const { data } = await api.get<PaginatedResponse<Exam>>('/api/exams', {
+  const { data } = await api.get<PaginatedResponse<Exam>>('/exams', {
     params,
   });
   return data;
@@ -59,32 +59,32 @@ export async function getExams(
 
 /**
  * Fetch a single exam by ID with full details.
- * GET /api/exams/:examId
+ * GET /exams/:examId
  */
 export async function getExamById(examId: string): Promise<Exam> {
-  const { data } = await api.get<Exam>(`/api/exams/${examId}`);
+  const { data } = await api.get<Exam>(`/exams/${examId}`);
   return data;
 }
 
 /**
  * Start a new exam attempt (returns attempt metadata + first batch of MCQs).
- * POST /api/exams/:examId/attempts
+ * POST /exams/:examId/attempts
  */
 export async function startAttempt(examId: string): Promise<ExamAttempt> {
-  const { data } = await api.post<ExamAttempt>(`/api/exams/${examId}/attempts`);
+  const { data } = await api.post<ExamAttempt>(`/exams/${examId}/attempts`);
   return data;
 }
 
 /**
  * Submit answers for an exam attempt and receive results.
- * POST /api/exams/attempts/:attemptId/submit
+ * POST /exams/attempts/:attemptId/submit
  */
 export async function submitAttempt(
   attemptId: string,
   payload: SubmitAttemptPayload
 ): Promise<ExamResult> {
   const { data } = await api.post<ExamResult>(
-    `/api/exams/attempts/${attemptId}/submit`,
+    `/exams/attempts/${attemptId}/submit`,
     payload
   );
   return data;
@@ -92,27 +92,27 @@ export async function submitAttempt(
 
 /**
  * Fetch results for a completed attempt.
- * GET /api/exams/attempts/:attemptId/result
+ * GET /exams/attempts/:attemptId/result
  */
 export async function getResult(attemptId: string): Promise<ExamResult> {
   const { data } = await api.get<ExamResult>(
-    `/api/exams/attempts/${attemptId}/result`
+    `/exams/attempts/${attemptId}/result`
   );
   return data;
 }
 
 /**
  * Fetch all results for the current user.
- * GET /api/exams/results
+ * GET /exams/results
  */
 export async function getResults(): Promise<ExamResult[]> {
-  const { data } = await api.get<ExamResult[]>('/api/exams/results');
+  const { data } = await api.get<ExamResult[]>('/exams/results');
   return data;
 }
 
 /**
  * Fetch paginated MCQs for an exam (used during attempt).
- * GET /api/exams/:examId/mcqs
+ * GET /exams/:examId/mcqs
  */
 export async function getExamMcqs(
   examId: string,
@@ -120,7 +120,7 @@ export async function getExamMcqs(
   limit = 50
 ): Promise<PaginatedResponse<MCQ>> {
   const { data } = await api.get<PaginatedResponse<MCQ>>(
-    `/api/exams/${examId}/mcqs`,
+    `/exams/${examId}/mcqs`,
     { params: { page, limit } }
   );
   return data;

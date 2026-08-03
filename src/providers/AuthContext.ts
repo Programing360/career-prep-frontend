@@ -10,11 +10,11 @@ export interface AuthContextType {
 }
 
 const stubLogin = async (): Promise<void> => {
-  console.warn('login not implemented');
+  throw new Error('AuthProvider is not mounted.');
 };
 
 const stubLogout = (): void => {
-  console.warn('logout not implemented');
+  throw new Error('AuthProvider is not mounted.');
 };
 
 export const AuthContext = createContext<AuthContextType>({

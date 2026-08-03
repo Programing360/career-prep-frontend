@@ -1,45 +1,16 @@
-import { useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext, type AuthContextType } from './AuthContext';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
   setCredentials,
+  setUser,
   logout as logoutAction,
   hydrateFromStorage,
 } from '@/store/slices/authSlice';
 import { ROUTES } from '@/constants/routes';
-import type { User, StudentProgress } from '@/types';
-
-const MOCK_USER: User = {
-  id: 'usr_001',
-  name: 'MD Limon',
-  email: 'limon@example.com',
-  phone: '+923001234567',
-  role: 'student',
-  createdAt: '2026-01-15T00:00:00.000Z',
-};
-
-const MOCK_TOKEN = 'mock_jwt_token_abc123';
-
-const MOCK_PROGRESS: StudentProgress = {
-  xp: 450,
-  coins: 120,
-  badges: [
-    {
-      id: 'badge_001',
-      name: 'Quick Learner',
-      icon: '⚡',
-      description: 'Completed 5 quizzes in one day',
-      earnedAt: '2026-07-20T00:00:00.000Z',
-    },
-  ],
-  streak: {
-    current: 5,
-    longest: 12,
-    lastActiveDate: '2026-07-20T00:00:00.000Z',
-  },
-  readinessScore: 78,
-};
+import { getCurrentUser, loginUser, logoutUser } from '@/services';
+import { clearTokens } from '@/lib/axios';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const dispatch = useAppDispatch();
@@ -47,41 +18,65 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     (state) => state.auth
   );
   const navigate = useNavigate();
+  const validatedRef = useRef(false);
 
   useEffect(() => {
     dispatch(hydrateFromStorage());
   }, [dispatch]);
 
+  useEffect(() => {
+    if (!isAuthenticated || validatedRef.current) return;
+    validatedRef.current = true;
+    let cancelled = false;
+
+    getCurrentUser()
+      .then((freshUser) => {
+        if (!cancelled) {
+          dispatch(setUser(freshUser));
+        }
+      })
+      .catch(() => {
+        // 401/refresh failures are already handled by the axios interceptor.
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isAuthenticated, dispatch]);
+
   const login = useCallback(
-    async (email: string, _password: string) => {
-      await new Promise((resolve) => setTimeout(resolve, 800));
-
-      if (!email) {
-        throw new Error('Email is required');
-      }
-
-      const mockUser: User = {
-        ...MOCK_USER,
-        email,
-      };
-
+    async (email: string, password: string) => {
+      const result = await loginUser({ email, password });
       dispatch(
-        setCredentials({
-          user: mockUser,
-          token: MOCK_TOKEN,
-          progress: MOCK_PROGRESS,
-        })
+        setCredentials({ user: result.user, token: result.accessToken })
       );
+    },
+    [dispatch]
+  );
 
-      navigate(ROUTES.DASHBOARD);
+  const clearSession = useCallback(
+    (path: string) => {
+      logoutUser().catch(() => {});
+      dispatch(logoutAction());
+      clearTokens();
+      navigate(path);
     },
     [dispatch, navigate]
   );
 
   const logout = useCallback(() => {
-    dispatch(logoutAction());
-    navigate(ROUTES.HOME);
-  }, [dispatch, navigate]);
+    clearSession(ROUTES.HOME);
+  }, [clearSession]);
+
+  useEffect(() => {
+    const handleUnauthorized = () => {
+      clearSession(ROUTES.LOGIN);
+    };
+    window.addEventListener('auth:unauthorized', handleUnauthorized);
+    return () => {
+      window.removeEventListener('auth:unauthorized', handleUnauthorized);
+    };
+  }, [clearSession]);
 
   const value: AuthContextType = {
     user,

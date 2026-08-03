@@ -20,12 +20,12 @@ export default function Hero() {
             >
               {/* Badge */}
               <span className="inline-block rounded-full bg-blue-600/10 px-4 py-1.5 text-sm font-semibold text-blue-600 dark:text-blue-400">
-                Pakistan&apos;s #1 Govt Exam Prep Platform
+                Pakistan's #1 Govt Exam Prep Platform
               </span>
 
               {/* Heading */}
               <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white sm:text-5xl lg:text-6xl leading-[1.15]">
-                Prepare for Pakistan&apos;s{' '}
+                Prepare for Pakistan's{' '}
                 <span className="text-blue-600 dark:text-blue-500">
                   Government Exams
                 </span>{' '}

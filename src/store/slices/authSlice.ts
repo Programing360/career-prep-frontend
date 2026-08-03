@@ -57,6 +57,11 @@ const authSlice = createSlice({
       }
     },
 
+    setUser(state, action: PayloadAction<User>) {
+      state.user = action.payload;
+      setStorageItem(STORAGE_KEYS.user, action.payload);
+    },
+
     logout(state) {
       state.user = null;
       state.token = null;
@@ -103,6 +108,7 @@ const authSlice = createSlice({
 
 export const {
   setCredentials,
+  setUser,
   logout,
   updateUserProgress,
   setLoading,

@@ -22,6 +22,8 @@ import {
 import { Button } from '@/components/ui/Button';
 import { ROUTES } from '@/constants/routes';
 import Hero from '@/components/landing/Hero';
+import { CurrentAffairsCompactWidget } from '@/components/current-affairs/CurrentAffairsCompactWidget';
+import { DailyQuizCompactWidget } from '@/components/daily-quiz/DailyQuizCompactWidget';
 
 // ─── Animation Variants ──────────────────────────────────────────────────────
 
@@ -401,6 +403,35 @@ export default function Home() {
               </motion.div>
             ))}
           </motion.div>
+        </div>
+      </section>
+
+      {/* ── Daily Quiz & Current Affairs Widgets (NEW) ─────────────────── */}
+      <section className="bg-[hsl(var(--background))] px-4 py-12 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-6xl">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{ duration: 0.5 }}
+            className="text-center"
+          >
+            <span className="mb-3 inline-block rounded-full bg-primary-100 px-4 py-1 text-xs font-semibold uppercase tracking-wider text-primary-700 dark:bg-primary-900 dark:text-primary-300">
+              Daily Practice
+            </span>
+            <h2 className="text-3xl font-bold font-heading text-[rgb(var(--color-text-primary))]">
+              Stay Sharp Every Day
+            </h2>
+            <p className="mx-auto mt-3 max-w-2xl text-[rgb(var(--color-text-secondary))]">
+              A two-minute quiz and a fresh current affairs briefing to keep you
+              ahead of the competition.
+            </p>
+          </motion.div>
+
+          <div className="mt-10 grid gap-6 lg:grid-cols-2">
+            <DailyQuizCompactWidget />
+            <CurrentAffairsCompactWidget />
+          </div>
         </div>
       </section>
 

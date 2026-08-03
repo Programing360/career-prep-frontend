@@ -9,6 +9,8 @@ import {
   type PostGrade,
   type SortOption,
 } from '@/components/exams/ExamFilters';
+import { CurrentAffairsCompactWidget } from '@/components/current-affairs/CurrentAffairsCompactWidget';
+import { DailyQuizCompactWidget } from '@/components/daily-quiz/DailyQuizCompactWidget';
 
 const initialFilters: ExamFiltersState = {
   search: '',
@@ -433,6 +435,11 @@ export default function ExamCategoriesPage() {
       </section>
 
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <div className="grid gap-6 pb-8 lg:grid-cols-3">
+          <DailyQuizCompactWidget className="lg:col-span-1" />
+          <CurrentAffairsCompactWidget className="lg:col-span-2" />
+        </div>
+
         <div className="space-y-8">
           <motion.div
             initial={{ opacity: 0, y: 12 }}

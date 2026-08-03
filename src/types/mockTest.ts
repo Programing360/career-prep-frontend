@@ -4,6 +4,12 @@ export type QuestionType = 'text' | 'image' | 'diagram';
 
 export type MockTestStatus = 'active' | 'expired' | 'completed';
 
+export interface ApiResponse<T> {
+  success: boolean;
+  message?: string;
+  data: T;
+}
+
 export interface MockOption {
   id: string;
   text: string;
@@ -55,4 +61,18 @@ export interface MockTestResult {
   incorrectCount: number;
   timeSpentSeconds: number;
   subjectBreakdown: SubjectBreakdown[];
+}
+
+export interface MockTestStartRequest {
+  testType: TestType;
+}
+
+export interface MockTestSubmitRequest {
+  answers: UserAnswer[];
+}
+
+export interface MockTestSessionDetail {
+  session: MockTestSession;
+  questions: MockQuestion[];
+  answers: UserAnswer[];
 }
