@@ -14,8 +14,7 @@ import { ROUTES } from '@/constants/routes';
 import { loginSchema } from '@/utils/validationHelpers';
 import type { LoginPayload } from '@/types';
 import { loginUser } from '@/services';
-
-import DotLottieReact from '../../assets/login orange.svg';
+import lottieLoginAnimation from '../../assets/Login verification.svg';
 
 export default function Login() {
   const { showToast } = useToast();
@@ -41,7 +40,7 @@ export default function Login() {
 
   const onSubmit = async (data: LoginPayload) => {
     setIsLoading(true);
-    console.log(data);
+    // console.log(data);
     try {
       const res = await loginUser(data);
       console.log(res, data);
@@ -71,11 +70,12 @@ export default function Login() {
         {/* Left Side: Illustration & Branding Section */}
         <div className="hidden flex-1 flex-col justify-between bg-gradient-to-b from-purple-500 to-indigo-600 dark:from-purple-900/80 dark:to-indigo-950 p-8 text-white md:flex">
           <div className="flex justify-center pt-6">
-            <div className="relative flex h-64 w-64 items-center justify-center rounded-full bg-indigo-300/30 dark:bg-purple-800/20 backdrop-blur-sm">
+            <div className="relative flex  items-center justify-center rounded-full bg-indigo-300/30 dark:bg-purple-800/20 backdrop-blur-sm">
+              {/* <GraduationCap size={120} className="text-white" strokeWidth={1.2} /> */}
               <img
-                src={DotLottieReact}
-                alt="Illustration"
-                className="h-80 w-80 object-contain"
+                src={lottieLoginAnimation}
+                alt="Login Animation"
+                className="h-full w-full object-contain"
               />
             </div>
           </div>

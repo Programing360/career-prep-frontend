@@ -4,13 +4,7 @@ import { ROUTES } from '@/constants/routes';
 import { Spinner } from '@/components/ui/Spinner';
 import type { UserRole } from '@/types/auth';
 
-// 'admin' এবং 'student' যোগ করা হয়েছে যাতে ডেভেলপমেন্টের সময় রিডাইরেক্ট না হয়
-const ADMIN_ROLES: UserRole[] = [
-  'super_admin',
-  'content_manager',
-  'admin',
-  'student',
-];
+const ADMIN_ROLES: UserRole[] = ['admin', 'moderator'];
 
 interface AdminProtectedRouteProps {
   allowedRoles?: UserRole[];

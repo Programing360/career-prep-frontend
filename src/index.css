@@ -4,28 +4,29 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* ---- LIGHT MODE: Clean White & Soft Lavender ---- */
+    --background: 250 248 255; /* #FAF8FF  soft off-white w/ lavender tint */
+    --foreground: 30 27 75; /* #1E1B4B  deep navy/dark purple */
 
-    --color-primary: 59 130 246;
-    --color-primary-hover: 37 99 235;
-    --color-secondary: 100 116 139;
-    --color-secondary-hover: 71 85 105;
-    --color-accent: 34 197 94;
-    --color-accent-hover: 22 163 74;
-    --color-danger: 239 68 68;
-    --color-danger-hover: 220 38 38;
+    --color-primary: 126 34 206; /* #7E22CE  rich purple */
+    --color-primary-hover: 107 33 168; /* #6B21A8  darker purple */
+    --color-secondary: 107 114 128; /* #6B7280  neutral gray */
+    --color-secondary-hover: 75 85 99; /* #4B5563  darker gray */
+    --color-accent: 243 232 255; /* #F3E8FF  light lavender */
+    --color-accent-hover: 233 213 255; /* #E9D5FF  softer lavender */
+    --color-danger: 239 68 68; /* #EF4444 */
+    --color-danger-hover: 220 38 38; /* #DC2626 */
 
-    --color-text-primary: 15 23 42;
-    --color-text-secondary: 100 116 139;
-    --color-text-muted: 148 163 184;
+    --color-text-primary: 30 27 75; /* #1E1B4B  headings / main text */
+    --color-text-secondary: 107 114 128; /* #6B7280  subtitles */
+    --color-text-muted: 107 114 128; /* #6B7280  muted text */
 
-    --color-surface: 255 255 255;
-    --color-surface-glass: 255 255 255;
-    --color-surface-elevated: 241 245 249;
+    --color-surface: 255 255 255; /* #FFFFFF  cards / forms */
+    --color-surface-glass: 255 255 255; /* #FFFFFF  glass panels */
+    --color-surface-elevated: 243 232 255; /* #F3E8FF  lavender highlight boxes */
 
-    --color-border: 226 232 240;
-    --color-border-hover: 203 213 225;
+    --color-border: 233 213 255; /* #E9D5FF  light purple border */
+    --color-border-hover: 216 180 254; /* #D8B4FE  stronger purple */
 
     --opacity-disabled: 0.5;
 
@@ -34,31 +35,39 @@
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    /* ---- DARK MODE: Deep Midnight Purple ---- */
+    --background: 15 10 28; /* #0F0A1C  deep midnight purple */
+    --foreground: 255 255 255; /* #FFFFFF  pure white */
 
-    --color-primary: 96 165 250;
-    --color-primary-hover: 147 197 253;
-    --color-secondary: 148 163 184;
-    --color-secondary-hover: 203 213 225;
+    --color-primary: 139 92 246; /* #8B5CF6  vibrant purple */
+    --color-primary-hover: 124 58 237; /* #7C3AED  hover purple */
+    --color-secondary: 167 139 250; /* #A78BFA  light purple gray */
+    --color-secondary-hover: 196 181 253; /* #C4B5FD  brighter purple */
+    --color-accent: 42 28 77; /* #2A1C4D  muted container fill */
+    --color-accent-hover: 51 36 91; /* #33245B  softer container */
+    --color-danger: 248 113 113; /* #F87171 */
+    --color-danger-hover: 252 165 165; /* #FCA5A5 */
 
-    --color-text-primary: 226 232 240;
-    --color-text-secondary: 148 163 184;
-    --color-text-muted: 100 116 139;
+    --color-text-primary: 255 255 255; /* #FFFFFF  pure white */
+    --color-text-secondary: 167 139 250; /* #A78BFA  light purple subtext */
+    --color-text-muted: 167 139 250; /* #A78BFA  muted text */
 
-    --color-surface: 30 41 59;
-    --color-surface-glass: 30 41 59;
-    --color-surface-elevated: 51 65 85;
+    --color-surface: 28 20 51; /* #1C1433  dark purple cards */
+    --color-surface-glass: 28 20 51; /* #1C1433  glass panels */
+    --color-surface-elevated: 42 28 77; /* #2A1C4D  muted container fill */
 
-    --color-border: 51 65 85;
-    --color-border-hover: 71 85 105;
+    --color-border: 51 36 91; /* #33245B  dark purple border */
+    --color-border-hover: 88 60 154; /* #583C9A  brighter purple */
   }
 
   body {
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
+    background-color: rgb(var(--background));
+    color: rgb(var(--foreground));
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    transition:
+      background-color var(--transition-slow),
+      color var(--transition-slow);
   }
 }
 
@@ -68,7 +77,7 @@
   }
   .focus-ring:focus-visible {
     box-shadow:
-      0 0 0 2px hsl(var(--background)),
+      0 0 0 2px rgb(var(--background)),
       0 0 0 4px rgb(var(--color-primary));
   }
 }

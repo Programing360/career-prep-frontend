@@ -13,29 +13,28 @@ import {
   X,
   Clock,
   FileText,
-  BookMarked,
-  Tag,
   ArrowRight,
   Trash2,
+  Loader2,
 } from 'lucide-react';
 import { ROUTES } from '@/constants/routes';
 import { cn } from '@/lib/utils';
-import type { Exam } from '@/types';
+import { getPublicExams } from '@/services/examService';
+import type { DirectoryExam } from '@/types';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 interface SearchResult {
   id: string;
+  slug: string;
   title: string;
   subtitle: string;
-  type: 'exam' | 'subject' | 'topic';
-  examId: string;
 }
 
 interface GlobalSearchProps {
-  data?: Exam[];
   placeholder?: string;
   className?: string;
+  limit?: number;
 }
 
 // ─── Hooks ───────────────────────────────────────────────────────────────────
@@ -90,47 +89,14 @@ function useRecentSearches(key: string, maxItems = 5) {
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-function filterResults(exams: Exam[], query: string): SearchResult[] {
-  const lower = query.toLowerCase();
-  const results: SearchResult[] = [];
-
-  for (const exam of exams) {
-    if (exam.title.toLowerCase().includes(lower)) {
-      results.push({
-        id: exam.id,
-        title: exam.title,
-        subtitle: exam.category.toUpperCase().replace('_', ' / '),
-        type: 'exam',
-        examId: exam.id,
-      });
-    }
-
-    for (const subject of exam.subjects) {
-      if (subject.name.toLowerCase().includes(lower)) {
-        results.push({
-          id: `${exam.id}-${subject.id}`,
-          title: subject.name,
-          subtitle: exam.title,
-          type: 'subject',
-          examId: exam.id,
-        });
-      }
-
-      for (const topic of subject.topics) {
-        if (topic.toLowerCase().includes(lower)) {
-          results.push({
-            id: `${exam.id}-${subject.id}-${topic}`,
-            title: topic,
-            subtitle: `${subject.name} · ${exam.title}`,
-            type: 'topic',
-            examId: exam.id,
-          });
-        }
-      }
-    }
-  }
-
-  return results;
+function toSearchResult(exam: DirectoryExam): SearchResult {
+  const categoryLabel = exam.category.replace(/_/g, ' / ').toUpperCase();
+  return {
+    id: exam._id,
+    slug: exam.slug,
+    title: exam.title,
+    subtitle: `${categoryLabel} · ${exam.conductingAuthority}`,
+  };
 }
 
 // ─── Component ───────────────────────────────────────────────────────────────
@@ -138,13 +104,15 @@ function filterResults(exams: Exam[], query: string): SearchResult[] {
 const STORAGE_KEY = 'meritprep-recent-searches';
 
 export default function GlobalSearch({
-  data = [],
   placeholder = 'Search exams, subjects, topics…',
   className,
+  limit = 5,
 }: GlobalSearchProps) {
   const [query, setQuery] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
+  const [results, setResults] = useState<SearchResult[]>([]);
+  const [lastFetchedQuery, setLastFetchedQuery] = useState('');
 
   const debouncedQuery = useDebounce(query, 250);
   const { searches, addSearch, clearSearches } = useRecentSearches(STORAGE_KEY);
@@ -153,39 +121,49 @@ export default function GlobalSearch({
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
 
+  const trimmedQuery = debouncedQuery.trim();
+  const isLoading =
+    trimmedQuery.length > 0 && lastFetchedQuery !== trimmedQuery;
+
+  // ── Fetch matching exams from the API ─────────────────────────────────────
+
+  useEffect(() => {
+    if (!trimmedQuery) return;
+
+    let cancelled = false;
+
+    getPublicExams({ search: trimmedQuery, limit })
+      .then((response) => {
+        if (cancelled) return;
+        setResults(response.data.map(toSearchResult));
+        setLastFetchedQuery(trimmedQuery);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setResults([]);
+        setLastFetchedQuery(trimmedQuery);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [trimmedQuery, limit]);
+
   // ── Derived state ────────────────────────────────────────────────────────
 
-  const results = useMemo(
-    () =>
-      debouncedQuery.length > 0 ? filterResults(data, debouncedQuery) : [],
-    [data, debouncedQuery]
-  );
-
-  const examResults = useMemo(
-    () => results.filter((r) => r.type === 'exam'),
-    [results]
-  );
-  const subjectResults = useMemo(
-    () => results.filter((r) => r.type === 'subject'),
-    [results]
-  );
-  const topicResults = useMemo(
-    () => results.filter((r) => r.type === 'topic'),
-    [results]
-  );
-
-  const showRecent =
-    isOpen && debouncedQuery.length === 0 && searches.length > 0;
-  const showResults = isOpen && debouncedQuery.length > 0 && results.length > 0;
+  const showRecent = isOpen && trimmedQuery.length === 0 && searches.length > 0;
+  const showLoading = isOpen && trimmedQuery.length > 0 && isLoading;
+  const showResults =
+    isOpen && trimmedQuery.length > 0 && !isLoading && results.length > 0;
   const showNoResults =
-    isOpen && debouncedQuery.length > 0 && results.length === 0;
+    isOpen && trimmedQuery.length > 0 && !isLoading && results.length === 0;
 
   // Total navigable items count
-  const itemCount = showRecent
-    ? searches.length
-    : showResults
-      ? results.length
-      : 0;
+  const itemCount = useMemo(() => {
+    if (showRecent) return searches.length;
+    if (showResults) return results.length;
+    return 0;
+  }, [showRecent, showResults, searches.length, results.length]);
 
   // ── Scroll active item into view ─────────────────────────────────────────
 
@@ -231,11 +209,8 @@ export default function GlobalSearch({
       if (query.trim()) addSearch(query.trim());
       setIsOpen(false);
       setQuery('');
-      navigate(
-        result.type === 'exam'
-          ? `${ROUTES.EXAMS}/${result.id}`
-          : `${ROUTES.EXAMS}/${result.examId}`
-      );
+      setActiveIndex(-1);
+      navigate(`${ROUTES.EXAMS}/${result.slug}`);
     },
     [query, addSearch, navigate]
   );
@@ -344,69 +319,76 @@ export default function GlobalSearch({
 
       {/* ── Dropdown ───────────────────────────────────────────────────── */}
       <AnimatePresence>
-        {isOpen && (showRecent || showResults || showNoResults) && (
-          <motion.div
-            id="global-search-listbox"
-            role="listbox"
-            initial={{ opacity: 0, y: -8, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -8, scale: 0.98 }}
-            transition={{ duration: 0.15, ease: 'easeOut' }}
-            className={cn(
-              'absolute left-0 right-0 top-full z-50 mt-2',
-              'max-h-80 overflow-y-auto rounded-xl border p-1.5 shadow-xl',
-              'border-white/20 bg-white/80 backdrop-blur-xl',
-              'dark:border-gray-800/50 dark:bg-gray-900/80'
-            )}
-          >
-            {/* ── Recent Searches ──────────────────────────────────────── */}
-            {showRecent && (
-              <>
-                <div className="flex items-center justify-between px-3 py-1.5">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
-                    Recent Searches
-                  </p>
-                  <button
-                    onClick={clearSearches}
-                    className="flex items-center gap-1 text-xs text-gray-400 transition-colors hover:text-gray-600 dark:hover:text-gray-300"
-                  >
-                    <Trash2 size={12} />
-                    Clear
-                  </button>
+        {isOpen &&
+          (showRecent || showLoading || showResults || showNoResults) && (
+            <motion.div
+              id="global-search-listbox"
+              role="listbox"
+              initial={{ opacity: 0, y: -8, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -8, scale: 0.98 }}
+              transition={{ duration: 0.15, ease: 'easeOut' }}
+              className={cn(
+                'absolute left-0 right-0 top-full z-50 mt-2',
+                'max-h-80 overflow-y-auto rounded-xl border p-1.5 shadow-xl',
+                'border-white/20 bg-white/80 backdrop-blur-xl',
+                'dark:border-gray-800/50 dark:bg-gray-900/80'
+              )}
+            >
+              {/* ── Recent Searches ──────────────────────────────────────── */}
+              {showRecent && (
+                <>
+                  <div className="flex items-center justify-between px-3 py-1.5">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                      Recent Searches
+                    </p>
+                    <button
+                      onClick={clearSearches}
+                      className="flex items-center gap-1 text-xs text-gray-400 transition-colors hover:text-gray-600 dark:hover:text-gray-300"
+                    >
+                      <Trash2 size={12} />
+                      Clear
+                    </button>
+                  </div>
+
+                  {searches.map((term, i) => (
+                    <button
+                      key={term}
+                      id={`search-item-${i}`}
+                      data-search-item={i}
+                      onClick={() => handleRecentSelect(term)}
+                      onMouseEnter={() => setActiveIndex(i)}
+                      role="option"
+                      aria-selected={activeIndex === i}
+                      className={cn(
+                        itemClasses,
+                        activeIndex === i && activeItemClasses
+                      )}
+                    >
+                      <Clock
+                        size={16}
+                        className="shrink-0 text-gray-400 dark:text-gray-500"
+                      />
+                      <span className="truncate text-sm text-gray-700 dark:text-gray-300">
+                        {term}
+                      </span>
+                    </button>
+                  ))}
+                </>
+              )}
+
+              {/* ── Loading ──────────────────────────────────────────────── */}
+              {showLoading && (
+                <div className="flex items-center justify-center gap-2 px-3 py-8 text-sm text-gray-500 dark:text-gray-400">
+                  <Loader2 size={16} className="animate-spin" />
+                  Searching exams…
                 </div>
+              )}
 
-                {searches.map((term, i) => (
-                  <button
-                    key={term}
-                    id={`search-item-${i}`}
-                    data-search-item={i}
-                    onClick={() => handleRecentSelect(term)}
-                    onMouseEnter={() => setActiveIndex(i)}
-                    role="option"
-                    aria-selected={activeIndex === i}
-                    className={cn(
-                      itemClasses,
-                      activeIndex === i && activeItemClasses
-                    )}
-                  >
-                    <Clock
-                      size={16}
-                      className="shrink-0 text-gray-400 dark:text-gray-500"
-                    />
-                    <span className="truncate text-sm text-gray-700 dark:text-gray-300">
-                      {term}
-                    </span>
-                  </button>
-                ))}
-              </>
-            )}
-
-            {/* ── Exam Results ─────────────────────────────────────────── */}
-            {showResults && examResults.length > 0 && (
-              <Section header="Exams">
-                {examResults.map((result) => {
-                  const idx = results.indexOf(result);
-                  return (
+              {/* ── Exam Results ─────────────────────────────────────────── */}
+              {showResults && (
+                <Section header="Exams">
+                  {results.map((result, idx) => (
                     <ResultItem
                       key={result.id}
                       result={result}
@@ -421,91 +403,43 @@ export default function GlobalSearch({
                       onSelect={handleSelect}
                       onMouseEnter={setActiveIndex}
                     />
-                  );
-                })}
-              </Section>
-            )}
+                  ))}
+                </Section>
+              )}
 
-            {/* ── Subject Results ──────────────────────────────────────── */}
-            {showResults && subjectResults.length > 0 && (
-              <Section header="Subjects">
-                {subjectResults.map((result) => {
-                  const idx = results.indexOf(result);
-                  return (
-                    <ResultItem
-                      key={result.id}
-                      result={result}
-                      index={idx}
-                      activeIndex={activeIndex}
-                      icon={
-                        <BookMarked
-                          size={16}
-                          className="shrink-0 text-blue-500"
-                        />
-                      }
-                      onSelect={handleSelect}
-                      onMouseEnter={setActiveIndex}
-                    />
-                  );
-                })}
-              </Section>
-            )}
-
-            {/* ── Topic Results ────────────────────────────────────────── */}
-            {showResults && topicResults.length > 0 && (
-              <Section header="Topics">
-                {topicResults.map((result) => {
-                  const idx = results.indexOf(result);
-                  return (
-                    <ResultItem
-                      key={result.id}
-                      result={result}
-                      index={idx}
-                      activeIndex={activeIndex}
-                      icon={
-                        <Tag size={16} className="shrink-0 text-emerald-500" />
-                      }
-                      onSelect={handleSelect}
-                      onMouseEnter={setActiveIndex}
-                    />
-                  );
-                })}
-              </Section>
-            )}
-
-            {/* ── No Results ───────────────────────────────────────────── */}
-            {showNoResults && (
-              <div className="px-3 py-8 text-center">
-                <Search
-                  size={36}
-                  className="mx-auto text-gray-300 dark:text-gray-600"
-                />
-                <p className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
-                  No results found
-                </p>
-                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                  No exams, subjects, or topics match &ldquo;{query}&rdquo;
-                </p>
-                <Link
-                  to={ROUTES.EXAMS}
-                  onClick={() => {
-                    setIsOpen(false);
-                    setQuery('');
-                  }}
-                  className={cn(
-                    'mt-4 inline-flex items-center gap-2 rounded-lg px-4 py-2',
-                    'text-sm font-medium text-white transition-colors',
-                    'bg-gray-900 hover:bg-gray-800',
-                    'dark:bg-primary-600 dark:hover:bg-primary-700'
-                  )}
-                >
-                  Browse All Exams
-                  <ArrowRight size={16} />
-                </Link>
-              </div>
-            )}
-          </motion.div>
-        )}
+              {/* ── No Results ───────────────────────────────────────────── */}
+              {showNoResults && (
+                <div className="px-3 py-8 text-center">
+                  <Search
+                    size={36}
+                    className="mx-auto text-gray-300 dark:text-gray-600"
+                  />
+                  <p className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
+                    No results found
+                  </p>
+                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    No exams match &ldquo;{query}&rdquo;
+                  </p>
+                  <Link
+                    to={ROUTES.EXAMS}
+                    onClick={() => {
+                      setIsOpen(false);
+                      setQuery('');
+                    }}
+                    className={cn(
+                      'mt-4 inline-flex items-center gap-2 rounded-lg px-4 py-2',
+                      'text-sm font-medium text-white transition-colors',
+                      'bg-gray-900 hover:bg-gray-800',
+                      'dark:bg-primary-600 dark:hover:bg-primary-700'
+                    )}
+                  >
+                    Browse All Exams
+                    <ArrowRight size={16} />
+                  </Link>
+                </div>
+              )}
+            </motion.div>
+          )}
       </AnimatePresence>
     </div>
   );

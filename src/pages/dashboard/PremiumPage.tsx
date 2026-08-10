@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import {
   Crown,
   Zap,
@@ -75,8 +75,8 @@ const tiers: {
     name: 'Lifetime',
     monthlyPrice: 4999,
     icon: InfinityIcon,
-    color: 'text-amber-600 dark:text-amber-400',
-    borderColor: 'border-amber-400 dark:border-amber-600',
+    color: 'text-primary-600 dark:text-primary-400',
+    borderColor: 'border-primary-400 dark:border-primary-600',
     badge: 'Best Value',
     features: [
       { text: 'Unlimited MCQs per day', included: true },
@@ -246,7 +246,7 @@ export default function PremiumPage() {
                 <div
                   className={cn(
                     'absolute -top-3 left-1/2 -translate-x-1/2 rounded-full px-3 py-0.5 text-[10px] font-bold text-white',
-                    t.tier === 'pro' ? 'bg-primary-500' : 'bg-amber-500'
+                    t.tier === 'pro' ? 'bg-primary-500' : 'bg-primary-500'
                   )}
                 >
                   {t.badge}
@@ -322,7 +322,7 @@ export default function PremiumPage() {
 
       <div className="rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] p-6">
         <div className="flex items-center gap-2">
-          <Zap size={18} className="text-amber-500" />
+          <Zap size={18} className="text-primary-500" />
           <h2 className="text-base font-bold font-heading text-[rgb(var(--color-text-primary))]">
             AI Token Packs
           </h2>
@@ -339,7 +339,7 @@ export default function PremiumPage() {
               className={cn(
                 'relative flex flex-col rounded-xl border bg-[rgb(var(--color-surface))] p-4 transition-all hover:border-primary-300 hover:shadow-md dark:hover:border-primary-700',
                 pack.badge === '1 Day'
-                  ? 'border-amber-300 dark:border-amber-700'
+                  ? 'border-primary-300 dark:border-primary-700'
                   : 'border-[rgb(var(--color-border))]'
               )}
             >
@@ -347,7 +347,7 @@ export default function PremiumPage() {
                 <span
                   className={cn(
                     'absolute -top-2.5 right-3 rounded-full px-2 py-0.5 text-[9px] font-bold text-white',
-                    pack.badge === '1 Day' ? 'bg-amber-500' : 'bg-accent-500'
+                    pack.badge === '1 Day' ? 'bg-primary-500' : 'bg-accent-500'
                   )}
                 >
                   {pack.badge}
@@ -360,7 +360,7 @@ export default function PremiumPage() {
 
               <div className="mt-2 flex items-baseline gap-1.5">
                 <span className="text-2xl font-bold font-heading text-[rgb(var(--color-text-primary))]">
-                  {pack.tokens === -1 ? '∞' : pack.tokens.toLocaleString()}
+                  {pack.tokens === -1 ? 'âˆž' : pack.tokens.toLocaleString()}
                 </span>
                 <span className="text-[10px] text-[rgb(var(--color-text-muted))]">
                   tokens

@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+﻿import { Link } from 'react-router-dom';
 import {
   Target,
   TrendingUp,
@@ -194,7 +194,7 @@ export default function AnalyticsPage() {
           icon={Clock}
           label="Active Study Hours"
           value={`${mockMetrics.activeStudyHours}h`}
-          color="bg-amber-50 text-amber-600 dark:bg-amber-950 dark:text-amber-400"
+          color="bg-primary-50 text-primary-600 dark:bg-primary-950 dark:text-primary-400"
         />
       </div>
 
@@ -229,7 +229,7 @@ export default function AnalyticsPage() {
                     />
                   )}
                   {subject.trend === 'stable' && (
-                    <Flame size={12} className="text-amber-500" />
+                    <Flame size={12} className="text-primary-500" />
                   )}
                 </div>
                 <span className="text-xs font-semibold text-[rgb(var(--color-text-secondary))]">
@@ -246,7 +246,7 @@ export default function AnalyticsPage() {
                       : subject.accuracy >= 55
                         ? 'bg-primary-500'
                         : subject.accuracy >= 40
-                          ? 'bg-amber-500'
+                          ? 'bg-primary-500'
                           : 'bg-danger-500'
                   )}
                   style={{ width: `${subject.accuracy}%` }}
@@ -267,7 +267,7 @@ export default function AnalyticsPage() {
 
       <div className="rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] p-5">
         <div className="flex items-center gap-2">
-          <Flame size={16} className="text-amber-500" />
+          <Flame size={16} className="text-primary-500" />
           <h2 className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
             Weekly Activity
           </h2>
@@ -330,7 +330,7 @@ export default function AnalyticsPage() {
                   item.score >= 75
                     ? 'bg-accent-100 dark:bg-accent-900'
                     : item.score >= 50
-                      ? 'bg-amber-100 dark:bg-amber-900'
+                      ? 'bg-primary-100 dark:bg-primary-900'
                       : 'bg-danger-100 dark:bg-danger-900'
                 )}
               >
@@ -342,7 +342,7 @@ export default function AnalyticsPage() {
                 ) : item.score >= 50 ? (
                   <Target
                     size={14}
-                    className="text-amber-600 dark:text-amber-400"
+                    className="text-primary-600 dark:text-primary-400"
                   />
                 ) : (
                   <XCircle
@@ -365,7 +365,7 @@ export default function AnalyticsPage() {
                   item.score >= 75
                     ? 'bg-accent-100 text-accent-700 dark:bg-accent-900 dark:text-accent-300'
                     : item.score >= 50
-                      ? 'bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300'
+                      ? 'bg-primary-100 text-primary-700 dark:bg-primary-900 dark:text-primary-300'
                       : 'bg-danger-100 text-danger-700 dark:bg-danger-900 dark:text-danger-300'
                 )}
               >

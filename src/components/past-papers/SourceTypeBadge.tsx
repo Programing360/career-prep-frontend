@@ -1,4 +1,4 @@
-import type { SourceType } from '@/types/pastPaper';
+﻿import type { SourceType } from '@/types/pastPaper';
 import { ShieldCheck, Award, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -32,8 +32,8 @@ const sourceTypeConfig: Record<
     tooltip:
       'Expert-crafted practice set designed to mirror the real exam pattern.',
     Icon: FileText,
-    containerClass: 'bg-amber-100 dark:bg-amber-900/50',
-    textClass: 'text-amber-700 dark:text-amber-300',
+    containerClass: 'bg-primary-100 dark:bg-primary-900/50',
+    textClass: 'text-primary-700 dark:text-primary-300',
   },
 };
 

@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+﻿import { useState, useCallback, useRef, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import {
   Coins,
@@ -202,7 +202,7 @@ const mockQuizBank: Record<string, QuizQuestion[]> = {
       question: 'Find the next number: 2, 6, 12, 20, 30, ?',
       options: ['36', '40', '42', '48'],
       correctAnswer: 2,
-      explanation: 'Pattern: n(n+1) where n starts from 1. 6×7 = 42.',
+      explanation: 'Pattern: n(n+1) where n starts from 1. 6Ã—7 = 42.',
     },
     {
       id: 'vr-2',
@@ -314,7 +314,8 @@ const featureCards: FeatureCardDef[] = [
     title: 'AI Flashcards Generator',
     description:
       'Create quick revision flashcards for your weak topics with spaced repetition scheduling.',
-    color: 'bg-amber-50 text-amber-600 dark:bg-amber-950 dark:text-amber-400',
+    color:
+      'bg-primary-50 text-primary-600 dark:bg-primary-950 dark:text-primary-400',
     tokenCost: 8,
   },
   {
@@ -574,7 +575,7 @@ export default function AiTutorPage() {
                       )}
                     >
                       {card.comingSoon && (
-                        <span className="absolute right-3 top-3 flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[9px] font-bold text-amber-700 dark:bg-amber-900 dark:text-amber-300">
+                        <span className="absolute right-3 top-3 flex items-center gap-1 rounded-full bg-primary-100 px-2 py-0.5 text-[9px] font-bold text-primary-700 dark:bg-primary-900 dark:text-primary-300">
                           <Lock size={8} />
                           Coming Soon
                         </span>
@@ -799,7 +800,7 @@ function TokenHeader({
                 : `${remaining} Free Tokens Remaining Today`}
             </h3>
             {isPremium && (
-              <span className="flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700 dark:bg-amber-900 dark:text-amber-300">
+              <span className="flex items-center gap-1 rounded-full bg-primary-100 px-2 py-0.5 text-[10px] font-bold text-primary-700 dark:bg-primary-900 dark:text-primary-300">
                 <Crown size={10} />
                 Premium
               </span>
@@ -820,7 +821,7 @@ function TokenHeader({
                     isLow
                       ? 'bg-danger-500'
                       : percent <= 60
-                        ? 'bg-amber-500'
+                        ? 'bg-primary-500'
                         : 'bg-primary-500'
                   )}
                   style={{ width: `${percent}%` }}
@@ -881,7 +882,7 @@ function UsageStats({
         </p>
       </div>
       <div className="rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] p-4 text-center">
-        <Coins size={18} className="mx-auto text-amber-500" />
+        <Coins size={18} className="mx-auto text-primary-500" />
         <p className="mt-2 text-lg font-bold text-[rgb(var(--color-text-primary))]">
           {costPerQuery}
         </p>
@@ -1452,7 +1453,7 @@ function PricingModal({
               className={cn(
                 'relative flex items-center justify-between rounded-xl border p-4 transition-all',
                 plan.id === 'premium' && isPremium
-                  ? 'border-amber-300 bg-amber-50/50 dark:border-amber-700 dark:bg-amber-950/50'
+                  ? 'border-primary-300 bg-primary-50/50 dark:border-primary-700 dark:bg-primary-950/50'
                   : 'border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface-elevated))] hover:border-primary-300 dark:hover:border-primary-700'
               )}
             >
@@ -1461,7 +1462,7 @@ function PricingModal({
                   className={cn(
                     'absolute -top-2.5 left-4 rounded-full px-2 py-0.5 text-[10px] font-bold',
                     plan.id === 'premium'
-                      ? 'bg-amber-500 text-white'
+                      ? 'bg-primary-500 text-white'
                       : 'bg-primary-500 text-white'
                   )}
                 >
@@ -1515,10 +1516,10 @@ function PricingModal({
         </div>
 
         {isPremium && (
-          <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50/50 px-4 py-3 dark:border-amber-800 dark:bg-amber-950/50">
+          <div className="mt-4 rounded-lg border border-primary-200 bg-primary-50/50 px-4 py-3 dark:border-primary-800 dark:bg-primary-950/50">
             <div className="flex items-center gap-2">
-              <Crown size={14} className="text-amber-500" />
-              <p className="text-xs font-medium text-amber-700 dark:text-amber-300">
+              <Crown size={14} className="text-primary-500" />
+              <p className="text-xs font-medium text-primary-700 dark:text-primary-300">
                 You&apos;re on the Premium plan with unlimited AI queries.
               </p>
             </div>

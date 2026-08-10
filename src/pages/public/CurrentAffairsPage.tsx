@@ -24,7 +24,7 @@ import { CurrentAffairsCard } from '@/components/current-affairs/CurrentAffairsC
 import { CurrentAffairsFilterBar } from '@/components/current-affairs/CurrentAffairsFilterBar';
 import { CurrentAffairsSkeleton } from '@/components/current-affairs/CurrentAffairsSkeleton';
 import type { CurrentAffairsFilter } from '@/types/currentAffairs';
-
+import timeLottie from '../../assets/Premium clock.svg';
 function useDebounce<T>(value: T, delayMs: number): T {
   const [debounced, setDebounced] = useState(value);
 
@@ -141,67 +141,92 @@ export default function CurrentAffairsPage() {
 
   return (
     <div className="min-h-screen">
-      <section className="relative overflow-hidden border-b border-white/20 bg-white/70 backdrop-blur-md shadow-sm dark:border-gray-800/50 dark:bg-gray-900/70">
-        <div className="pointer-events-none absolute inset-0">
-          <div className="absolute -right-20 -top-20 h-72 w-72 rounded-full bg-primary-400/10 blur-3xl" />
-          <div className="absolute -left-20 -bottom-20 h-96 w-96 rounded-full bg-emerald-400/10 blur-3xl" />
-        </div>
+      {/* Hero Header Section with Integrated Lottie */}
+      <section className="relative overflow-hidden border-b border-purple-100/60 bg-gradient-to-br from-purple-700 via-indigo-700 to-violet-900 text-white shadow-md dark:border-purple-900/40">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.15),transparent)]" />
 
-        <div className="relative mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8">
+        <div className="relative mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
+            className="grid grid-cols-1 items-center gap-8 md:grid-cols-12"
           >
-            <nav
-              aria-label="Breadcrumb"
-              className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400"
-            >
-              <Link
-                to={ROUTES.HOME}
-                className="hover:text-gray-700 dark:hover:text-gray-200"
+            {/* Left Content Column */}
+            <div className="md:col-span-7">
+              <nav
+                aria-label="Breadcrumb"
+                className="flex items-center gap-2 text-sm text-purple-200"
               >
-                Home
-              </Link>
-              <ChevronRight size={12} aria-hidden="true" />
-              <span className="font-medium text-gray-700 dark:text-gray-300">
-                Current Affairs
-              </span>
-            </nav>
-
-            <div className="mt-4 flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary-100 dark:bg-primary-900">
-                <Newspaper
-                  size={22}
-                  className="text-primary-600 dark:text-primary-400"
-                  aria-hidden="true"
-                />
-              </div>
-              <div>
-                <h1 className="text-2xl font-black tracking-tight text-gray-900 dark:text-white sm:text-3xl">
+                <Link
+                  to={ROUTES.HOME}
+                  className="transition-colors hover:text-white"
+                >
+                  Home
+                </Link>
+                <ChevronRight size={12} aria-hidden="true" />
+                <span className="font-semibold text-white">
                   Current Affairs
-                </h1>
-                <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">
-                  Daily briefings sourced from trusted Pakistani &amp;
-                  international publications.
-                </p>
+                </span>
+              </nav>
+
+              <div className="mt-4 flex items-center gap-3">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/10 shadow-lg backdrop-blur-md ring-1 ring-white/20">
+                  <Newspaper
+                    size={24}
+                    className="text-purple-200"
+                    aria-hidden="true"
+                  />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-black tracking-tight text-white sm:text-3xl lg:text-4xl">
+                    Current Affairs
+                  </h1>
+                  <p className="mt-1 text-sm text-purple-200/90">
+                    Daily briefings sourced from trusted Pakistani and
+                    international publications.
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-5">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold text-purple-100 backdrop-blur-md ring-1 ring-white/20">
+                  <ShieldCheck
+                    size={14}
+                    aria-hidden="true"
+                    className="text-emerald-300"
+                  />
+                  Sourced from Dawn, APP & leading wire services with full
+                  attribution
+                </span>
               </div>
             </div>
 
-            <p className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-semibold text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300">
-              <ShieldCheck size={12} aria-hidden="true" />
-              Sourced from Dawn, APP &amp; leading wire services with full
-              attribution
-            </p>
+            {/* Right Lottie Animation Card */}
+            <div className="flex justify-center md:col-span-5 md:justify-end">
+              <div className="relative flex h-44 w-44 items-center justify-center rounded-2xl bg-white/10  shadow-2xl backdrop-blur-md ring-1 ring-white/20 sm:h-52 sm:w-52">
+                {/* <iframe
+                  src="https://lottie.host/embed/849c63b2-7bc0-4e5a-a3a8-44d4dd2c22ec/7o0w63o9Jb.lottie"
+                  title="Interactive Current Affairs Animation"
+                  className="pointer-events-none h-full w-full rounded-xl border-0"
+                /> */}
+                <img
+                  src={timeLottie}
+                  alt="Current Affairs Animation"
+                  className="text-center pointer-events-none h-full w-full rounded-xl border-0"
+                />
+              </div>
+            </div>
           </motion.div>
         </div>
       </section>
 
+      {/* Main Feed Section */}
       <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="relative mb-4">
           <Search
             size={16}
-            className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500"
+            className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500"
             aria-hidden="true"
           />
           <input
@@ -210,14 +235,14 @@ export default function CurrentAffairsPage() {
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search current affairs…"
             aria-label="Search current affairs"
-            className="w-full rounded-lg border border-white/20 bg-white/70 py-2.5 pl-10 pr-9 text-sm text-gray-900 shadow-sm transition-colors placeholder:text-gray-400 focus-ring dark:border-gray-800/50 dark:bg-gray-900/70 dark:text-gray-100 dark:placeholder:text-gray-500"
+            className="w-full rounded-lg border border-slate-200/80 bg-white/80 py-2.5 pl-10 pr-9 text-sm text-slate-900 shadow-sm backdrop-blur-md transition-colors placeholder:text-slate-400 focus-ring dark:border-slate-800/80 dark:bg-slate-900/80 dark:text-slate-100 dark:placeholder:text-slate-500"
           />
           {search && (
             <button
               type="button"
               onClick={() => setSearch('')}
               aria-label="Clear search"
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-md p-0.5 text-gray-400 transition-colors hover:text-gray-700 focus-ring dark:text-gray-500 dark:hover:text-gray-200"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-md p-0.5 text-slate-400 transition-colors hover:text-slate-700 focus-ring dark:text-slate-500 dark:hover:text-slate-200"
             >
               <X size={15} aria-hidden="true" />
             </button>
@@ -231,13 +256,13 @@ export default function CurrentAffairsPage() {
         />
 
         <div className="mt-6 flex items-center justify-between gap-3">
-          <p className="text-sm text-gray-500 dark:text-gray-400">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             Showing{' '}
-            <span className="font-semibold text-gray-900 dark:text-white">
+            <span className="font-semibold text-slate-900 dark:text-white">
               {response?.data.length ?? 0}
             </span>{' '}
             of{' '}
-            <span className="font-semibold text-gray-900 dark:text-white">
+            <span className="font-semibold text-slate-900 dark:text-white">
               {response?.total ?? 0}
             </span>{' '}
             briefings
@@ -245,7 +270,7 @@ export default function CurrentAffairsPage() {
               <>
                 {' '}
                 for{' '}
-                <span className="font-semibold text-gray-900 dark:text-white">
+                <span className="font-semibold text-slate-900 dark:text-white">
                   {formatDate(filters.date)}
                 </span>
               </>
@@ -255,7 +280,7 @@ export default function CurrentAffairsPage() {
             <button
               type="button"
               onClick={handleClearAll}
-              className="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
+              className="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300"
             >
               <X size={12} aria-hidden="true" />
               Clear filters
@@ -267,13 +292,13 @@ export default function CurrentAffairsPage() {
           {loading ? (
             <CurrentAffairsSkeleton count={9} />
           ) : error ? (
-            <div className="rounded-xl border border-white/20 bg-white/70 px-6 py-12 text-center backdrop-blur-md dark:border-gray-800/50 dark:bg-gray-900/70">
+            <div className="rounded-xl border border-slate-200/80 bg-white/80 px-6 py-12 text-center backdrop-blur-md dark:border-slate-800/80 dark:bg-slate-900/80">
               <RefreshCcw
                 size={32}
-                className="mx-auto text-gray-300 dark:text-gray-600"
+                className="mx-auto text-slate-300 dark:text-slate-600"
                 aria-hidden="true"
               />
-              <p className="mt-3 text-sm font-medium text-gray-900 dark:text-white">
+              <p className="mt-3 text-sm font-medium text-slate-900 dark:text-white">
                 {error}
               </p>
               <Button
@@ -297,16 +322,16 @@ export default function CurrentAffairsPage() {
               ))}
             </motion.div>
           ) : (
-            <div className="rounded-xl border border-white/20 bg-white/70 px-6 py-12 text-center backdrop-blur-md dark:border-gray-800/50 dark:bg-gray-900/70">
+            <div className="rounded-xl border border-slate-200/80 bg-white/80 px-6 py-12 text-center backdrop-blur-md dark:border-slate-800/80 dark:bg-slate-900/80">
               <FileSearch
                 size={32}
-                className="mx-auto text-gray-300 dark:text-gray-600"
+                className="mx-auto text-slate-300 dark:text-slate-600"
                 aria-hidden="true"
               />
-              <h2 className="mt-3 text-base font-bold font-heading text-gray-900 dark:text-white">
+              <h2 className="mt-3 text-base font-bold text-slate-900 dark:text-white">
                 No briefings found
               </h2>
-              <p className="mx-auto mt-1 max-w-sm text-sm text-gray-500 dark:text-gray-400">
+              <p className="mx-auto mt-1 max-w-sm text-sm text-slate-500 dark:text-slate-400">
                 Try adjusting the date, category or search term to see more
                 results.
               </p>
@@ -315,8 +340,8 @@ export default function CurrentAffairsPage() {
                   type="button"
                   onClick={handleClearAll}
                   className={cn(
-                    'mt-4 inline-flex items-center gap-1.5 rounded-lg border border-primary-500 px-4 py-2 text-xs font-semibold text-primary-600 transition-colors',
-                    'hover:bg-primary-50 dark:text-primary-400 dark:hover:bg-primary-950'
+                    'mt-4 inline-flex items-center gap-1.5 rounded-lg border border-purple-500 px-4 py-2 text-xs font-semibold text-purple-600 transition-colors',
+                    'hover:bg-purple-50 dark:text-purple-400 dark:hover:bg-purple-950'
                   )}
                 >
                   Clear all filters

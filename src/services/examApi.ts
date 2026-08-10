@@ -72,6 +72,7 @@ export async function getExamById(examId: string): Promise<Exam> {
  */
 export async function startAttempt(examId: string): Promise<ExamAttempt> {
   const { data } = await api.post<ExamAttempt>(`/exams/${examId}/attempts`);
+  console.log(data);
   return data;
 }
 

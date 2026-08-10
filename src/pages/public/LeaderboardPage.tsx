@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+﻿import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -135,10 +135,10 @@ export default function LeaderboardPage() {
             </nav>
 
             <div className="mt-4 flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-950">
+              <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary-100 dark:bg-primary-950">
                 <Trophy
                   size={22}
-                  className="text-amber-600 dark:text-amber-400"
+                  className="text-primary-600 dark:text-primary-400"
                   aria-hidden="true"
                 />
               </div>
@@ -152,9 +152,9 @@ export default function LeaderboardPage() {
               </div>
             </div>
 
-            <p className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-[11px] font-semibold text-amber-700 dark:bg-amber-950/60 dark:text-amber-300">
+            <p className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-primary-50 px-3 py-1 text-[11px] font-semibold text-primary-700 dark:bg-primary-950/60 dark:text-primary-300">
               <Medal size={12} aria-hidden="true" />
-              Ranked by total score · updated in real time
+              Ranked by total score Â· updated in real time
             </p>
           </motion.div>
         </div>
@@ -199,7 +199,7 @@ export default function LeaderboardPage() {
                 <h2 className="flex items-center gap-1.5 text-sm font-bold font-heading text-gray-900 dark:text-white">
                   <Crown
                     size={14}
-                    className="text-amber-500"
+                    className="text-primary-500"
                     aria-hidden="true"
                   />
                   Top Candidates
@@ -293,7 +293,7 @@ export default function LeaderboardPage() {
                     You are ranked #{response.currentUserRank}
                   </p>
                   <p className="truncate text-[11px] text-emerald-700 dark:text-emerald-300">
-                    {activeExamTitle} · {TIME_WINDOW_LABELS[timeWindow]}
+                    {activeExamTitle} Â· {TIME_WINDOW_LABELS[timeWindow]}
                   </p>
                 </div>
               </div>

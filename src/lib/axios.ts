@@ -40,6 +40,25 @@ api.interceptors.request.use(
 
 type RetryableConfig = InternalAxiosRequestConfig & { _retry?: boolean };
 
+/** Backend global error handler contract (error.middleware.ts) */
+export interface ApiErrorResponse {
+  success: false;
+  message: string;
+  errors?: Array<{
+    field: string;
+    path: (string | number)[];
+    message: string;
+  }>;
+}
+
+export interface ApiError extends Error {
+  errors?: ApiErrorResponse['errors'];
+}
+
+export function isApiError(error: unknown): error is ApiError {
+  return error instanceof Error && Array.isArray((error as ApiError).errors);
+}
+
 interface PendingRequest {
   resolve: (token: string) => void;
   reject: (error: unknown) => void;
@@ -89,9 +108,10 @@ async function refreshAccessToken(): Promise<string> {
 
 api.interceptors.response.use(
   (response: AxiosResponse) => response,
-  (error: AxiosError<{ message?: string }>) => {
+  (error: AxiosError<ApiErrorResponse>) => {
     const status = error.response?.status;
     const serverMessage = error.response?.data?.message;
+    const serverErrors = error.response?.data?.errors;
 
     if (!error.response) {
       return Promise.reject(
@@ -156,11 +176,11 @@ api.interceptors.response.use(
       );
     }
 
-    return Promise.reject(
-      new Error(
-        serverMessage || error.message || 'An unexpected error occurred'
-      )
-    );
+    const requestError = new Error(
+      serverMessage || error.message || 'An unexpected error occurred'
+    ) as ApiError;
+    requestError.errors = serverErrors;
+    return Promise.reject(requestError);
   }
 );
 

@@ -14,21 +14,10 @@ export type PostGrade =
   | 'bps-16'
   | 'bps-17';
 
-export type ExamSector =
-  | 'all'
-  | 'general-recruitment'
-  | 'competitive'
-  | 'uniformed-forces'
-  | 'technical';
-
-export type SortOption = 'popularity' | 'latest' | 'a-z';
-
 export interface ExamFiltersState {
   search: string;
   jurisdiction: Jurisdiction;
   postGrade: PostGrade;
-  sector: ExamSector;
-  sort: SortOption;
 }
 
 const jurisdictions: { id: Jurisdiction; label: string }[] = [
@@ -48,20 +37,6 @@ const postGrades: { id: PostGrade; label: string }[] = [
   { id: 'bps-15', label: 'BPS-15' },
   { id: 'bps-16', label: 'BPS-16' },
   { id: 'bps-17', label: 'BPS-17+' },
-];
-
-const sectors: { id: ExamSector; label: string }[] = [
-  { id: 'all', label: 'All Sectors' },
-  { id: 'general-recruitment', label: 'General Recruitment' },
-  { id: 'competitive', label: 'Competitive Exams (CSS/PMS)' },
-  { id: 'uniformed-forces', label: 'Uniformed Forces' },
-  { id: 'technical', label: 'Technical / Specialized' },
-];
-
-const sortOptions: { id: SortOption; label: string }[] = [
-  { id: 'popularity', label: 'Popularity' },
-  { id: 'latest', label: 'Latest' },
-  { id: 'a-z', label: 'A-Z' },
 ];
 
 interface ExamFiltersProps {
@@ -92,8 +67,7 @@ export function ExamFilters({
 }: ExamFiltersProps) {
   const activeFilterCount =
     (filters.jurisdiction !== 'all' ? 1 : 0) +
-    (filters.postGrade !== 'all' ? 1 : 0) +
-    (filters.sector !== 'all' ? 1 : 0);
+    (filters.postGrade !== 'all' ? 1 : 0);
 
   function update<K extends keyof ExamFiltersState>(
     key: K,
@@ -107,8 +81,6 @@ export function ExamFilters({
       search: '',
       jurisdiction: 'all',
       postGrade: 'all',
-      sector: 'all',
-      sort: 'popularity',
     });
   }
 
@@ -154,7 +126,7 @@ export function ExamFilters({
         />
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <div>
           <label className={labelClasses()}>Jurisdiction</label>
           <div className="relative">
@@ -202,65 +174,6 @@ export function ExamFilters({
               {postGrades.map((g) => (
                 <option key={g.id} value={g.id}>
                   {g.label}
-                </option>
-              ))}
-            </select>
-            <div className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[rgb(var(--color-text-muted))]">
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                <path
-                  d="M3 4.5L6 7.5L9 4.5"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <label className={labelClasses()}>Category / Sector</label>
-          <div className="relative">
-            <select
-              value={filters.sector}
-              onChange={(e) => update('sector', e.target.value as ExamSector)}
-              className={cn(
-                selectClasses(filters.sector !== 'all'),
-                'cursor-pointer'
-              )}
-            >
-              {sectors.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.label}
-                </option>
-              ))}
-            </select>
-            <div className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[rgb(var(--color-text-muted))]">
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                <path
-                  d="M3 4.5L6 7.5L9 4.5"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <label className={labelClasses()}>Sort by</label>
-          <div className="relative">
-            <select
-              value={filters.sort}
-              onChange={(e) => update('sort', e.target.value as SortOption)}
-              className={cn(selectClasses(), 'cursor-pointer')}
-            >
-              {sortOptions.map((o) => (
-                <option key={o.id} value={o.id}>
-                  {o.label}
                 </option>
               ))}
             </select>

@@ -1,4 +1,4 @@
-export type UserRole = 'super_admin' | 'content_manager' | 'student' | 'admin';
+export type UserRole = 'admin' | 'moderator' | 'user';
 
 export interface User {
   id: string;
@@ -64,6 +64,14 @@ export interface VerifyOtpInput {
 
 export interface ResendOtpInput {
   email: string;
+}
+
+export interface ForgotPasswordInput {
+  email: string;
+}
+
+export interface ResetPasswordInput {
+  password: string;
 }
 
 export interface AuthMeResponse {

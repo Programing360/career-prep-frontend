@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -30,7 +30,7 @@ import { MCQPreview } from '@/components/content/MCQPreview';
 import { ROUTES } from '@/constants/routes';
 import type { MCQ } from '@/types';
 
-// ─── Types ───────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 interface ExamDetailProps {
   slug: string;
@@ -75,7 +75,7 @@ interface ExamData {
   };
 }
 
-// ─── Animation Variants ──────────────────────────────────────────────────────
+// â”€â”€â”€ Animation Variants â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 24 },
@@ -87,7 +87,7 @@ const staggerContainer = {
   show: { opacity: 1, transition: { staggerChildren: 0.08 } },
 };
 
-// ─── Mock Data ───────────────────────────────────────────────────────────────
+// â”€â”€â”€ Mock Data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const examDatabase: Record<string, ExamData> = {
   'fpsc-css-2025': {
@@ -468,7 +468,7 @@ const sampleMCQs: MCQ[] = [
     options: ['36', '40', '42', '48'],
     correctAnswer: 2,
     explanation:
-      'The pattern follows n(n+1): 1×2=2, 2×3=6, 3×4=12, 4×5=20, 5×6=30, 6×7=42.',
+      'The pattern follows n(n+1): 1Ã—2=2, 2Ã—3=6, 3Ã—4=12, 4Ã—5=20, 5Ã—6=30, 6Ã—7=42.',
     difficulty: 'easy',
   },
   {
@@ -529,16 +529,16 @@ const sampleMCQs: MCQ[] = [
 ];
 
 const categoryColorMap: Record<string, string> = {
-  fpsc: 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300',
+  fpsc: 'bg-primary-100 text-primary-700 dark:bg-primary-900 dark:text-primary-300',
   ppsc: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300',
   nts: 'bg-violet-100 text-violet-700 dark:bg-violet-900 dark:text-violet-300',
   kppsc: 'bg-teal-100 text-teal-700 dark:bg-teal-900 dark:text-teal-300',
-  bpsc: 'bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300',
+  bpsc: 'bg-primary-100 text-primary-700 dark:bg-primary-900 dark:text-primary-300',
   spsc: 'bg-pink-100 text-pink-700 dark:bg-pink-900 dark:text-pink-300',
   other: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
 };
 
-// ─── Component ───────────────────────────────────────────────────────────────
+// â”€â”€â”€ Component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export default function ExamDetail({
   slug,
@@ -556,7 +556,7 @@ export default function ExamDetail({
 
   return (
     <div className="min-h-screen">
-      {/* ── Hero Section ──────────────────────────────────────────────── */}
+      {/* â”€â”€ Hero Section â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <section className="relative overflow-hidden border-b border-white/20 bg-white/70 backdrop-blur-md dark:border-gray-800/50 dark:bg-gray-900/70">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute -right-20 -top-20 h-72 w-72 rounded-full bg-primary-400/10 blur-3xl" />
@@ -651,7 +651,7 @@ export default function ExamDetail({
               )}
 
               <span className="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400">
-                <Star size={14} className="fill-amber-400 text-amber-400" />
+                <Star size={14} className="fill-primary-400 text-primary-400" />
                 4.8 rating by 2,400+ students
               </span>
             </div>
@@ -659,10 +659,10 @@ export default function ExamDetail({
         </div>
       </section>
 
-      {/* ── Main Content ──────────────────────────────────────────────── */}
+      {/* â”€â”€ Main Content â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
         <div className="space-y-12">
-          {/* ── Exam Overview & Eligibility ────────────────────────────── */}
+          {/* â”€â”€ Exam Overview & Eligibility â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
           <motion.section
             variants={staggerContainer}
             initial="hidden"
@@ -689,7 +689,7 @@ export default function ExamDetail({
                   icon: Users,
                   title: 'Age Limit',
                   value: exam.eligibility.ageLimit
-                    ? `${exam.eligibility.ageLimit.min} – ${exam.eligibility.ageLimit.max} years`
+                    ? `${exam.eligibility.ageLimit.min} â€“ ${exam.eligibility.ageLimit.max} years`
                     : 'No age limit',
                 },
                 {
@@ -740,7 +740,7 @@ export default function ExamDetail({
             </div>
           </motion.section>
 
-          {/* ── Syllabus & Paper Pattern ───────────────────────────────── */}
+          {/* â”€â”€ Syllabus & Paper Pattern â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
           <motion.section
             variants={staggerContainer}
             initial="hidden"
@@ -822,7 +822,7 @@ export default function ExamDetail({
                         {section.marksPerQuestion}
                       </td>
                       <td className="px-4 py-3 text-gray-600 dark:text-gray-400">
-                        {section.timeLimit ?? '—'}
+                        {section.timeLimit ?? 'â€”'}
                       </td>
                     </tr>
                   ))}
@@ -882,7 +882,7 @@ export default function ExamDetail({
             </div>
           </motion.section>
 
-          {/* ── Free Previews (Lead Magnet) ────────────────────────────── */}
+          {/* â”€â”€ Free Previews (Lead Magnet) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
           <motion.section
             variants={staggerContainer}
             initial="hidden"
@@ -898,7 +898,7 @@ export default function ExamDetail({
               </h2>
               <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                 Access free sample questions, past papers, and a demo mock test
-                — no signup required.
+                â€” no signup required.
               </p>
             </motion.div>
 
@@ -924,7 +924,7 @@ export default function ExamDetail({
                 {/* Sample Past Paper */}
                 <div className="rounded-xl border border-white/20 bg-white/70 p-5 backdrop-blur-md dark:border-gray-800/50 dark:bg-gray-900/70">
                   <div className="flex items-center gap-2">
-                    <FileText size={18} className="text-amber-500" />
+                    <FileText size={18} className="text-primary-500" />
                     <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
                       Sample Past Paper
                     </h3>
@@ -1006,7 +1006,7 @@ export default function ExamDetail({
             </div>
           </motion.section>
 
-          {/* ── Registration Trigger CTA ───────────────────────────────── */}
+          {/* â”€â”€ Registration Trigger CTA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
           <motion.section
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}

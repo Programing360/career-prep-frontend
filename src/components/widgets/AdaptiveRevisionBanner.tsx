@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+﻿import { useState, useMemo, useCallback } from 'react';
 import {
   RefreshCcw,
   Brain,
@@ -54,7 +54,8 @@ const mockMissedQuestions: MissedQuestion[] = [
 
 const difficultyColors: Record<string, string> = {
   easy: 'bg-accent-100 text-accent-700 dark:bg-accent-900 dark:text-accent-300',
-  medium: 'bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300',
+  medium:
+    'bg-primary-100 text-primary-700 dark:bg-primary-900 dark:text-primary-300',
   hard: 'bg-danger-100 text-danger-700 dark:bg-danger-900 dark:text-danger-300',
 };
 

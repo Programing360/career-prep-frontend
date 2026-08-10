@@ -1,18 +1,15 @@
-import { useState, useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ArrowLeft,
   ArrowRight,
-  Plus,
-  Trash2,
   Check,
   Clock,
   Coins,
-  BookOpen,
   FileText,
   Eye,
-  Save,
   Send,
+  Building2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -20,55 +17,130 @@ import { Textarea } from '@/components/ui/Textarea';
 import { Select } from '@/components/ui/Select';
 import { cn } from '@/lib/utils';
 import { ROUTES } from '@/constants/routes';
+import { useToast } from '@/hooks/useToast';
+import { createExam, type CreateExamPayload } from '@/services/adminService';
+import { isApiError, type ApiError } from '@/lib/axios';
 
 interface ExamDetails {
   title: string;
-  subject: string;
+  slug: string;
+  conductingAuthority: string;
   category: string;
-  duration: string;
-  passingScore: string;
-  entryFee: string;
+  province: string;
+  bpsScale: string;
+  departmentName: string;
+  minAge: string;
+  maxAge: string;
+  qualificationRequired: string;
+  allowedGender: string;
+  eligibleDomiciles: string;
+  totalMarks: string;
+  durationMinutes: string;
+  negativeMarking: string;
+  format: string;
+  sourceUrl: string;
+  officialNotificationUrl: string;
 }
 
-interface QuestionOption {
-  text: string;
-}
-
-interface Question {
-  id: string;
-  text: string;
-  options: QuestionOption[];
-  correctOption: number;
-  explanation: string;
-}
-
-type StepId = 1 | 2 | 3;
+type StepId = 1 | 2;
 
 const steps: { id: StepId; label: string; icon: typeof FileText }[] = [
   { id: 1, label: 'Basic Details', icon: FileText },
-  { id: 2, label: 'Questions Builder', icon: BookOpen },
-  { id: 3, label: 'Review & Publish', icon: Eye },
-];
-
-const subjectOptions = [
-  { label: 'General Knowledge', value: 'General Knowledge' },
-  { label: 'English', value: 'English' },
-  { label: 'Analytical Reasoning', value: 'Analytical Reasoning' },
-  { label: 'Islamic Studies', value: 'Islamic Studies' },
-  { label: 'Mathematics', value: 'Mathematics' },
-  { label: 'Computer Science', value: 'Computer Science' },
-  { label: 'Constitutional Law', value: 'Constitutional Law' },
-  { label: 'General Science', value: 'General Science' },
+  { id: 2, label: 'Review & Publish', icon: Eye },
 ];
 
 const categoryOptions = [
-  { label: 'CSS', value: 'CSS' },
-  { label: 'PCS', value: 'PCS' },
+  { label: 'Federal (e.g. FPSC)', value: 'federal' },
+  { label: 'Provincial (e.g. PPSC / SPSC)', value: 'provincial' },
+  { label: 'Armed Forces', value: 'armed-forces' },
+  { label: 'Banking', value: 'banking' },
+  { label: 'Other', value: 'other' },
+];
+
+const provinceOptions = [
+  { label: 'Federal', value: 'Federal' },
+  { label: 'Punjab', value: 'Punjab' },
+  { label: 'Sindh', value: 'Sindh' },
+  { label: 'Khyber Pakhtunkhwa', value: 'Khyber Pakhtunkhwa' },
+  { label: 'Balochistan', value: 'Balochistan' },
+  { label: 'AJK', value: 'AJK' },
+  { label: 'Gilgit-Baltistan', value: 'Gilgit-Baltistan' },
+];
+
+const genderOptions = [
+  { label: 'Both Male & Female', value: 'both' },
+  { label: 'Male', value: 'male' },
+  { label: 'Female', value: 'female' },
+];
+
+const conductingAuthorityOptions = [
   { label: 'FPSC', value: 'FPSC' },
   { label: 'PPSC', value: 'PPSC' },
+  { label: 'KPPSC', value: 'KPPSC' },
+  { label: 'SPSC', value: 'SPSC' },
+  { label: 'BPSC', value: 'BPSC' },
+  { label: 'AJKPSC', value: 'AJKPSC' },
+  { label: 'GBPSC', value: 'GBPSC' },
   { label: 'NTS', value: 'NTS' },
-  { label: 'Other', value: 'Other' },
+  { label: 'PTS', value: 'PTS' },
+  { label: 'OTS', value: 'OTS' },
+  { label: 'ETEA', value: 'ETEA' },
+  { label: 'STS', value: 'STS' },
+  { label: 'PAK_ARMY', value: 'PAK_ARMY' },
+  { label: 'PAK_NAVY', value: 'PAK_NAVY' },
+  { label: 'PAK_AIR_FORCE', value: 'PAK_AIR_FORCE' },
+  { label: 'POLICE', value: 'POLICE' },
+  { label: 'OTHER', value: 'OTHER' },
 ];
+
+const formatOptions = [
+  { label: 'MCQ', value: 'mcq' },
+  { label: 'Descriptive', value: 'descriptive' },
+  { label: 'Hybrid (MCQ + Descriptive)', value: 'hybrid' },
+];
+
+const negativeMarkingOptions = [
+  { label: 'No', value: 'no' },
+  { label: 'Yes', value: 'yes' },
+];
+
+const defaultDetails: ExamDetails = {
+  title: '',
+  slug: '',
+  conductingAuthority: '',
+  category: '',
+  province: '',
+  bpsScale: '',
+  departmentName: '',
+  minAge: '',
+  maxAge: '',
+  qualificationRequired: '',
+  allowedGender: '',
+  eligibleDomiciles: '',
+  totalMarks: '',
+  durationMinutes: '',
+  negativeMarking: '',
+  format: '',
+  sourceUrl: '',
+  officialNotificationUrl: '',
+};
+
+function slugify(value: string): string {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+function isValidUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return url.protocol === 'http:' || url.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
 
 function StepIndicator({
   currentStep,
@@ -130,6 +202,32 @@ function StepIndicator({
   );
 }
 
+function SectionHeading({
+  icon: Icon,
+  title,
+  description,
+}: {
+  icon: typeof FileText;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="flex items-center gap-3">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary-50 dark:bg-primary-950">
+        <Icon size={18} className="text-primary-500" />
+      </div>
+      <div>
+        <h4 className="text-sm font-semibold font-heading text-[rgb(var(--color-text-primary))]">
+          {title}
+        </h4>
+        <p className="text-xs text-[rgb(var(--color-text-muted))]">
+          {description}
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function BasicDetailsStep({
   details,
   onChange,
@@ -140,285 +238,245 @@ function BasicDetailsStep({
   errors: Record<string, string>;
 }) {
   return (
-    <div className="space-y-5">
-      <div>
-        <h3 className="text-lg font-semibold font-heading text-[rgb(var(--color-text-primary))]">
-          Basic Exam Details
-        </h3>
-        <p className="mt-1 text-sm text-[rgb(var(--color-text-muted))]">
-          Configure the core settings for this exam.
-        </p>
-      </div>
-
-      <Input
-        label="Exam Title"
-        required
-        placeholder="e.g. CSS General Knowledge Paper-I"
-        value={details.title}
-        onChange={(e) => {
-          onChange('title', e.target.value);
-        }}
-        error={errors.title}
-      />
-
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <Select
-          label="Subject"
-          required
-          options={subjectOptions}
-          placeholder="Select subject"
-          value={details.subject}
-          onChange={(e) => {
-            onChange('subject', e.target.value);
-          }}
-          error={errors.subject}
+    <div className="space-y-8">
+      <section className="space-y-4">
+        <SectionHeading
+          icon={Building2}
+          title="Core Profile"
+          description="Identity, authority, and classification of the exam."
         />
-
-        <Select
-          label="Category / Topic"
-          required
-          options={categoryOptions}
-          placeholder="Select category"
-          value={details.category}
-          onChange={(e) => {
-            onChange('category', e.target.value);
-          }}
-          error={errors.category}
-        />
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <Input
-          label="Duration (mins)"
+          label="Exam Title"
           required
-          type="number"
-          placeholder="e.g. 120"
-          leftIcon={<Clock size={16} className="text-primary-500" />}
-          value={details.duration}
-          onChange={(e) => {
-            onChange('duration', e.target.value);
-          }}
-          error={errors.duration}
+          placeholder="e.g. Inspector Inland Revenue (BS-16)"
+          value={details.title}
+          onChange={(e) => onChange('title', e.target.value)}
+          error={errors.title}
         />
-
         <Input
-          label="Passing Score (%)"
+          label="Slug"
           required
-          type="number"
-          placeholder="e.g. 60"
-          value={details.passingScore}
-          onChange={(e) => {
-            onChange('passingScore', e.target.value);
-          }}
-          error={errors.passingScore}
+          readOnly
+          value={details.slug}
+          hint="Auto-generated from the title. Must be unique."
+          error={errors.slug}
         />
-
-        <Input
-          label="Entry Fee (Tokens)"
-          required
-          type="number"
-          placeholder="e.g. 50"
-          leftIcon={<Coins size={16} className="text-primary-500" />}
-          value={details.entryFee}
-          onChange={(e) => {
-            onChange('entryFee', e.target.value);
-          }}
-          error={errors.entryFee}
-        />
-      </div>
-    </div>
-  );
-}
-
-function QuestionCard({
-  question,
-  index,
-  onUpdate,
-  onRemove,
-}: {
-  question: Question;
-  index: number;
-  onUpdate: (id: string, field: keyof Question, value: unknown) => void;
-  onRemove: (id: string) => void;
-}) {
-  const handleOptionChange = (optIndex: number, text: string) => {
-    const newOptions = [...question.options];
-    newOptions[optIndex] = { text };
-    onUpdate(question.id, 'options', newOptions);
-  };
-
-  return (
-    <div className="rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] p-5">
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-100 text-xs font-bold text-primary-700 dark:bg-primary-900 dark:text-primary-300">
-            {index + 1}
-          </span>
-          <h4 className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
-            Question {index + 1}
-          </h4>
-        </div>
-        <button
-          onClick={() => onRemove(question.id)}
-          className="rounded-md p-1.5 text-[rgb(var(--color-text-muted))] transition-colors hover:bg-danger-50 hover:text-danger-500 dark:hover:bg-danger-950"
-          title="Remove Question"
-        >
-          <Trash2 size={14} />
-        </button>
-      </div>
-
-      <div className="mt-4 space-y-4">
-        <Textarea
-          label="Question Text"
-          required
-          placeholder="Enter the question text..."
-          rows={2}
-          value={question.text}
-          onChange={(e) => onUpdate(question.id, 'text', e.target.value)}
-        />
-
-        <div className="space-y-2">
-          <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
-            Options
-          </p>
-          {question.options.map((opt, optIdx) => (
-            <div key={optIdx} className="flex items-center gap-3">
-              <span
-                className={cn(
-                  'flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold',
-                  question.correctOption === optIdx
-                    ? 'bg-accent-500 text-white'
-                    : 'bg-secondary-100 text-secondary-600 dark:bg-secondary-800 dark:text-secondary-300'
-                )}
-              >
-                {String.fromCharCode(65 + optIdx)}
-              </span>
-              <input
-                type="text"
-                placeholder={`Option ${String.fromCharCode(65 + optIdx)}`}
-                value={opt.text}
-                onChange={(e) => handleOptionChange(optIdx, e.target.value)}
-                className="h-9 flex-1 rounded-md border border-[rgb(var(--color-border))] bg-transparent px-3 text-sm text-[rgb(var(--color-text-primary))] placeholder:text-secondary-400 transition-colors hover:border-[rgb(var(--color-border-hover))] focus-ring"
-              />
-              <button
-                onClick={() => onUpdate(question.id, 'correctOption', optIdx)}
-                className={cn(
-                  'shrink-0 rounded-md px-2 py-1 text-xs font-medium transition-colors',
-                  question.correctOption === optIdx
-                    ? 'bg-accent-50 text-accent-700 dark:bg-accent-950 dark:text-accent-300'
-                    : 'text-[rgb(var(--color-text-muted))] hover:bg-[rgb(var(--color-surface-elevated))]'
-                )}
-                title={
-                  question.correctOption === optIdx
-                    ? 'Correct answer'
-                    : 'Set as correct'
-                }
-              >
-                {question.correctOption === optIdx ? (
-                  <Check size={14} />
-                ) : (
-                  <Circle size={14} />
-                )}
-              </button>
-            </div>
-          ))}
-        </div>
-
-        <Textarea
-          label="AI Explanation / Rationale"
-          placeholder="Provide an explanation for the correct answer..."
-          rows={2}
-          value={question.explanation}
-          onChange={(e) => onUpdate(question.id, 'explanation', e.target.value)}
-        />
-      </div>
-    </div>
-  );
-}
-
-function QuestionsBuilderStep({
-  questions,
-  onAdd,
-  onUpdate,
-  onRemove,
-}: {
-  questions: Question[];
-  onAdd: () => void;
-  onUpdate: (id: string, field: keyof Question, value: unknown) => void;
-  onRemove: (id: string) => void;
-}) {
-  return (
-    <div className="space-y-5">
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-lg font-semibold font-heading text-[rgb(var(--color-text-primary))]">
-            Questions Builder
-          </h3>
-          <p className="mt-1 text-sm text-[rgb(var(--color-text-muted))]">
-            Add and configure multiple-choice questions for this exam.
-          </p>
-        </div>
-        <Button
-          size="sm"
-          leftIcon={<Plus size={16} />}
-          className="bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-secondary-800 dark:text-secondary-200 dark:hover:bg-secondary-700"
-          onClick={onAdd}
-        >
-          Add Question
-        </Button>
-      </div>
-
-      {questions.length === 0 ? (
-        <div className="rounded-xl border-2 border-dashed border-[rgb(var(--color-border))] px-6 py-16 text-center">
-          <BookOpen
-            size={40}
-            className="mx-auto text-[rgb(var(--color-text-muted))]"
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <Select
+            label="Conducting Authority"
+            required
+            options={conductingAuthorityOptions}
+            placeholder="Select conducting authority"
+            value={details.conductingAuthority}
+            onChange={(e) => onChange('conductingAuthority', e.target.value)}
+            error={errors.conductingAuthority}
           />
-          <p className="mt-3 text-sm font-medium text-[rgb(var(--color-text-secondary))]">
-            No questions added yet
-          </p>
-          <p className="mt-1 text-xs text-[rgb(var(--color-text-muted))]">
-            Click "Add Question" to start building your exam.
-          </p>
-          <Button
-            size="sm"
-            leftIcon={<Plus size={16} />}
-            className="mt-4 bg-gray-900 text-white hover:bg-gray-800 dark:bg-primary-600 dark:hover:bg-primary-700"
-            onClick={onAdd}
-          >
-            Add First Question
-          </Button>
+          <Select
+            label="Category"
+            required
+            options={categoryOptions}
+            placeholder="Select category"
+            value={details.category}
+            onChange={(e) => onChange('category', e.target.value)}
+            error={errors.category}
+          />
         </div>
-      ) : (
-        <div className="space-y-4">
-          {questions.map((q, idx) => (
-            <QuestionCard
-              key={q.id}
-              question={q}
-              index={idx}
-              onUpdate={onUpdate}
-              onRemove={onRemove}
-            />
-          ))}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <Select
+            label="Province"
+            required
+            options={provinceOptions}
+            placeholder="Select province"
+            value={details.province}
+            onChange={(e) => onChange('province', e.target.value)}
+            error={errors.province}
+          />
+          <Input
+            label="BPS Scale"
+            required
+            type="number"
+            min={1}
+            max={22}
+            placeholder="e.g. 16"
+            value={details.bpsScale}
+            onChange={(e) => onChange('bpsScale', e.target.value)}
+            error={errors.bpsScale}
+          />
+          <Input
+            label="Department Name"
+            required
+            placeholder="e.g. Federal Board of Revenue (FBR)"
+            value={details.departmentName}
+            onChange={(e) => onChange('departmentName', e.target.value)}
+            error={errors.departmentName}
+          />
         </div>
-      )}
+      </section>
 
-      {questions.length > 0 && (
-        <p className="text-xs text-[rgb(var(--color-text-muted))]">
-          {questions.length} question{questions.length !== 1 ? 's' : ''} added
-        </p>
-      )}
+      <section className="space-y-4">
+        <SectionHeading
+          icon={FileText}
+          title="Eligibility Criteria"
+          description="Who is allowed to apply for this exam."
+        />
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <Input
+            label="Minimum Age"
+            required
+            type="number"
+            min={18}
+            placeholder="e.g. 20"
+            leftIcon={<Clock size={16} className="text-primary-500" />}
+            value={details.minAge}
+            onChange={(e) => onChange('minAge', e.target.value)}
+            error={errors.minAge}
+          />
+          <Input
+            label="Maximum Age"
+            required
+            type="number"
+            max={60}
+            placeholder="e.g. 28"
+            leftIcon={<Clock size={16} className="text-primary-500" />}
+            value={details.maxAge}
+            onChange={(e) => onChange('maxAge', e.target.value)}
+            error={errors.maxAge}
+          />
+          <Select
+            label="Allowed Gender"
+            required
+            options={genderOptions}
+            placeholder="Select gender"
+            value={details.allowedGender}
+            onChange={(e) => onChange('allowedGender', e.target.value)}
+            error={errors.allowedGender}
+          />
+        </div>
+        <Textarea
+          label="Required Qualification"
+          required
+          rows={2}
+          placeholder="e.g. Bachelor's degree with Economics, Commerce, Statistics, or Law"
+          value={details.qualificationRequired}
+          onChange={(e) => onChange('qualificationRequired', e.target.value)}
+          error={errors.qualificationRequired}
+        />
+        <Input
+          label="Eligible Domiciles"
+          required
+          placeholder="Punjab, Sindh, Khyber Pakhtunkhwa, Balochistan, AJK, Gilgit-Baltistan"
+          value={details.eligibleDomiciles}
+          onChange={(e) => onChange('eligibleDomiciles', e.target.value)}
+          error={errors.eligibleDomiciles}
+          hint="Comma-separated list of domiciles."
+        />
+      </section>
+
+      <section className="space-y-4">
+        <SectionHeading
+          icon={Coins}
+          title="Exam Pattern"
+          description="Marks, duration, and format of the exam paper."
+        />
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <Input
+            label="Total Marks"
+            required
+            type="number"
+            min={1}
+            placeholder="e.g. 100"
+            value={details.totalMarks}
+            onChange={(e) => onChange('totalMarks', e.target.value)}
+            error={errors.totalMarks}
+          />
+          <Input
+            label="Duration (mins)"
+            required
+            type="number"
+            min={1}
+            placeholder="e.g. 120"
+            leftIcon={<Clock size={16} className="text-primary-500" />}
+            value={details.durationMinutes}
+            onChange={(e) => onChange('durationMinutes', e.target.value)}
+            error={errors.durationMinutes}
+          />
+          <Select
+            label="Negative Marking"
+            required
+            options={negativeMarkingOptions}
+            placeholder="Select"
+            value={details.negativeMarking}
+            onChange={(e) => onChange('negativeMarking', e.target.value)}
+            error={errors.negativeMarking}
+          />
+          <Select
+            label="Paper Format"
+            required
+            options={formatOptions}
+            placeholder="Select format"
+            value={details.format}
+            onChange={(e) => onChange('format', e.target.value)}
+            error={errors.format}
+          />
+        </div>
+      </section>
+
+      <section className="space-y-4">
+        <SectionHeading
+          icon={FileText}
+          title="Source Links (Optional)"
+          description="Official URLs referenced by the trust verification card."
+        />
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <Input
+            label="Source URL"
+            type="url"
+            placeholder="https://fpsc.gov.pk"
+            value={details.sourceUrl}
+            onChange={(e) => onChange('sourceUrl', e.target.value)}
+            error={errors.sourceUrl}
+          />
+          <Input
+            label="Official Notification URL"
+            type="url"
+            placeholder="https://fpsc.gov.pk/notifications"
+            value={details.officialNotificationUrl}
+            onChange={(e) =>
+              onChange('officialNotificationUrl', e.target.value)
+            }
+            error={errors.officialNotificationUrl}
+          />
+        </div>
+      </section>
     </div>
   );
 }
 
-function ReviewPublishStep({
-  details,
-  questions,
-}: {
-  details: ExamDetails;
-  questions: Question[];
-}) {
+function ReviewRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <p className="text-xs text-[rgb(var(--color-text-muted))]">{label}</p>
+      <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
+        {value || '—'}
+      </p>
+    </div>
+  );
+}
+
+function ReviewPublishStep({ details }: { details: ExamDetails }) {
+  const categoryLabel =
+    categoryOptions.find((o) => o.value === details.category)?.label ??
+    details.category;
+  const provinceLabel =
+    provinceOptions.find((o) => o.value === details.province)?.label ??
+    details.province;
+  const genderLabel =
+    genderOptions.find((o) => o.value === details.allowedGender)?.label ??
+    details.allowedGender;
+  const formatLabel =
+    formatOptions.find((o) => o.value === details.format)?.label ??
+    details.format;
+
   return (
     <div className="space-y-6">
       <div>
@@ -426,171 +484,121 @@ function ReviewPublishStep({
           Review & Publish
         </h3>
         <p className="mt-1 text-sm text-[rgb(var(--color-text-muted))]">
-          Review your exam configuration before publishing.
+          Review the exam profile before publishing it to the catalog. Manual
+          entries are auto-verified.
         </p>
       </div>
 
       <div className="rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] p-5">
         <h4 className="mb-4 flex items-center gap-2 text-sm font-semibold text-[rgb(var(--color-text-primary))]">
-          <FileText size={16} className="text-primary-500" />
-          Exam Settings
+          <Building2 size={16} className="text-primary-500" />
+          Core Profile
         </h4>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div>
-            <p className="text-xs text-[rgb(var(--color-text-muted))]">Title</p>
-            <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
-              {details.title || '—'}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-[rgb(var(--color-text-muted))]">
-              Subject
-            </p>
-            <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
-              {details.subject || '—'}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-[rgb(var(--color-text-muted))]">
-              Category
-            </p>
-            <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
-              {details.category || '—'}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-[rgb(var(--color-text-muted))]">
-              Duration
-            </p>
-            <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
-              {details.duration ? `${details.duration} mins` : '—'}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-[rgb(var(--color-text-muted))]">
-              Passing Score
-            </p>
-            <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
-              {details.passingScore ? `${details.passingScore}%` : '—'}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-[rgb(var(--color-text-muted))]">
-              Entry Fee
-            </p>
-            <p className="text-sm font-medium text-primary-500">
-              {details.entryFee ? `${details.entryFee} tokens` : '—'}
-            </p>
-          </div>
+          <ReviewRow label="Title" value={details.title} />
+          <ReviewRow label="Slug" value={details.slug} />
+          <ReviewRow
+            label="Conducting Authority"
+            value={details.conductingAuthority}
+          />
+          <ReviewRow label="Category" value={categoryLabel} />
+          <ReviewRow label="Province" value={provinceLabel} />
+          <ReviewRow
+            label="BPS Scale"
+            value={details.bpsScale ? `BS-${details.bpsScale}` : ''}
+          />
+          <ReviewRow label="Department" value={details.departmentName} />
         </div>
       </div>
 
       <div className="rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] p-5">
         <h4 className="mb-4 flex items-center gap-2 text-sm font-semibold text-[rgb(var(--color-text-primary))]">
-          <BookOpen size={16} className="text-primary-500" />
-          Questions ({questions.length})
+          <FileText size={16} className="text-primary-500" />
+          Eligibility Criteria
         </h4>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <ReviewRow
+            label="Age Range"
+            value={
+              details.minAge || details.maxAge
+                ? `${details.minAge} – ${details.maxAge} years`
+                : ''
+            }
+          />
+          <ReviewRow label="Allowed Gender" value={genderLabel} />
+          <ReviewRow
+            label="Required Qualification"
+            value={details.qualificationRequired}
+          />
+          <ReviewRow
+            label="Eligible Domiciles"
+            value={details.eligibleDomiciles}
+          />
+        </div>
+      </div>
 
-        {questions.length === 0 ? (
-          <p className="text-sm text-[rgb(var(--color-text-muted))]">
-            No questions added. Go back to add questions.
-          </p>
-        ) : (
-          <div className="space-y-3">
-            {questions.map((q, idx) => (
-              <div
-                key={q.id}
-                className="rounded-lg border border-[rgb(var(--color-border))] p-4"
-              >
-                <div className="flex items-start gap-3">
-                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary-100 text-xs font-bold text-primary-700 dark:bg-primary-900 dark:text-primary-300">
-                    {idx + 1}
-                  </span>
-                  <div className="flex-1 space-y-2">
-                    <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
-                      {q.text || 'Untitled question'}
-                    </p>
-                    <div className="grid grid-cols-2 gap-2">
-                      {q.options.map((opt, optIdx) => (
-                        <div
-                          key={optIdx}
-                          className={cn(
-                            'flex items-center gap-2 rounded-lg border px-2.5 py-1.5 text-xs',
-                            q.correctOption === optIdx
-                              ? 'border-accent-300 bg-accent-50 text-accent-800 dark:border-accent-700 dark:bg-accent-950 dark:text-accent-200'
-                              : 'border-[rgb(var(--color-border))] text-[rgb(var(--color-text-secondary))]'
-                          )}
-                        >
-                          <span
-                            className={cn(
-                              'flex h-5 w-5 shrink-0 items-center justify-center rounded-full font-bold',
-                              q.correctOption === optIdx
-                                ? 'bg-accent-500 text-white'
-                                : 'bg-secondary-100 text-secondary-600 dark:bg-secondary-800 dark:text-secondary-300'
-                            )}
-                          >
-                            {String.fromCharCode(65 + optIdx)}
-                          </span>
-                          {opt.text || '—'}
-                        </div>
-                      ))}
-                    </div>
-                    {q.explanation && (
-                      <p className="text-xs text-[rgb(var(--color-text-muted))]">
-                        <span className="font-medium">Explanation:</span>{' '}
-                        {q.explanation}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+      <div className="rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] p-5">
+        <h4 className="mb-4 flex items-center gap-2 text-sm font-semibold text-[rgb(var(--color-text-primary))]">
+          <Coins size={16} className="text-primary-500" />
+          Exam Pattern
+        </h4>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <ReviewRow label="Total Marks" value={details.totalMarks} />
+          <ReviewRow
+            label="Duration"
+            value={
+              details.durationMinutes ? `${details.durationMinutes} mins` : ''
+            }
+          />
+          <ReviewRow
+            label="Negative Marking"
+            value={
+              details.negativeMarking === 'yes'
+                ? 'Yes'
+                : details.negativeMarking === 'no'
+                  ? 'No'
+                  : ''
+            }
+          />
+          <ReviewRow label="Paper Format" value={formatLabel} />
+        </div>
+      </div>
+
+      <div className="rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] p-5">
+        <h4 className="mb-4 flex items-center gap-2 text-sm font-semibold text-[rgb(var(--color-text-primary))]">
+          <Eye size={16} className="text-primary-500" />
+          Source Links
+        </h4>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <ReviewRow label="Source URL" value={details.sourceUrl} />
+          <ReviewRow
+            label="Official Notification URL"
+            value={details.officialNotificationUrl}
+          />
+        </div>
       </div>
     </div>
   );
 }
 
-function Circle({ size, className }: { size: number; className?: string }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={2}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
-      <circle cx="12" cy="12" r="10" />
-    </svg>
-  );
-}
-
 export default function CreateExamPage() {
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   const [currentStep, setCurrentStep] = useState<StepId>(1);
   const [completedSteps, setCompletedSteps] = useState<Set<StepId>>(new Set());
 
-  const [details, setDetails] = useState<ExamDetails>({
-    title: '',
-    subject: '',
-    category: '',
-    duration: '',
-    passingScore: '',
-    entryFee: '',
-  });
-
-  const [questions, setQuestions] = useState<Question[]>([]);
+  const [details, setDetails] = useState<ExamDetails>(defaultDetails);
   const [detailErrors, setDetailErrors] = useState<Record<string, string>>({});
+  const [publishing, setPublishing] = useState(false);
 
   const handleDetailChange = useCallback(
     (field: keyof ExamDetails, value: string) => {
-      setDetails((prev) => ({ ...prev, [field]: value }));
+      setDetails((prev) => {
+        const next = { ...prev, [field]: value };
+        if (field === 'title') next.slug = slugify(value);
+        return next;
+      });
       setDetailErrors((prev) => ({ ...prev, [field]: '' }));
     },
     []
@@ -598,71 +606,151 @@ export default function CreateExamPage() {
 
   const validateStep1 = (): boolean => {
     const errs: Record<string, string> = {};
-    if (!details.title.trim()) errs.title = 'Exam title is required.';
-    if (!details.subject) errs.subject = 'Select a subject.';
+
+    if (details.title.trim().length < 5)
+      errs.title = 'Title must be at least 5 characters.';
+    if (details.slug.length < 3)
+      errs.slug = 'Slug must be at least 3 characters (generated from title).';
+    if (!details.conductingAuthority)
+      errs.conductingAuthority = 'Select the conducting authority.';
     if (!details.category) errs.category = 'Select a category.';
-    if (!details.duration || parseInt(details.duration) <= 0)
-      errs.duration = 'Enter a valid duration.';
+    if (!details.province) errs.province = 'Select a province.';
+
+    const bps = Number(details.bpsScale);
+    if (!details.bpsScale || !Number.isInteger(bps) || bps < 1 || bps > 22)
+      errs.bpsScale = 'BPS must be an integer between 1 and 22.';
+    if (!details.departmentName.trim())
+      errs.departmentName = 'Enter the department name.';
+
+    const minAge = Number(details.minAge);
+    if (!details.minAge || !Number.isInteger(minAge) || minAge < 18)
+      errs.minAge = 'Minimum age must be at least 18.';
+    const maxAge = Number(details.maxAge);
+    if (!details.maxAge || !Number.isInteger(maxAge) || maxAge > 60)
+      errs.maxAge = 'Maximum age must be at most 60.';
     if (
-      !details.passingScore ||
-      parseInt(details.passingScore) <= 0 ||
-      parseInt(details.passingScore) > 100
+      details.minAge &&
+      details.maxAge &&
+      Number(details.maxAge) <= Number(details.minAge)
     )
-      errs.passingScore = 'Enter a valid percentage (1–100).';
-    if (!details.entryFee || parseInt(details.entryFee) < 0)
-      errs.entryFee = 'Enter a valid token amount.';
+      errs.maxAge = 'Maximum age must be greater than minimum age.';
+    if (!details.qualificationRequired.trim())
+      errs.qualificationRequired = 'Enter the required qualification.';
+    if (!details.allowedGender) errs.allowedGender = 'Select allowed gender.';
+    if (!details.eligibleDomiciles.trim())
+      errs.eligibleDomiciles = 'Enter at least one eligible domicile.';
+
+    const totalMarks = Number(details.totalMarks);
+    if (!details.totalMarks || !Number.isInteger(totalMarks) || totalMarks <= 0)
+      errs.totalMarks = 'Total marks must be a positive integer.';
+    const duration = Number(details.durationMinutes);
+    if (
+      !details.durationMinutes ||
+      !Number.isInteger(duration) ||
+      duration <= 0
+    )
+      errs.durationMinutes = 'Duration must be a positive integer (minutes).';
+    if (!details.negativeMarking) errs.negativeMarking = 'Select yes or no.';
+    if (!details.format) errs.format = 'Select the paper format.';
+
+    if (details.sourceUrl.trim() && !isValidUrl(details.sourceUrl.trim()))
+      errs.sourceUrl = 'Enter a valid URL (http/https).';
+    if (
+      details.officialNotificationUrl.trim() &&
+      !isValidUrl(details.officialNotificationUrl.trim())
+    )
+      errs.officialNotificationUrl = 'Enter a valid URL (http/https).';
+
     setDetailErrors(errs);
     return Object.keys(errs).length === 0;
   };
 
   const canProceed = (): boolean => {
     if (currentStep === 1) return validateStep1();
-    if (currentStep === 2) return questions.length > 0;
     return true;
   };
 
   const handleNext = () => {
     if (!canProceed()) return;
     setCompletedSteps((prev) => new Set(prev).add(currentStep));
-    setCurrentStep((prev) => Math.min(prev + 1, 3) as StepId);
+    setCurrentStep((prev) => Math.min(prev + 1, 2) as StepId);
   };
 
   const handleBack = () => {
     setCurrentStep((prev) => Math.max(prev - 1, 1) as StepId);
   };
 
-  const handleAddQuestion = () => {
-    const newQ: Question = {
-      id: `q_${Date.now()}`,
-      text: '',
-      options: [{ text: '' }, { text: '' }, { text: '' }, { text: '' }],
-      correctOption: 0,
-      explanation: '',
+  const handlePublish = async () => {
+    if (!validateStep1()) {
+      setCurrentStep(1);
+      showToast('Please fix the validation errors before publishing.', 'error');
+      return;
+    }
+
+    const payload: CreateExamPayload = {
+      title: details.title.trim(),
+      slug: details.slug,
+      conductingAuthority: details.conductingAuthority,
+      category: details.category as CreateExamPayload['category'],
+      province: details.province,
+      bpsScale: Number(details.bpsScale),
+      departmentName: details.departmentName.trim(),
+      eligibility: {
+        minAge: Number(details.minAge),
+        maxAge: Number(details.maxAge),
+        qualificationRequired: details.qualificationRequired.trim(),
+        allowedGender:
+          details.allowedGender as CreateExamPayload['eligibility']['allowedGender'],
+        eligibleDomiciles: details.eligibleDomiciles
+          .split(',')
+          .map((d) => d.trim())
+          .filter(Boolean),
+      },
+      examPattern: {
+        totalMarks: Number(details.totalMarks),
+        durationMinutes: Number(details.durationMinutes),
+        negativeMarking: details.negativeMarking === 'yes',
+        format: details.format as CreateExamPayload['examPattern']['format'],
+      },
     };
-    setQuestions((prev) => [...prev, newQ]);
-  };
 
-  const handleUpdateQuestion = useCallback(
-    (id: string, field: keyof Question, value: unknown) => {
-      setQuestions((prev) =>
-        prev.map((q) =>
-          q.id === id ? ({ ...q, [field]: value } as Question) : q
-        )
-      );
-    },
-    []
-  );
+    if (details.sourceUrl.trim()) payload.sourceUrl = details.sourceUrl.trim();
+    if (details.officialNotificationUrl.trim())
+      payload.officialNotificationUrl = details.officialNotificationUrl.trim();
 
-  const handleRemoveQuestion = useCallback((id: string) => {
-    setQuestions((prev) => prev.filter((q) => q.id !== id));
-  }, []);
-
-  const handleSaveDraft = () => {
-    navigate(ROUTES.ADMIN_EXAMS);
-  };
-
-  const handlePublish = () => {
-    navigate(ROUTES.ADMIN_EXAMS);
+    setPublishing(true);
+    try {
+      const res = await createExam(payload);
+      console.log(res);
+      showToast('Exam created and published to catalog.', 'success');
+      navigate(ROUTES.ADMIN_EXAMS);
+    } catch (err) {
+      const apiErr = err as ApiError;
+      if (isApiError(apiErr) && apiErr.errors && apiErr.errors.length > 0) {
+        const fieldErrors: Record<string, string> = {};
+        const messages: string[] = [];
+        for (const fe of apiErr.errors) {
+          const fieldName = String(fe.path[fe.path.length - 1] ?? fe.field);
+          fieldErrors[fieldName] = fe.message;
+          messages.push(fe.message);
+        }
+        setDetailErrors(fieldErrors);
+        setCurrentStep(1);
+        showToast(
+          `Submission rejected (${messages.length} field${
+            messages.length === 1 ? '' : 's'
+          }): ${messages.join(' • ')}`,
+          'error'
+        );
+      } else {
+        showToast(
+          err instanceof Error ? err.message : 'Failed to create the exam.',
+          'error'
+        );
+      }
+    } finally {
+      setPublishing(false);
+    }
   };
 
   return (
@@ -679,7 +767,7 @@ export default function CreateExamPage() {
             Create New Exam
           </h1>
           <p className="mt-1 text-sm text-[rgb(var(--color-text-secondary))]">
-            Set up a new exam with questions and publish it for students.
+            Set up an exam profile and publish it to the catalog.
           </p>
         </div>
       </div>
@@ -699,17 +787,7 @@ export default function CreateExamPage() {
             errors={detailErrors}
           />
         )}
-        {currentStep === 2 && (
-          <QuestionsBuilderStep
-            questions={questions}
-            onAdd={handleAddQuestion}
-            onUpdate={handleUpdateQuestion}
-            onRemove={handleRemoveQuestion}
-          />
-        )}
-        {currentStep === 3 && (
-          <ReviewPublishStep details={details} questions={questions} />
-        )}
+        {currentStep === 2 && <ReviewPublishStep details={details} />}
       </div>
 
       <div className="flex items-center justify-between border-t border-[rgb(var(--color-border))] pt-4">
@@ -722,37 +800,26 @@ export default function CreateExamPage() {
           Back
         </Button>
 
-        <div className="flex items-center gap-3">
-          {currentStep === 3 && (
-            <>
-              <Button
-                variant="outline"
-                leftIcon={<Save size={16} />}
-                className="bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-secondary-800 dark:text-secondary-200 dark:hover:bg-secondary-700"
-                onClick={handleSaveDraft}
-              >
-                Save as Draft
-              </Button>
-              <Button
-                leftIcon={<Send size={16} />}
-                className="bg-gray-900 text-white hover:bg-gray-800 dark:bg-primary-600 dark:hover:bg-primary-700"
-                onClick={handlePublish}
-              >
-                Publish Exam
-              </Button>
-            </>
-          )}
+        {currentStep === 2 && (
+          <Button
+            leftIcon={<Send size={16} />}
+            isLoading={publishing}
+            className="bg-gray-900 text-white hover:bg-gray-800 dark:bg-primary-600 dark:hover:bg-primary-700"
+            onClick={() => void handlePublish()}
+          >
+            Publish Exam
+          </Button>
+        )}
 
-          {currentStep < 3 && (
-            <Button
-              leftIcon={<ArrowRight size={16} />}
-              className="bg-gray-900 text-white hover:bg-gray-800 dark:bg-primary-600 dark:hover:bg-primary-700"
-              onClick={handleNext}
-            >
-              Continue
-            </Button>
-          )}
-        </div>
+        {currentStep < 2 && (
+          <Button
+            leftIcon={<ArrowRight size={16} />}
+            className="bg-gray-900 text-white hover:bg-gray-800 dark:bg-primary-600 dark:hover:bg-primary-700"
+            onClick={handleNext}
+          >
+            Continue
+          </Button>
+        )}
       </div>
     </div>
   );

@@ -11,14 +11,14 @@ export default function ExamDetailWrapper() {
   if (isAuthenticated) {
     return (
       <DashboardLayout>
-        <ExamDetailPage slug={slug ?? ''} isPremiumView />
+        <ExamDetailPage key={slug} slug={slug ?? ''} isPremiumView />
       </DashboardLayout>
     );
   }
 
   return (
     <PublicLayout>
-      <ExamDetailPage slug={slug ?? ''} isPremiumView={false} />
+      <ExamDetailPage key={slug} slug={slug ?? ''} isPremiumView={false} />
     </PublicLayout>
   );
 }

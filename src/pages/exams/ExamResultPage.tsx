@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+﻿import { useState, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import {
@@ -172,9 +172,9 @@ const mockExamResults: Record<
 
 const mockAiExplanations: Record<string, string> = {
   'eq-3':
-    'To solve 5x + 3 = 28: Subtract 3 from both sides: 5x = 25. Divide by 5: x = 5. Wait — 5(5)+3 = 28? 25+3 = 28. Yes! But the answer marked was 0 (x=5), which is option A. The correct answer is option B (x=5). Check: 5(5)+3=28. Correct!',
+    'To solve 5x + 3 = 28: Subtract 3 from both sides: 5x = 25. Divide by 5: x = 5. Wait â€” 5(5)+3 = 28? 25+3 = 28. Yes! But the answer marked was 0 (x=5), which is option A. The correct answer is option B (x=5). Check: 5(5)+3=28. Correct!',
   'eq-5':
-    '"The wind whispered through the trees" uses Personification — attributing human qualities (whispering) to a non-human entity (wind). Personification makes descriptions more vivid and relatable.',
+    '"The wind whispered through the trees" uses Personification â€” attributing human qualities (whispering) to a non-human entity (wind). Personification makes descriptions more vivid and relatable.',
   'eq-10':
     'At 3:15, the minute hand points at 3 (90 degrees from 12). The hour hand is at 3 + (15/60) of the way to 4 = 3.25 hours. Hour hand angle = 3.25 x 30 = 97.5 degrees. Angle between hands = 97.5 - 90 = 7.5 degrees.',
 };
@@ -191,7 +191,7 @@ function getPredictedPercentile(accuracy: number): string {
 function getGrade(accuracy: number): { label: string; color: string } {
   if (accuracy >= 80) return { label: 'Excellent', color: 'text-accent-600' };
   if (accuracy >= 65) return { label: 'Good', color: 'text-primary-600' };
-  if (accuracy >= 50) return { label: 'Average', color: 'text-amber-600' };
+  if (accuracy >= 50) return { label: 'Average', color: 'text-primary-600' };
   return { label: 'Needs Improvement', color: 'text-danger-600' };
 }
 
@@ -385,7 +385,7 @@ export default function ExamResultPage() {
                           : pct >= 50
                             ? 'bg-primary-500'
                             : pct >= 30
-                              ? 'bg-amber-500'
+                              ? 'bg-primary-500'
                               : 'bg-danger-500'
                       )}
                       style={{ width: `${pct}%` }}
@@ -506,7 +506,7 @@ export default function ExamResultPage() {
                               q.difficulty === 'easy'
                                 ? 'bg-accent-100 text-accent-700 dark:bg-accent-900 dark:text-accent-300'
                                 : q.difficulty === 'medium'
-                                  ? 'bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300'
+                                  ? 'bg-primary-100 text-primary-700 dark:bg-primary-900 dark:text-primary-300'
                                   : 'bg-danger-100 text-danger-700 dark:bg-danger-900 dark:text-danger-300'
                             )}
                           >

@@ -46,14 +46,24 @@ function WeightageBar({ value, max }: { value: number; max: number }) {
   );
 }
 
-export function SyllabusTab({ exam }: { exam: ExamData }) {
+export function SyllabusTab({
+  exam,
+  subjects,
+}: {
+  exam: ExamData;
+  subjects?: ExamData['subjects'];
+}) {
   const [expandedSubject, setExpandedSubject] = useState<string | null>(null);
 
   const toggleSubject = (id: string) => {
     setExpandedSubject((prev) => (prev === id ? null : id));
   };
 
-  const totalWeightage = exam.subjects.reduce((s, sub) => s + sub.weightage, 0);
+  const resolvedSubjects = subjects ?? exam.subjects;
+  const totalWeightage = resolvedSubjects.reduce(
+    (s, sub) => s + sub.weightage,
+    0
+  );
 
   return (
     <motion.div variants={stagger} initial="hidden" animate="show">
@@ -170,7 +180,7 @@ export function SyllabusTab({ exam }: { exam: ExamData }) {
         </p>
 
         <div className="space-y-3">
-          {exam.subjects.map((subject) => {
+          {resolvedSubjects.map((subject) => {
             const isExpanded = expandedSubject === subject.id;
             const subjectWeightPct =
               totalWeightage > 0

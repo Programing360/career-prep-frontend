@@ -21,24 +21,24 @@ export function CurrentAffairsCard({ item }: { item: CurrentAffairsItem }) {
     >
       <div
         className={cn(
-          'flex h-full flex-col overflow-hidden rounded-xl border backdrop-blur-md transition-all duration-200',
-          'border-white/20 bg-white/70 hover:shadow-lg dark:border-gray-800/50 dark:bg-gray-900/70'
+          'flex h-full flex-col overflow-hidden rounded-xl border backdrop-blur-md transition-all duration-300',
+          'border-slate-200/80 bg-white/80 hover:border-purple-200 hover:shadow-xl dark:border-slate-800/80 dark:bg-slate-900/80 dark:hover:border-purple-900/50'
         )}
       >
         {item.imageUrl ? (
-          <div className="relative h-40 shrink-0 overflow-hidden">
+          <div className="relative h-40 shrink-0 overflow-hidden bg-slate-100 dark:bg-slate-800">
             <img
               src={item.imageUrl}
               alt={item.title}
               loading="lazy"
-              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
           </div>
         ) : (
-          <div className="flex h-24 shrink-0 items-center justify-center bg-gradient-to-br from-primary-500/10 to-accent-500/10">
+          <div className="flex h-28 shrink-0 items-center justify-center bg-gradient-to-br from-purple-500/10 via-indigo-500/10 to-violet-500/10 dark:from-purple-900/20 dark:to-indigo-900/20">
             <Newspaper
               size={32}
-              className="text-primary-400/60 dark:text-primary-500/50"
+              className="text-purple-500/60 dark:text-purple-400/50"
               aria-hidden="true"
             />
           </div>
@@ -54,7 +54,7 @@ export function CurrentAffairsCard({ item }: { item: CurrentAffairsItem }) {
             >
               {item.category}
             </span>
-            <span className="inline-flex items-center gap-1 text-[11px] text-gray-500 dark:text-gray-400">
+            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-500 dark:text-slate-400">
               <Calendar size={11} aria-hidden="true" />
               <time dateTime={item.publicationDate}>
                 {formatRelativeTime(item.publicationDate)}
@@ -64,29 +64,29 @@ export function CurrentAffairsCard({ item }: { item: CurrentAffairsItem }) {
 
           <h3
             className={cn(
-              'mt-3 text-base font-bold font-heading leading-snug',
-              'text-gray-900 group-hover:text-primary-600',
-              'dark:text-white dark:group-hover:text-primary-400'
+              'mt-3 text-base font-bold leading-snug transition-colors duration-200',
+              'text-slate-900 group-hover:text-purple-600',
+              'dark:text-slate-100 dark:group-hover:text-purple-400'
             )}
           >
             {item.title}
           </h3>
 
-          <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+          <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
             {item.summary}
           </p>
 
-          {item.tags.length > 0 && (
-            <div className="mt-3 flex flex-wrap items-center gap-1.5">
+          {item.tags && item.tags.length > 0 && (
+            <div className="mt-4 flex flex-wrap items-center gap-1.5">
               <Tag
                 size={11}
-                className="text-gray-400 dark:text-gray-500"
+                className="text-slate-400 dark:text-slate-500"
                 aria-hidden="true"
               />
               {item.tags.slice(0, 3).map((tag) => (
                 <span
                   key={tag}
-                  className="rounded-md bg-gray-100/80 px-2 py-0.5 text-[10px] font-medium text-gray-500 dark:bg-gray-800/80 dark:text-gray-400"
+                  className="rounded-md bg-purple-50/80 px-2 py-0.5 text-[10px] font-medium text-purple-700 ring-1 ring-purple-100 dark:bg-purple-950/50 dark:text-purple-300 dark:ring-purple-900/40"
                 >
                   {tag}
                 </span>

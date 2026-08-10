@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useState, useMemo, useRef } from 'react';
+﻿import { useEffect, useCallback, useState, useMemo, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import {
@@ -186,7 +186,7 @@ const mockExamData: Record<
         examId: 'default',
         subjectId: 'gk',
         question: 'What is the boiling point of water at sea level in Celsius?',
-        options: ['90°C', '95°C', '100°C', '110°C'],
+        options: ['90Â°C', '95Â°C', '100Â°C', '110Â°C'],
         correctAnswer: 2,
         difficulty: 'easy',
       },
@@ -371,7 +371,7 @@ export default function ExamAttemptPage() {
               isTimeCritical
                 ? 'bg-danger-100 text-danger-700 dark:bg-danger-900 dark:text-danger-300'
                 : isTimeLow
-                  ? 'bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300'
+                  ? 'bg-primary-100 text-primary-700 dark:bg-primary-900 dark:text-primary-300'
                   : 'bg-[rgb(var(--color-surface-elevated))] text-[rgb(var(--color-text-primary))]'
             )}
           >
@@ -403,7 +403,7 @@ export default function ExamAttemptPage() {
                   currentQuestion.difficulty === 'easy'
                     ? 'bg-accent-100 text-accent-700 dark:bg-accent-900 dark:text-accent-300'
                     : currentQuestion.difficulty === 'medium'
-                      ? 'bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300'
+                      ? 'bg-primary-100 text-primary-700 dark:bg-primary-900 dark:text-primary-300'
                       : 'bg-danger-100 text-danger-700 dark:bg-danger-900 dark:text-danger-300'
                 )}
               >
@@ -698,10 +698,10 @@ function SubmitModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
       <div className="w-full max-w-md rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] p-6 shadow-xl">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-100 dark:bg-primary-900">
             <AlertTriangle
               size={20}
-              className="text-amber-600 dark:text-amber-400"
+              className="text-primary-600 dark:text-primary-400"
             />
           </div>
           <div>
@@ -746,12 +746,12 @@ function SubmitModal({
         </div>
 
         {unanswered > 0 && (
-          <div className="mt-4 flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 dark:border-amber-800 dark:bg-amber-950">
+          <div className="mt-4 flex items-start gap-2 rounded-lg border border-primary-200 bg-primary-50 px-3 py-2 dark:border-primary-800 dark:bg-primary-950">
             <AlertTriangle
               size={14}
-              className="mt-0.5 shrink-0 text-amber-500"
+              className="mt-0.5 shrink-0 text-primary-500"
             />
-            <p className="text-xs text-amber-700 dark:text-amber-300">
+            <p className="text-xs text-primary-700 dark:text-primary-300">
               You have {unanswered} unanswered question
               {unanswered > 1 ? 's' : ''}. Once submitted, you cannot change
               your answers.
@@ -837,7 +837,7 @@ function ResultModal({
                   result.accuracy >= 75
                     ? 'stroke-accent-500'
                     : result.accuracy >= 50
-                      ? 'stroke-amber-500'
+                      ? 'stroke-primary-500'
                       : 'stroke-danger-500'
                 )}
               />
@@ -849,7 +849,7 @@ function ResultModal({
                   result.accuracy >= 75
                     ? 'text-accent-500'
                     : result.accuracy >= 50
-                      ? 'text-amber-500'
+                      ? 'text-primary-500'
                       : 'text-danger-500'
                 )}
               >

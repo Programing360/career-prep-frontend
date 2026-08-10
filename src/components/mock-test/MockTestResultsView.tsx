@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+﻿import { motion } from 'framer-motion';
 import {
   BarChart3,
   CheckCircle2,
@@ -40,7 +40,7 @@ function formatDuration(totalSeconds: number): string {
 
 function accuracyColor(accuracy: number): string {
   if (accuracy >= 75) return 'text-accent-600 dark:text-accent-400';
-  if (accuracy >= 50) return 'text-amber-600 dark:text-amber-400';
+  if (accuracy >= 50) return 'text-primary-600 dark:text-primary-400';
   return 'text-danger-600 dark:text-danger-400';
 }
 
@@ -117,7 +117,7 @@ export function MockTestResultsView({
             </p>
             <p className="mt-0.5 truncate text-xs text-white/80">
               {isAutoSubmitted
-                ? "Time's up — your demo was submitted automatically."
+                ? "Time's up â€” your demo was submitted automatically."
                 : 'You completed a short demo test. Results are final for this session.'}
             </p>
           </div>
@@ -127,7 +127,7 @@ export function MockTestResultsView({
             ) : (
               <Lock size={10} aria-hidden="true" />
             )}
-            {isVerbalNonVerbal ? 'Verbal & Non-Verbal' : 'Demo'} · Final
+            {isVerbalNonVerbal ? 'Verbal & Non-Verbal' : 'Demo'} Â· Final
           </span>
         </div>
       </div>
@@ -230,7 +230,7 @@ export function MockTestResultsView({
                       {subject.subject}
                     </span>
                     <span className="shrink-0 text-xs font-semibold tabular-nums text-[rgb(var(--color-text-secondary))]">
-                      {subject.correctCount}/{subject.totalQuestions} ·{' '}
+                      {subject.correctCount}/{subject.totalQuestions} Â·{' '}
                       {subject.accuracyPercentage}%
                     </span>
                   </div>

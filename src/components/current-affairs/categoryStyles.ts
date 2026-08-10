@@ -1,8 +1,10 @@
-const CATEGORY_COLORS: Record<string, string> = {
-  Pakistan: 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300',
+﻿const CATEGORY_COLORS: Record<string, string> = {
+  Pakistan:
+    'bg-primary-100 text-primary-700 dark:bg-primary-950 dark:text-primary-300',
   International:
     'bg-violet-100 text-violet-700 dark:bg-violet-950 dark:text-violet-300',
-  Economy: 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300',
+  Economy:
+    'bg-primary-100 text-primary-700 dark:bg-primary-950 dark:text-primary-300',
   'Science & Tech':
     'bg-cyan-100 text-cyan-700 dark:bg-cyan-950 dark:text-cyan-300',
   Sports:

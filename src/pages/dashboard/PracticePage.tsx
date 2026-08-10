@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+﻿import { useState, useMemo, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import {
   Check,
@@ -192,7 +192,8 @@ const mockQuestions: MCQ[] = [
 
 const difficultyColors: Record<string, string> = {
   easy: 'bg-accent-100 text-accent-700 dark:bg-accent-900 dark:text-accent-300',
-  medium: 'bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300',
+  medium:
+    'bg-primary-100 text-primary-700 dark:bg-primary-900 dark:text-primary-300',
   hard: 'bg-danger-100 text-danger-700 dark:bg-danger-900 dark:text-danger-300',
 };
 
@@ -418,7 +419,7 @@ export default function PracticePage() {
               className={cn(
                 'rounded-lg p-2 transition-colors',
                 hasNote
-                  ? 'text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950'
+                  ? 'text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-950'
                   : 'text-[rgb(var(--color-text-muted))] hover:bg-[rgb(var(--color-surface-elevated))] hover:text-[rgb(var(--color-text-primary))]'
               )}
               title={hasNote ? 'Edit note' : 'Add note'}
@@ -429,8 +430,8 @@ export default function PracticePage() {
         </div>
 
         {hasNote && (
-          <div className="mt-3 ml-11 rounded-lg border border-amber-200 bg-amber-50/50 px-3 py-2 dark:border-amber-800 dark:bg-amber-950/50">
-            <p className="text-xs font-medium text-amber-600 dark:text-amber-400">
+          <div className="mt-3 ml-11 rounded-lg border border-primary-200 bg-primary-50/50 px-3 py-2 dark:border-primary-800 dark:bg-primary-950/50">
+            <p className="text-xs font-medium text-primary-600 dark:text-primary-400">
               Your Note:
             </p>
             <p className="mt-0.5 text-sm text-[rgb(var(--color-text-secondary))]">

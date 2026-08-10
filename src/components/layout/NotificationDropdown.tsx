@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+﻿import { useState, useRef, useEffect, useCallback } from 'react';
 import {
   Bell,
   Check,
@@ -36,7 +36,7 @@ const mockNotifications: Notification[] = [
     type: 'study_reminder',
     title: 'Daily Study Reminder',
     message:
-      "You haven't practiced today yet. Keep your streak alive — attempt 10 MCQs now!",
+      "You haven't practiced today yet. Keep your streak alive â€” attempt 10 MCQs now!",
     timestamp: '10 min ago',
     read: false,
     href: ROUTES.PRACTICE,
@@ -46,7 +46,7 @@ const mockNotifications: Notification[] = [
     type: 'exam_alert',
     title: 'New Exam Content Added',
     message:
-      'CSS Preliminary 2026 — 35 new MCQs added to Pakistan Affairs section.',
+      'CSS Preliminary 2026 â€” 35 new MCQs added to Pakistan Affairs section.',
     timestamp: '1 hour ago',
     read: false,
     href: ROUTES.EXAMS,
@@ -114,7 +114,7 @@ const typeColors: Record<NotificationType, string> = {
   study_reminder:
     'bg-primary-100 text-primary-600 dark:bg-primary-900 dark:text-primary-400',
   exam_alert:
-    'bg-amber-100 text-amber-600 dark:bg-amber-900 dark:text-amber-400',
+    'bg-primary-100 text-primary-600 dark:bg-primary-900 dark:text-primary-400',
   progress_summary:
     'bg-accent-100 text-accent-600 dark:bg-accent-900 dark:text-accent-400',
   followed_exam:

@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router-dom';
+﻿import { Link, useLocation } from 'react-router-dom';
 import {
   ArrowRight,
   BarChart3,
@@ -31,7 +31,7 @@ export function MockTestCTA() {
 
       <div className="relative">
         <div className="flex items-center gap-2">
-          <Sparkles size={16} className="text-amber-400" aria-hidden="true" />
+          <Sparkles size={16} className="text-primary-400" aria-hidden="true" />
           <span className="text-[11px] font-semibold uppercase tracking-wider text-primary-300">
             Limited free preview
           </span>
@@ -41,7 +41,7 @@ export function MockTestCTA() {
           Register to Unlock Full-Length Mock Tests &amp; Detailed Explanations
         </h3>
         <p className="mt-2 max-w-xl text-sm leading-relaxed text-gray-300">
-          Turn this demo into complete exam preparation — timed full-length
+          Turn this demo into complete exam preparation â€” timed full-length
           tests, step-by-step solutions, and national-level ranking.
         </p>
 
@@ -73,7 +73,7 @@ export function MockTestCTA() {
             <ArrowRight size={16} aria-hidden="true" />
           </Link>
           <span className="text-xs text-gray-400">
-            No credit card required · Instant access
+            No credit card required Â· Instant access
           </span>
         </div>
       </div>

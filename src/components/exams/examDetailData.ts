@@ -1,4 +1,5 @@
-import type { MCQ } from '@/types';
+﻿import type { DirectoryExam, MCQ } from '@/types';
+import type { ExamRoadmapData, ExamSyllabusData } from '@/services/examService';
 
 export interface SubTopic {
   name: string;
@@ -79,11 +80,11 @@ export interface RoadmapPhase {
 }
 
 export const categoryColorMap: Record<string, string> = {
-  fpsc: 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300',
+  fpsc: 'bg-primary-100 text-primary-700 dark:bg-primary-900 dark:text-primary-300',
   ppsc: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300',
   nts: 'bg-violet-100 text-violet-700 dark:bg-violet-900 dark:text-violet-300',
   kppsc: 'bg-teal-100 text-teal-700 dark:bg-teal-900 dark:text-teal-300',
-  bpsc: 'bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300',
+  bpsc: 'bg-primary-100 text-primary-700 dark:bg-primary-900 dark:text-primary-300',
   spsc: 'bg-pink-100 text-pink-700 dark:bg-pink-900 dark:text-pink-300',
   other: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
 };
@@ -588,7 +589,7 @@ export const sampleMCQs: MCQ[] = [
     options: ['36', '40', '42', '48'],
     correctAnswer: 2,
     explanation:
-      'The pattern follows n(n+1): 1×2=2, 2×3=6, 3×4=12, 4×5=20, 5×6=30, 6×7=42.',
+      'The pattern follows n(n+1): 1Ã—2=2, 2Ã—3=6, 3Ã—4=12, 4Ã—5=20, 5Ã—6=30, 6Ã—7=42.',
     difficulty: 'easy',
   },
   {
@@ -761,4 +762,166 @@ export function getTopicSubtopics(
   topic: string | SubjectTopic
 ): SubTopic[] | undefined {
   return typeof topic === 'object' ? topic.subtopics : undefined;
+}
+
+// ==========================================
+// SYLLABUS & ROADMAP API → UI MAPPING
+// ==========================================
+
+/**
+ * Map the backend syllabus payload (subjectsBreakdown + joined subject/topic
+ * references) into the `ExamData.subjects` shape consumed by the tabs.
+ */
+export function mapSyllabusSubjectsToExamData(
+  syllabus: ExamSyllabusData
+): ExamData['subjects'] {
+  const subjectIndex = new Map(
+    (syllabus.joinedSubjects ?? []).map((s) => [s._id, s])
+  );
+  const topicIndex = new Map(
+    (syllabus.joinedTopics ?? []).map((t) => [t._id, t])
+  );
+
+  return (syllabus.subjectsBreakdown ?? []).map((sb, index) => {
+    const joinedSubject = subjectIndex.get(sb.subjectId);
+    const topics: (string | SubjectTopic)[] = (sb.specificTopics ?? [])
+      .map((topicId) => topicIndex.get(topicId)?.title)
+      .filter((title): title is string => Boolean(title));
+
+    return {
+      id: sb.subjectId || String(index),
+      name: joinedSubject?.title ?? `Subject ${index + 1}`,
+      weightage: sb.marks ?? sb.weightagePercentage ?? 0,
+      topics,
+    };
+  });
+}
+
+/**
+ * Map the backend roadmap payload into the `RoadmapPhase` shape consumed by
+ * the roadmap tab. Backend phases have no completion status, so they default
+ * to "upcoming".
+ */
+export function mapRoadmapDataToPhases(
+  roadmap: ExamRoadmapData
+): RoadmapPhase[] {
+  return (roadmap.phases ?? []).map((phase) => ({
+    id: `phase-${phase.phaseNumber}`,
+    phase: `Phase ${phase.phaseNumber}`,
+    title: phase.title,
+    duration: `${phase.durationWeeks} weeks`,
+    topics: [],
+    status: 'upcoming',
+  }));
+}
+
+// ==========================================
+// EXAM DIRECTORY → ExamData MAPPING
+// ==========================================
+
+function examYear(exam: DirectoryExam): string {
+  const candidates = [
+    exam.expectedExamDate,
+    exam.applicationStartDate,
+    exam.applicationDeadline,
+    exam.audit.verifiedAt,
+    exam.createdAt,
+  ];
+  for (const value of candidates) {
+    if (!value) continue;
+    const parsed = new Date(value);
+    if (!Number.isNaN(parsed.getTime())) return String(parsed.getFullYear());
+  }
+  return String(new Date().getFullYear());
+}
+
+function examDescription(exam: DirectoryExam): string {
+  if (exam.departmentName && exam.bpsScale) {
+    return `${exam.conductingAuthority} is conducting ${exam.title} (BPS-${exam.bpsScale}) for ${exam.departmentName}. Check the official notification for the latest application timeline and eligibility details.`;
+  }
+  if (exam.departmentName) {
+    return `${exam.conductingAuthority} is conducting ${exam.title} for ${exam.departmentName}. Check the official notification for the latest application timeline and eligibility details.`;
+  }
+  return `${exam.title} is a competitive exam conducted by ${exam.conductingAuthority}. Check the official notification for the latest application timeline and eligibility details.`;
+}
+
+/**
+ * Map a backend Exam Directory profile (DirectoryExam) into the ExamData
+ * shape consumed by the exam detail tabs.
+ */
+export function mapDirectoryExamToExamData(exam: DirectoryExam): ExamData {
+  const {
+    totalMarks,
+    durationMinutes,
+    negativeMarking,
+    negativeMarkingValue,
+    format,
+    passingPercentage,
+  } = exam.examPattern;
+  const passingMarks = passingPercentage
+    ? Math.round((totalMarks * passingPercentage) / 100)
+    : Math.round(totalMarks * 0.5);
+
+  const subjects = (exam.subjects ?? []).map((subject, index, arr) => ({
+    id: subject._id || subject.code || String(index),
+    name: subject.title,
+    weightage:
+      arr.length > 0 ? Math.round(totalMarks / arr.length) : totalMarks,
+    topics: [] as (string | SubjectTopic)[],
+  }));
+
+  return {
+    id: exam._id,
+    slug: exam.slug,
+    title: exam.title,
+    category: exam.conductingAuthority.toLowerCase(),
+    agency: exam.conductingAuthority,
+    year: examYear(exam),
+    description: examDescription(exam),
+    totalQuestions: totalMarks,
+    duration: durationMinutes,
+    passingMarks,
+    totalMarks,
+    verifiedOrganization: exam.audit.isVerified
+      ? exam.conductingAuthority
+      : undefined,
+    verifiedDate: exam.audit.verifiedAt
+      ? new Date(exam.audit.verifiedAt).toLocaleDateString('en-US', {
+          month: 'long',
+          year: 'numeric',
+        })
+      : undefined,
+    eligibility: {
+      education: exam.eligibility.qualificationRequired,
+      ageLimit: {
+        min: exam.eligibility.minAge,
+        max: exam.eligibility.maxAge,
+      },
+      domicile: exam.eligibility.eligibleDomiciles,
+    },
+    subjects,
+    pattern: {
+      type:
+        format === 'mcq'
+          ? 'mcq'
+          : format === 'descriptive'
+            ? 'subjective'
+            : 'both',
+      sections: [
+        {
+          name:
+            format === 'mcq'
+              ? 'MCQ Section'
+              : format === 'descriptive'
+                ? 'Descriptive Section'
+                : 'Hybrid Paper',
+          questionCount: totalMarks,
+          marksPerQuestion: 1,
+          timeLimit: durationMinutes,
+        },
+      ],
+      negativeMarking,
+      negativeMarksPerWrong: negativeMarkingValue,
+    },
+  };
 }

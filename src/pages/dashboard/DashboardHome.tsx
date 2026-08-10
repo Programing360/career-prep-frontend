@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+﻿import { Link } from 'react-router-dom';
 import {
   Flame,
   TrendingUp,
@@ -138,10 +138,10 @@ const activeDays = [true, true, true, true, true, false, false];
 
 function StudyStreakCard() {
   return (
-    <div className="rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] p-6 transition-colors hover:border-primary-200 dark:hover:border-primary-800">
+    <div className="rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] p-6 transition-colors hover:border-primary-200 dark:hover:border-primary-800 shadow-lg">
       <div className="flex items-start justify-between">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-50 dark:bg-amber-950">
-          <Flame size={20} className="text-amber-500" />
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-50 dark:bg-primary-950">
+          <Flame size={20} className="text-primary-500" />
         </div>
         <span className="text-xs font-medium text-[rgb(var(--color-text-muted))]">
           Best: {mockProgress.streak.longest} days
@@ -150,7 +150,7 @@ function StudyStreakCard() {
 
       <div className="mt-4">
         <p className="text-2xl font-bold font-heading text-[rgb(var(--color-text-primary))]">
-          {mockProgress.streak.current} Day Streak 🔥
+          {mockProgress.streak.current} Day Streak ðŸ”¥
         </p>
         <p className="mt-1 text-sm text-[rgb(var(--color-text-secondary))]">
           Keep it up! You&apos;re on a roll this week.
@@ -163,7 +163,7 @@ function StudyStreakCard() {
             <div
               className={`flex h-8 w-full items-center justify-center rounded-md text-xs font-medium transition-colors ${
                 activeDays[i]
-                  ? 'bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300'
+                  ? 'bg-primary-100 text-primary-700 dark:bg-primary-900 dark:text-primary-300'
                   : 'bg-[rgb(var(--color-surface-elevated))] text-[rgb(var(--color-text-muted))]'
               }`}
             >
@@ -189,7 +189,7 @@ function XpProgressCard() {
   );
 
   return (
-    <div className="rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] p-6 transition-colors hover:border-primary-200 dark:hover:border-primary-800">
+    <div className="rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] p-6 transition-colors hover:border-primary-200 dark:hover:border-primary-800 shadow-lg">
       <div className="flex items-start justify-between">
         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-50 dark:bg-violet-950">
           <Zap size={20} className="text-violet-500" />
@@ -240,14 +240,14 @@ function ReadinessScoreCard() {
     score >= 75
       ? 'text-accent-500'
       : score >= 50
-        ? 'text-amber-500'
+        ? 'text-primary-500'
         : 'text-danger-500';
 
   const scoreStroke =
     score >= 75
       ? 'stroke-accent-500'
       : score >= 50
-        ? 'stroke-amber-500'
+        ? 'stroke-primary-500'
         : 'stroke-danger-500';
 
   const scoreLabel =
@@ -258,7 +258,7 @@ function ReadinessScoreCard() {
         : 'Time to focus!';
 
   return (
-    <div className="rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] p-6 transition-colors hover:border-primary-200 dark:hover:border-primary-800">
+    <div className="rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] p-6 transition-colors hover:border-primary-200 dark:hover:border-primary-800 shadow-lg">
       <div className="flex items-start justify-between">
         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-50 dark:bg-primary-950">
           <Target size={20} className="text-primary-500" />
@@ -304,10 +304,10 @@ function ReadinessScoreCard() {
 
       <div className="mt-4 text-center">
         <p className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
-          Exam Readiness Score 🎯
+          Exam Readiness Score ðŸŽ¯
         </p>
         <p className="mt-1 text-xs text-[rgb(var(--color-text-secondary))]">
-          {scoreLabel} You&apos;re{' '}
+          {scoreLabel} You're{' '}
           {score >= 75
             ? 'nearly exam-ready'
             : score >= 50
@@ -322,7 +322,7 @@ function ReadinessScoreCard() {
 
 function ContinueLearningCard() {
   return (
-    <div className="rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] p-6">
+    <div className="rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] p-6 shadow-lg">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Play size={18} className="text-primary-500" />
@@ -385,7 +385,7 @@ function ActivityIcon({ type }: { type: RecentActivity['type'] }) {
     case 'bookmark':
       return <Bookmark size={16} className="text-primary-500" />;
     case 'streak_milestone':
-      return <Flame size={16} className="text-amber-500" />;
+      return <Flame size={16} className="text-primary-500" />;
     case 'badge_earned':
       return <Trophy size={16} className="text-violet-500" />;
     case 'practice_session':
@@ -399,7 +399,7 @@ function ActivityIcon({ type }: { type: RecentActivity['type'] }) {
 
 function RecentActivityCard() {
   return (
-    <div className="rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] p-6">
+    <div className="rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] p-6 shadow-lg">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Clock size={18} className="text-primary-500" />
@@ -469,7 +469,7 @@ export default function DashboardHome() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold font-heading text-[rgb(var(--color-text-primary))]">
-            Welcome back, {firstName}! 👋
+            Welcome back, {firstName}!
           </h1>
           <p className="mt-1 text-sm text-[rgb(var(--color-text-secondary))]">
             Here's your study progress for today. You've completed{' '}
@@ -482,7 +482,7 @@ export default function DashboardHome() {
             <Zap size={14} />
             {mockProgress.xp} XP
           </div>
-          <div className="flex items-center gap-1.5 rounded-lg bg-amber-50 px-3 py-1.5 text-sm font-medium text-amber-700 dark:bg-amber-950 dark:text-amber-300">
+          <div className="flex items-center gap-1.5 rounded-lg bg-primary-50 px-3 py-1.5 text-sm font-medium text-primary-700 dark:bg-primary-950 dark:text-primary-300">
             <Trophy size={14} />
             {mockProgress.coins} Coins
           </div>

@@ -15,6 +15,9 @@ const ExamDetailWrapper = lazy(() => import('@/pages/exams/ExamDetailWrapper'));
 const Login = lazy(() => import('@/pages/auth/Login'));
 const Register = lazy(() => import('@/pages/auth/Register'));
 const VerifyEmail = lazy(() => import('@/pages/auth/VerifyEmail'));
+const ForgotPassword = lazy(() => import('@/pages/auth/ForgotPassword'));
+const ResetPassword = lazy(() => import('@/pages/auth/ResetPassword'));
+const AcceptInvitation = lazy(() => import('@/pages/auth/AcceptInvitation'));
 const DashboardHome = lazy(() => import('@/pages/dashboard/DashboardHome'));
 const PracticePage = lazy(() => import('@/pages/dashboard/PracticePage'));
 const AiTutorPage = lazy(() => import('@/pages/dashboard/AiTutorPage'));
@@ -30,6 +33,8 @@ const AdminExamsPage = lazy(() => import('@/pages/admin/AdminExamsPage'));
 const AdminTokenSettingsPage = lazy(
   () => import('@/pages/admin/AdminTokenSettingsPage')
 );
+const AdminTaxonomyPage = lazy(() => import('@/pages/admin/AdminTaxonomyPage'));
+const AdminSyllabusPage = lazy(() => import('@/pages/admin/AdminSyllabusPage'));
 const CreateExamPage = lazy(() => import('@/pages/admin/CreateExamPage'));
 const ExamCategoriesPage = lazy(
   () => import('@/pages/public/ExamCategoriesPage')
@@ -70,6 +75,15 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path={ROUTES.VERIFY_EMAIL} element={<VerifyEmail />} />
+          <Route path={ROUTES.FORGOT_PASSWORD} element={<ForgotPassword />} />
+          <Route
+            path={ROUTES.RESET_PASSWORD_TOKEN}
+            element={<ResetPassword />}
+          />
+          <Route
+            path={ROUTES.ACCEPT_INVITATION}
+            element={<AcceptInvitation />}
+          />
           <Route path={ROUTES.EXAMS} element={<ExamCategoriesPage />} />
           <Route path={ROUTES.SUBJECTS} element={<SubjectsLibrary />} />
           <Route path={ROUTES.ABOUT} element={<AboutPage />} />
@@ -117,6 +131,14 @@ export default function App() {
             <Route path={ROUTES.ADMIN_USERS} element={<AdminUsersPage />} />
             <Route path={ROUTES.ADMIN_EXAMS} element={<AdminExamsPage />} />
             <Route path={ROUTES.ADMIN_EXAMS_NEW} element={<CreateExamPage />} />
+            <Route
+              path={ROUTES.ADMIN_TAXONOMY}
+              element={<AdminTaxonomyPage />}
+            />
+            <Route
+              path={ROUTES.ADMIN_SYLLABUS}
+              element={<AdminSyllabusPage />}
+            />
             <Route
               path={ROUTES.ADMIN_AI_TOKENS}
               element={<AdminTokenSettingsPage />}

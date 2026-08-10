@@ -1,10 +1,12 @@
 import api, { AUTH_TOKEN_KEY } from '@/lib/axios';
 import { setStorageItem } from '@/utils/storageHelpers';
 import type {
+  ForgotPasswordInput,
   LoginInput,
   LoginResponse,
   RegisterInput,
   RegisterResponse,
+  ResetPasswordInput,
   ResendOtpInput,
   User,
   VerifyOtpInput,
@@ -57,7 +59,7 @@ function asUser(value: unknown): User | undefined {
     id,
     email,
     name: readString(source, ['name']) ?? email.split('@')[0] ?? '',
-    role: (source.role as User['role']) ?? 'student',
+    role: (source.role as User['role']) ?? 'user',
     phone: readString(source, ['phone']),
     avatar: readString(source, ['avatar']),
     isEmailVerified: Boolean(source.isEmailVerified),
@@ -139,6 +141,42 @@ export async function resendOtp(
       readString(record, ['message']) ??
       'A new verification code has been sent.',
     expiresInSeconds: record.expiresInSeconds as number | undefined,
+  };
+}
+
+/**
+ * Request a password reset link to be emailed to the given address.
+ * POST /auth/forgot-password
+ */
+export async function forgotPassword(
+  input: ForgotPasswordInput
+): Promise<{ message: string }> {
+  const { data } = await api.post<unknown>('/auth/forgot-password', input);
+  const record = unwrap<UnknownRecord>(data);
+  return {
+    message:
+      readString(record, ['message']) ??
+      'If an account exists with that email, a reset link has been sent.',
+  };
+}
+
+/**
+ * Set a new password using the reset token from the emailed link.
+ * POST /auth/reset-password/:token
+ */
+export async function resetPassword(
+  token: string,
+  input: ResetPasswordInput
+): Promise<{ message: string }> {
+  const { data } = await api.post<unknown>(
+    `/auth/reset-password/${encodeURIComponent(token)}`,
+    input
+  );
+  const record = unwrap<UnknownRecord>(data);
+  return {
+    message:
+      readString(record, ['message']) ??
+      'Your password has been reset. Please sign in.',
   };
 }
 

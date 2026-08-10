@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+﻿import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { motion } from 'framer-motion';
 import {
   ChevronLeft,
@@ -306,7 +306,7 @@ export function MCQPracticeContainer({
           <div className="mb-1.5 flex items-center justify-between text-xs">
             <span className="font-medium text-[rgb(var(--color-text-secondary))]">
               {isGuest
-                ? `Question ${Math.min(currentIndex + 1, totalForDisplay)} of ${totalForDisplay} — Free Preview`
+                ? `Question ${Math.min(currentIndex + 1, totalForDisplay)} of ${totalForDisplay} â€” Free Preview`
                 : `Question ${currentIndex + 1} of ${visibleQuestions.length}`}
             </span>
             <div className="flex items-center gap-3">
@@ -324,7 +324,7 @@ export function MCQPracticeContainer({
                     accuracy >= 70
                       ? 'text-accent-500'
                       : accuracy >= 40
-                        ? 'text-yellow-500'
+                        ? 'text-primary-500'
                         : 'text-danger-500'
                   )}
                 >

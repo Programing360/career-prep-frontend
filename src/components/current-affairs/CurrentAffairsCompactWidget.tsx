@@ -99,7 +99,7 @@ export function CurrentAffairsCompactWidget({
         <ul className="divide-y divide-gray-200/60 dark:divide-gray-800/60">
           {items.map((item) => (
             <li key={item.id} className={ROW_CLASSES}>
-              <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center justify-between gap-2 px-2">
                 <span
                   className={cn(
                     'inline-flex max-w-[60%] truncate rounded-full px-2 py-0.5 text-[10px] font-semibold',
@@ -115,10 +115,10 @@ export function CurrentAffairsCompactWidget({
                   </time>
                 </span>
               </div>
-              <p className="mt-1.5 truncate text-sm font-medium text-gray-800 dark:text-gray-200">
+              <p className="mt-1.5 px-2 truncate text-sm font-medium text-gray-800 dark:text-gray-200">
                 {item.title}
               </p>
-              <div className="mt-1.5">
+              <div className="mt-1.5 px-2">
                 <SourceAttributionBadge
                   sourceName={item.sourceName}
                   sourceUrl={item.sourceUrl}

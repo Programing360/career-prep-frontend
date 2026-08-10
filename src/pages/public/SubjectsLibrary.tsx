@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+﻿import { useState, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -12,6 +12,7 @@ import {
   Brain,
   Computer,
   ArrowLeft,
+  Sparkles,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ROUTES } from '@/constants/routes';
@@ -35,7 +36,7 @@ const CORE_SUBJECTS: Subject[] = [
     icon: Globe,
     topicCount: 4,
     color:
-      'from-blue-500/10 to-blue-600/5 border-blue-200 dark:border-blue-800',
+      'from-purple-500/10 via-purple-500/5 to-transparent border-purple-200/60 dark:border-purple-800/40',
   },
   {
     id: 'english',
@@ -45,7 +46,7 @@ const CORE_SUBJECTS: Subject[] = [
     icon: Languages,
     topicCount: 4,
     color:
-      'from-emerald-500/10 to-emerald-600/5 border-emerald-200 dark:border-emerald-800',
+      'from-fuchsia-500/10 via-fuchsia-500/5 to-transparent border-fuchsia-200/60 dark:border-fuchsia-800/40',
   },
   {
     id: 'math',
@@ -55,7 +56,7 @@ const CORE_SUBJECTS: Subject[] = [
     icon: Calculator,
     topicCount: 4,
     color:
-      'from-violet-500/10 to-violet-600/5 border-violet-200 dark:border-violet-800',
+      'from-violet-500/10 via-violet-500/5 to-transparent border-violet-200/60 dark:border-violet-800/40',
   },
   {
     id: 'pak-studies',
@@ -65,7 +66,7 @@ const CORE_SUBJECTS: Subject[] = [
     icon: Landmark,
     topicCount: 3,
     color:
-      'from-amber-500/10 to-amber-600/5 border-amber-200 dark:border-amber-800',
+      'from-indigo-500/10 via-indigo-500/5 to-transparent border-indigo-200/60 dark:border-indigo-800/40',
   },
   {
     id: 'physics',
@@ -75,7 +76,7 @@ const CORE_SUBJECTS: Subject[] = [
     icon: Atom,
     topicCount: 3,
     color:
-      'from-rose-500/10 to-rose-600/5 border-rose-200 dark:border-rose-800',
+      'from-pink-500/10 via-pink-500/5 to-transparent border-pink-200/60 dark:border-pink-800/40',
   },
   {
     id: 'reasoning',
@@ -85,7 +86,7 @@ const CORE_SUBJECTS: Subject[] = [
     icon: Brain,
     topicCount: 4,
     color:
-      'from-teal-500/10 to-teal-600/5 border-teal-200 dark:border-teal-800',
+      'from-purple-500/10 via-purple-500/5 to-transparent border-purple-200/60 dark:border-purple-800/40',
   },
   {
     id: 'computer-science',
@@ -95,7 +96,7 @@ const CORE_SUBJECTS: Subject[] = [
     icon: Computer,
     topicCount: 3,
     color:
-      'from-cyan-500/10 to-cyan-600/5 border-cyan-200 dark:border-cyan-800',
+      'from-cyan-500/10 via-cyan-500/5 to-transparent border-cyan-200/60 dark:border-cyan-800/40',
   },
   {
     id: 'islamic-studies',
@@ -105,7 +106,7 @@ const CORE_SUBJECTS: Subject[] = [
     icon: BookOpen,
     topicCount: 3,
     color:
-      'from-indigo-500/10 to-indigo-600/5 border-indigo-200 dark:border-indigo-800',
+      'from-violet-500/10 via-violet-500/5 to-transparent border-violet-200/60 dark:border-violet-800/40',
   },
 ];
 
@@ -116,7 +117,7 @@ const cardVariants = {
   show: (i: number) => ({
     opacity: 1,
     y: 0,
-    transition: { duration: 0.35, delay: i * 0.06, ease: 'easeOut' },
+    transition: { duration: 0.35, delay: i * 0.05, ease: 'easeOut' },
   }),
 };
 
@@ -128,6 +129,9 @@ const chipVariants = {
     transition: { duration: 0.15, delay: i * 0.03 },
   }),
 };
+
+const glassHeader =
+  'backdrop-blur-xl bg-white/60 dark:bg-slate-900/60 border-b border-white/40 dark:border-purple-500/20 shadow-lg shadow-purple-950/5';
 
 export default function SubjectsLibrary() {
   const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
@@ -158,50 +162,49 @@ export default function SubjectsLibrary() {
   if (selectedSubject) {
     const SubjectIcon = selectedSubject.icon;
     return (
-      <div className="min-h-screen">
-        <section className="relative overflow-hidden border-b border-white/20 bg-white/70 backdrop-blur-md dark:border-gray-800/50 dark:bg-gray-900/70">
-          <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute -right-20 -top-20 h-72 w-72 rounded-full bg-primary-400/10 blur-3xl" />
-            <div className="absolute -left-20 -bottom-20 h-96 w-96 rounded-full bg-emerald-400/10 blur-3xl" />
-          </div>
+      <div className="relative min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 overflow-hidden transition-colors">
+        {/* Background Ambient Orbs */}
+        <div className="pointer-events-none absolute -top-10 -left-10 h-96 w-96 rounded-full bg-purple-600/15 blur-3xl" />
+        <div className="pointer-events-none absolute top-1/3 -right-20 h-96 w-96 rounded-full bg-fuchsia-600/15 blur-3xl" />
 
+        <section className={`relative ${glassHeader}`}>
           <div className="relative mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4 }}
             >
-              <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+              <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
                 <Link
                   to={ROUTES.SUBJECTS}
                   onClick={handleBack}
-                  className="hover:text-gray-700 dark:hover:text-gray-200"
+                  className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
                 >
                   Subjects
                 </Link>
                 <ChevronRight size={12} />
-                <span className="font-medium text-gray-700 dark:text-gray-300">
+                <span className="font-medium text-slate-800 dark:text-slate-200">
                   {selectedSubject.name}
                 </span>
               </div>
 
-              <div className="mt-4 flex items-center gap-3">
+              <div className="mt-4 flex items-center gap-4">
                 <div
                   className={cn(
-                    'flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br',
+                    'flex h-12 w-12 items-center justify-center rounded-2xl border bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-md',
                     selectedSubject.color
                   )}
                 >
                   <SubjectIcon
-                    size={20}
-                    className="text-primary-600 dark:text-primary-400"
+                    size={24}
+                    className="text-purple-600 dark:text-purple-400"
                   />
                 </div>
                 <div>
-                  <h1 className="text-2xl font-black tracking-tight text-gray-900 dark:text-white sm:text-3xl">
+                  <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white sm:text-3xl">
                     {selectedSubject.name}
                   </h1>
-                  <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">
+                  <p className="mt-0.5 text-sm text-slate-600 dark:text-slate-300">
                     {selectedSubject.description}
                   </p>
                 </div>
@@ -209,25 +212,25 @@ export default function SubjectsLibrary() {
 
               <button
                 onClick={handleBack}
-                className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
+                className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 transition-colors"
               >
-                <ArrowLeft size={14} />
+                <ArrowLeft size={16} />
                 Back to all subjects
               </button>
             </motion.div>
           </div>
         </section>
 
-        <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+        <div className="relative mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
           {/* Difficulty Filter Chips */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.15 }}
-            className="mb-6 rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] p-4"
+            className="mb-6 rounded-2xl border border-white/50 dark:border-purple-500/20 bg-white/40 dark:bg-slate-900/40 p-4 backdrop-blur-xl shadow-lg"
           >
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-[rgb(var(--color-text-muted))]">
-              Difficulty
+            <p className="mb-2.5 text-xs font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400 flex items-center gap-1.5">
+              <Sparkles size={12} /> Difficulty Level
             </p>
             <div className="flex flex-wrap gap-2">
               <motion.button
@@ -238,10 +241,10 @@ export default function SubjectsLibrary() {
                 type="button"
                 onClick={() => handleDifficultyChange(undefined)}
                 className={cn(
-                  'rounded-full border px-3 py-1.5 text-xs font-medium transition-all focus-ring',
+                  'rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-all focus-ring',
                   !selectedDifficulty
-                    ? 'border-primary-400 bg-primary-500 text-white dark:border-primary-600'
-                    : 'border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] text-[rgb(var(--color-text-secondary))] hover:border-primary-300 hover:bg-primary-50 dark:hover:border-primary-700'
+                    ? 'border-purple-500 bg-purple-600 text-white shadow-md shadow-purple-500/20 dark:bg-purple-500'
+                    : 'border-slate-200/80 dark:border-slate-800 bg-white/60 dark:bg-slate-900/60 text-slate-700 dark:text-slate-300 hover:border-purple-300 dark:hover:border-purple-700'
                 )}
               >
                 All Levels
@@ -260,14 +263,14 @@ export default function SubjectsLibrary() {
                     )
                   }
                   className={cn(
-                    'rounded-full border px-3 py-1.5 text-xs font-medium transition-all focus-ring',
+                    'rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-all focus-ring',
                     selectedDifficulty === diff
                       ? diff === 'Easy'
-                        ? 'border-accent-400 bg-accent-500 text-white'
+                        ? 'border-emerald-400 bg-emerald-500 text-white shadow-md shadow-emerald-500/20'
                         : diff === 'Medium'
-                          ? 'border-yellow-400 bg-yellow-500 text-white'
-                          : 'border-danger-400 bg-danger-500 text-white'
-                      : 'border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] text-[rgb(var(--color-text-secondary))] hover:border-primary-300 hover:bg-primary-50 dark:hover:border-primary-700'
+                          ? 'border-purple-400 bg-purple-600 text-white shadow-md shadow-purple-500/20'
+                          : 'border-rose-400 bg-rose-500 text-white shadow-md shadow-rose-500/20'
+                      : 'border-slate-200/80 dark:border-slate-800 bg-white/60 dark:bg-slate-900/60 text-slate-700 dark:text-slate-300 hover:border-purple-300 dark:hover:border-purple-700'
                   )}
                 >
                   {diff}
@@ -290,36 +293,39 @@ export default function SubjectsLibrary() {
   }
 
   return (
-    <div className="min-h-screen">
-      <section className="relative overflow-hidden border-b border-white/20 bg-white/70 backdrop-blur-md dark:border-gray-800/50 dark:bg-gray-900/70 shadow-sm">
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute -right-20 -top-20 h-72 w-72 rounded-full bg-primary-400/10 blur-3xl" />
-          <div className="absolute -left-20 -bottom-20 h-96 w-96 rounded-full bg-emerald-400/10 blur-3xl" />
-        </div>
+    <div className="relative min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 overflow-hidden transition-colors">
+      {/* Background Ambient Orbs */}
+      <div className="pointer-events-none absolute -top-10 -left-10 h-96 w-96 rounded-full bg-purple-600/15 blur-3xl" />
+      <div className="pointer-events-none absolute top-1/2 -right-20 h-96 w-96 rounded-full bg-fuchsia-600/15 blur-3xl" />
 
-        <div className="relative mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8 ">
+      {/* Header */}
+      <section className={`relative ${glassHeader}`}>
+        <div className="relative mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 ">
+            <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
               <Link
                 to={ROUTES.HOME}
-                className="hover:text-gray-700 dark:hover:text-gray-200"
+                className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
               >
                 Home
               </Link>
               <ChevronRight size={12} />
-              <span className="font-medium text-gray-700 dark:text-gray-300">
+              <span className="font-medium text-slate-800 dark:text-slate-200">
                 Subjects
               </span>
             </div>
 
-            <h1 className="mt-4 text-3xl font-black tracking-tight text-gray-900 dark:text-white sm:text-4xl">
-              Subjects Library
+            <h1 className="mt-4 text-3xl font-black tracking-tight text-slate-900 dark:text-white sm:text-4xl">
+              Subjects{' '}
+              <span className="text-purple-600 dark:text-purple-400">
+                Library
+              </span>
             </h1>
-            <p className="mt-3 max-w-2xl text-base text-gray-600 dark:text-gray-300 sm:text-lg">
+            <p className="mt-3 max-w-2xl text-base text-slate-600 dark:text-slate-300 sm:text-lg">
               Browse core subjects and practice MCQs to strengthen your
               preparation for competitive exams.
             </p>
@@ -327,9 +333,10 @@ export default function SubjectsLibrary() {
         </div>
       </section>
 
-      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+      {/* Grid Content */}
+      <div className="relative mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
         <div
-          className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+          className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
           role="list"
           aria-label="Core subjects"
         >
@@ -346,23 +353,23 @@ export default function SubjectsLibrary() {
                 role="listitem"
                 onClick={() => handleSelectSubject(subject)}
                 className={cn(
-                  'group relative overflow-hidden rounded-xl border bg-gradient-to-br p-5 text-left transition-all shadow-lg focus-ring hover:shadow-2xl',
+                  'group relative overflow-hidden rounded-2xl border bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl p-5 text-left transition-all duration-300 shadow-xl shadow-purple-950/5 dark:shadow-purple-950/20 focus-ring hover:-translate-y-1 hover:border-purple-300/80 dark:hover:border-purple-500/50 hover:shadow-2xl hover:shadow-purple-500/10',
                   subject.color
                 )}
               >
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/80 dark:bg-gray-900/80">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/60 dark:border-purple-500/20 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-sm transition-transform group-hover:scale-105">
                   <SubjectIcon
-                    size={20}
-                    className="text-primary-600 transition-colors group-hover:text-primary-700 dark:text-primary-400"
+                    size={22}
+                    className="text-purple-600 dark:text-purple-400 transition-colors group-hover:text-purple-700 dark:group-hover:text-purple-300"
                   />
                 </div>
-                <h3 className="mt-3 text-sm font-bold text-gray-900 dark:text-white">
+                <h3 className="mt-4 text-base font-bold text-slate-900 dark:text-white">
                   {subject.name}
                 </h3>
-                <p className="mt-1 text-xs leading-relaxed text-gray-600 dark:text-gray-400">
+                <p className="mt-1 text-xs leading-relaxed text-slate-600 dark:text-slate-400">
                   {subject.description}
                 </p>
-                <div className="mt-3 inline-flex items-center gap-1 rounded-full bg-white/60 px-2 py-0.5 text-[10px] font-semibold text-gray-500 dark:bg-gray-800/60 dark:text-gray-400">
+                <div className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-purple-200/50 dark:border-purple-800/50 bg-purple-50/80 dark:bg-purple-950/50 px-2.5 py-0.5 text-[10px] font-bold text-purple-600 dark:text-purple-300">
                   <BookOpen size={10} />
                   {subject.topicCount} topics
                 </div>

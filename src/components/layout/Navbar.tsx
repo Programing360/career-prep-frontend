@@ -19,8 +19,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/hooks/useTheme';
 import { ROUTES } from '@/constants/routes';
 import { cn } from '@/lib/utils';
+import GlobalSearch from '@/components/search/GlobalSearch';
 import type { UserRole } from '@/types';
-// import { getProfile } from '@/services';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -45,7 +45,7 @@ const adminMenuItems = [
   { label: 'Settings', to: ROUTES.ADMIN_AI_TOKENS, icon: Settings },
 ];
 
-const ADMIN_ROLES: UserRole[] = ['admin', 'super_admin', 'content_manager'];
+const ADMIN_ROLES: UserRole[] = ['admin', 'moderator'];
 
 // ─── Scroll Hook ─────────────────────────────────────────────────────────────
 
@@ -91,8 +91,6 @@ export default function Navbar() {
 
   const isAdmin = user ? ADMIN_ROLES.includes(user.role) : false;
   const menuItems = isAdmin ? adminMenuItems : studentMenuItems;
-
-  // console.log(user);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -147,9 +145,9 @@ export default function Navbar() {
       transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
       className={cn(
         'fixed inset-x-0 top-0 z-50 transition-all duration-300',
-        // Modern Glassmorphism Styling
-        'border-b border-white/20 bg-white/60 shadow-lg backdrop-blur-xl backdrop-saturate-150',
-        'dark:border-white/10 dark:bg-gray-950/65 dark:shadow-black/20'
+        // Modern Glassmorphism Styling with Soft Purple Tint
+        'border-b border-[#8B3DFF]/15 bg-[#FAF7FF]/80 shadow-lg shadow-purple-950/5 backdrop-blur-xl backdrop-saturate-150',
+        'dark:border-purple-900/40 dark:bg-[#0F0A1C]/80 dark:shadow-black/20'
       )}
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -158,10 +156,10 @@ export default function Navbar() {
           to={ROUTES.HOME}
           className="group flex items-center gap-2.5 transition-transform duration-200 active:scale-95"
         >
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-500/10 text-primary-500 transition-colors group-hover:bg-primary-500 group-hover:text-white dark:bg-primary-400/10 dark:text-primary-400">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#F3E8FF] text-[#8B3DFF] transition-all duration-300 group-hover:bg-[#8B3DFF] group-hover:text-white dark:bg-purple-950/60 dark:text-purple-300">
             <GraduationCap size={24} />
           </div>
-          <span className="font-heading text-xl font-bold tracking-tight text-gray-900 transition-colors group-hover:text-primary-600 dark:text-white dark:group-hover:text-primary-400">
+          <span className="font-heading text-xl font-bold tracking-tight text-gray-900 transition-colors group-hover:text-[#8B3DFF] dark:text-white dark:group-hover:text-purple-300">
             MeritPrep
           </span>
         </Link>
@@ -177,15 +175,15 @@ export default function Navbar() {
                 className={cn(
                   'group relative rounded-lg px-3.5 py-2 text-sm font-medium transition-all duration-200 hover:translate-y-0.5',
                   active
-                    ? 'text-primary-600 dark:text-primary-400 font-semibold'
-                    : 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white'
+                    ? 'text-[#8B3DFF] dark:text-purple-300 font-semibold'
+                    : 'text-gray-600 hover:text-gray-900 dark:text-purple-200/70 dark:hover:text-white'
                 )}
               >
                 {/* Active Soft Pill Background */}
                 {active && (
                   <motion.div
                     layoutId="activeNav"
-                    className="absolute inset-0 rounded-lg bg-primary-500/10 dark:bg-primary-400/15"
+                    className="absolute inset-0 rounded-lg bg-[#F3E8FF] dark:bg-purple-950/60"
                     transition={{
                       type: 'spring',
                       stiffness: 380,
@@ -199,7 +197,7 @@ export default function Navbar() {
                 {/* Left-to-Right Hover Border Line Effect */}
                 <span
                   className={cn(
-                    'absolute bottom-0 left-0 h-[2px] w-full origin-left scale-x-0 rounded-full bg-primary-500 transition-transform duration-300 ease-out group-hover:scale-x-100 dark:bg-primary-400',
+                    'absolute bottom-0 left-0 h-[2px] w-full origin-left scale-x-0 rounded-full bg-[#8B3DFF] transition-transform duration-300 ease-out group-hover:scale-x-100 dark:bg-purple-400',
                     active && 'scale-x-100'
                   )}
                 />
@@ -208,6 +206,11 @@ export default function Navbar() {
           })}
         </nav>
 
+        {/* ── Global Search (desktop) ───────────────────────────────── */}
+        <div className="hidden items-center lg:flex">
+          <GlobalSearch placeholder="Search exams…" className="w-64 xl:w-72" />
+        </div>
+
         {/* ── Desktop Right Actions ─────────────────────────────────── */}
         <div className="hidden items-center gap-3 md:flex">
           {/* Theme Toggle */}
@@ -215,8 +218,8 @@ export default function Navbar() {
             onClick={toggleTheme}
             className={cn(
               'flex h-9 w-9 items-center justify-center rounded-full transition-all duration-200 active:scale-95',
-              'bg-gray-100/80 text-gray-600 hover:bg-gray-200 hover:text-gray-900',
-              'dark:bg-gray-800/80 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white'
+              'bg-[#F3E8FF]/60 text-[#8B3DFF] hover:bg-[#8B3DFF] hover:text-white',
+              'dark:bg-purple-950/60 dark:text-purple-300 dark:hover:bg-[#8B3DFF] dark:hover:text-white'
             )}
             aria-label="Toggle theme"
           >
@@ -252,25 +255,25 @@ export default function Navbar() {
                 onClick={() => setDropdownOpen((o) => !o)}
                 className={cn(
                   'flex items-center gap-2 rounded-full p-1 transition-all duration-200 active:scale-95',
-                  'hover:bg-gray-100 dark:hover:bg-gray-800',
-                  dropdownOpen && 'bg-gray-100 dark:bg-gray-800'
+                  'hover:bg-[#F3E8FF] dark:hover:bg-purple-950/60',
+                  dropdownOpen && 'bg-[#F3E8FF] dark:bg-purple-950/60'
                 )}
               >
                 {user.avatar ? (
                   <img
                     src={user.avatar}
                     alt={user.name}
-                    className="h-8 w-8 rounded-full object-cover ring-2 ring-primary-500/20 dark:ring-primary-400/30"
+                    className="h-8 w-8 rounded-full object-cover ring-2 ring-[#8B3DFF]/30 dark:ring-purple-400/40"
                   />
                 ) : (
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-500 text-sm font-semibold text-white shadow-sm">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#8B3DFF] text-sm font-semibold text-white shadow-sm">
                     {user.name.charAt(0).toUpperCase()}
                   </div>
                 )}
                 <ChevronDown
                   size={14}
                   className={cn(
-                    'text-gray-500 transition-transform duration-200 dark:text-gray-400',
+                    'text-[#8B3DFF] transition-transform duration-200 dark:text-purple-300',
                     dropdownOpen && 'rotate-180'
                   )}
                 />
@@ -286,7 +289,7 @@ export default function Navbar() {
                     className={cn(
                       'absolute right-0 mt-2 w-64 origin-top-right',
                       'rounded-2xl border p-1.5 shadow-2xl backdrop-blur-2xl',
-                      'border-white/30 bg-white/85 dark:border-white/10 dark:bg-gray-900/85'
+                      'border-purple-200/60 bg-[#FAF7FF]/95 dark:border-purple-900/50 dark:bg-[#0F0A1C]/95'
                     )}
                   >
                     {/* User Info Header */}
@@ -298,7 +301,7 @@ export default function Navbar() {
                           className="h-10 w-10 rounded-full object-cover"
                         />
                       ) : (
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-500 text-sm font-bold text-white shadow">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#8B3DFF] text-sm font-bold text-white shadow">
                           {user.name.charAt(0).toUpperCase()}
                         </div>
                       )}
@@ -306,13 +309,13 @@ export default function Navbar() {
                         <p className="truncate text-sm font-semibold text-gray-900 dark:text-white">
                           {user.name}
                         </p>
-                        <p className="truncate text-xs text-gray-500 dark:text-gray-400">
+                        <p className="truncate text-xs text-purple-600/70 dark:text-purple-300/70">
                           {user.email}
                         </p>
                       </div>
                     </div>
 
-                    <div className="my-1 h-px bg-gray-200/60 dark:bg-gray-800" />
+                    <div className="my-1 h-px bg-purple-100 dark:bg-purple-900/40" />
 
                     {/* Menu Items */}
                     {menuItems.map((item) => {
@@ -325,19 +328,19 @@ export default function Navbar() {
                           className={cn(
                             'flex items-center gap-2.5 rounded-lg px-3 py-2',
                             'text-sm font-medium text-gray-700 transition-all duration-150',
-                            'hover:bg-primary-50 hover:text-primary-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white'
+                            'hover:bg-[#F3E8FF] hover:text-[#8B3DFF] dark:text-purple-100 dark:hover:bg-purple-900/40 dark:hover:text-purple-300'
                           )}
                         >
                           <Icon
                             size={16}
-                            className="text-gray-400 transition-colors group-hover:text-primary-500 dark:text-gray-500"
+                            className="text-[#8B3DFF]/70 transition-colors dark:text-purple-300/70 "
                           />
                           {item.label}
                         </Link>
                       );
                     })}
 
-                    <div className="my-1 h-px bg-gray-200/60 dark:bg-gray-800" />
+                    <div className="my-1 h-px bg-purple-100 dark:bg-purple-900/40" />
 
                     {/* Logout */}
                     <button
@@ -361,9 +364,8 @@ export default function Navbar() {
               to={ROUTES.LOGIN}
               className={cn(
                 'relative inline-flex items-center justify-center overflow-hidden rounded-xl px-5 py-2',
-                'text-sm font-semibold text-white shadow-md transition-all duration-200 active:scale-95',
-                'bg-gray-900 hover:bg-gray-800 hover:shadow-lg',
-                'dark:bg-primary-600 dark:hover:bg-primary-500'
+                'text-sm font-semibold text-white shadow-md shadow-purple-500/20 transition-all duration-200 active:scale-95',
+                'bg-[#8B3DFF] hover:bg-[#7424ED] hover:shadow-lg hover:shadow-purple-500/30'
               )}
             >
               Login
@@ -377,8 +379,8 @@ export default function Navbar() {
             onClick={toggleTheme}
             className={cn(
               'flex h-9 w-9 items-center justify-center rounded-full',
-              'bg-gray-100/80 text-gray-600 transition-colors hover:bg-gray-200',
-              'dark:bg-gray-800/80 dark:text-gray-300 dark:hover:bg-gray-700'
+              'bg-[#F3E8FF]/60 text-[#8B3DFF] transition-colors hover:bg-[#8B3DFF] hover:text-white',
+              'dark:bg-purple-950/60 dark:text-purple-300 dark:hover:bg-[#8B3DFF] dark:hover:text-white'
             )}
             aria-label="Toggle theme"
           >
@@ -388,8 +390,8 @@ export default function Navbar() {
             onClick={() => setMobileMenuOpen((o) => !o)}
             className={cn(
               'flex h-9 w-9 items-center justify-center rounded-full',
-              'bg-gray-100/80 text-gray-600 transition-colors hover:bg-gray-200',
-              'dark:bg-gray-800/80 dark:text-gray-300 dark:hover:bg-gray-700'
+              'bg-[#F3E8FF]/60 text-[#8B3DFF] transition-colors hover:bg-[#8B3DFF] hover:text-white',
+              'dark:bg-purple-950/60 dark:text-purple-300 dark:hover:bg-[#8B3DFF] dark:hover:text-white'
             )}
             aria-label="Toggle menu"
           >
@@ -408,7 +410,7 @@ export default function Navbar() {
             transition={{ duration: 0.2 }}
             className={cn(
               'border-t md:hidden backdrop-blur-2xl',
-              'border-white/20 bg-white/90 dark:border-white/10 dark:bg-gray-950/90'
+              'border-purple-200/50 bg-[#FAF7FF]/95 dark:border-purple-900/40 dark:bg-[#0F0A1C]/95'
             )}
           >
             <div className="space-y-1 px-4 py-4">
@@ -422,8 +424,8 @@ export default function Navbar() {
                     className={cn(
                       'block rounded-xl px-3.5 py-2.5 text-sm font-medium transition-colors',
                       active
-                        ? 'bg-primary-500/10 text-primary-600 dark:text-primary-400 font-semibold'
-                        : 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
+                        ? 'bg-[#F3E8FF] text-[#8B3DFF] dark:bg-purple-950/80 dark:text-purple-300 font-semibold'
+                        : 'text-gray-600 hover:bg-[#F3E8FF]/50 dark:text-purple-200/70 dark:hover:bg-purple-950/40'
                     )}
                   >
                     {link.label}
@@ -431,7 +433,7 @@ export default function Navbar() {
                 );
               })}
 
-              <div className="my-2 h-px bg-gray-200/60 dark:bg-gray-800" />
+              <div className="my-2 h-px bg-purple-100 dark:bg-purple-900/40" />
 
               {isAuthenticated && user ? (
                 <>
@@ -443,7 +445,7 @@ export default function Navbar() {
                         className="h-10 w-10 rounded-full object-cover"
                       />
                     ) : (
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-500 text-sm font-bold text-white">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#8B3DFF] text-sm font-bold text-white">
                         {user.name.charAt(0).toUpperCase()}
                       </div>
                     )}
@@ -451,7 +453,7 @@ export default function Navbar() {
                       <p className="truncate text-sm font-semibold text-gray-900 dark:text-white">
                         {user.name}
                       </p>
-                      <p className="truncate text-xs text-gray-500 dark:text-gray-400">
+                      <p className="truncate text-xs text-purple-600/70 dark:text-purple-300/70">
                         {user.email}
                       </p>
                     </div>
@@ -467,19 +469,19 @@ export default function Navbar() {
                         className={cn(
                           'flex items-center gap-2.5 rounded-xl px-3 py-2.5',
                           'text-sm font-medium text-gray-700 transition-colors',
-                          'hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
+                          'hover:bg-[#F3E8FF] hover:text-[#8B3DFF] hover:border-l-2 hover:border-purple-600 dark:text-purple-200/70 dark:hover:bg-purple-950/40'
                         )}
                       >
                         <Icon
                           size={16}
-                          className="text-gray-400 dark:text-gray-500"
+                          className="text-[#8B3DFF] dark:text-purple-300"
                         />
                         {item.label}
                       </Link>
                     );
                   })}
 
-                  <div className="my-2 h-px bg-gray-200/60 dark:bg-gray-800" />
+                  <div className="my-2 h-px bg-purple-100 dark:bg-purple-900/40" />
 
                   <button
                     onClick={handleLogout}
@@ -500,8 +502,7 @@ export default function Navbar() {
                   className={cn(
                     'block rounded-xl px-4 py-2.5 text-center text-sm font-semibold',
                     'text-white shadow transition-colors',
-                    'bg-gray-900 hover:bg-gray-800',
-                    'dark:bg-primary-600 dark:hover:bg-primary-500'
+                    'bg-[#8B3DFF] hover:bg-[#7424ED]'
                   )}
                 >
                   Login

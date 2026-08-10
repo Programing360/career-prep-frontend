@@ -1,4 +1,4 @@
-import { cn } from '@/lib/utils';
+﻿import { cn } from '@/lib/utils';
 import type { LeaderboardEntry } from '@/types/leaderboard';
 
 interface LeaderboardTableProps {
@@ -11,7 +11,7 @@ const RANK_BADGES: Record<number, { label: string; className: string }> = {
   1: {
     label: '1st',
     className:
-      'bg-gradient-to-br from-amber-300 to-yellow-500 text-amber-950 ring-amber-400/60',
+      'bg-gradient-to-br from-primary-300 to-primary-500 text-primary-950 ring-primary-400/60',
   },
   2: {
     label: '2nd',
@@ -21,7 +21,7 @@ const RANK_BADGES: Record<number, { label: string; className: string }> = {
   3: {
     label: '3rd',
     className:
-      'bg-gradient-to-br from-orange-300 to-amber-600 text-orange-950 ring-orange-400/60',
+      'bg-gradient-to-br from-primary-300 to-primary-600 text-primary-950 ring-primary-400/60',
   },
 };
 
@@ -165,7 +165,7 @@ export function LeaderboardTable({
                         : entry.displayName}
                     </p>
                     <p className="truncate text-[10px] text-gray-400 dark:text-gray-500">
-                      {entry.accuracyPercentage}% accuracy ·{' '}
+                      {entry.accuracyPercentage}% accuracy Â·{' '}
                       {entry.totalTestsTaken} tests
                     </p>
                     {isMe && (

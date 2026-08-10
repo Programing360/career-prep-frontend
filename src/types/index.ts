@@ -10,6 +10,8 @@ export type {
   LoginResponse,
   VerifyOtpInput,
   ResendOtpInput,
+  ForgotPasswordInput,
+  ResetPasswordInput,
   AuthMeResponse,
   AuthResponse,
   LoginPayload,
@@ -25,6 +27,15 @@ export type {
   ExamSection,
   ExamAttempt,
   MCQ,
+  ConductingAuthority,
+  JurisdictionCategory,
+  Province,
+  ExamEligibility,
+  ExamPatternSchema,
+  ExamSelectionStage,
+  ExamAudit,
+  DirectorySubjectRef,
+  DirectoryExam,
 } from './exam';
 
 export type {

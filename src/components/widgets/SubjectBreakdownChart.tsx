@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+﻿import { useMemo } from 'react';
 import {
   BarChart,
   Bar,
@@ -29,12 +29,12 @@ const mockSubjects: SubjectData[] = [
 ];
 
 const barColors = [
-  '#3b82f6',
-  '#22c55e',
-  '#f59e0b',
-  '#8b5cf6',
-  '#06b6d4',
-  '#ec4899',
+  '#7E22CE',
+  '#A855F7',
+  '#C084FC',
+  '#E9D5FF',
+  '#6B21A8',
+  '#9333EA',
 ];
 
 interface CustomTooltipProps {
@@ -126,7 +126,7 @@ export default function SubjectBreakdownChart() {
     : 'rgba(100, 116, 139, 1)';
 
   return (
-    <div className="rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] p-6 transition-colors hover:border-primary-200 dark:hover:border-primary-800">
+    <div className="rounded-xl border border-[rgb(var(--color-border))] shadow-lg bg-[rgb(var(--color-surface))] p-6 transition-colors hover:border-primary-200 dark:hover:border-primary-800">
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent-50 dark:bg-accent-950">
@@ -162,7 +162,7 @@ export default function SubjectBreakdownChart() {
         </div>
         <div className="rounded-lg border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface-elevated))] p-3">
           <div className="flex items-center gap-1.5">
-            <TrendingDown size={14} className="text-amber-500" />
+            <TrendingDown size={14} className="text-primary-500" />
             <span className="text-xs font-medium text-[rgb(var(--color-text-muted))]">
               Needs Focus
             </span>
@@ -170,7 +170,7 @@ export default function SubjectBreakdownChart() {
           <p className="mt-1 text-sm font-bold text-[rgb(var(--color-text-primary))]">
             {weakest.subject}
           </p>
-          <p className="text-xs text-amber-500">{weakest.accuracy}%</p>
+          <p className="text-xs text-primary-500">{weakest.accuracy}%</p>
         </div>
       </div>
 
@@ -237,7 +237,7 @@ export default function SubjectBreakdownChart() {
                 ? 'border-accent-200 bg-accent-50 dark:border-accent-800 dark:bg-accent-950'
                 : subject.accuracy >= 70
                   ? 'border-primary-200 bg-primary-50 dark:border-primary-800 dark:bg-primary-950'
-                  : 'border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950'
+                  : 'border-primary-200 bg-primary-50 dark:border-primary-800 dark:bg-primary-950'
             )}
           >
             <span
@@ -254,7 +254,7 @@ export default function SubjectBreakdownChart() {
                   ? 'text-accent-600 dark:text-accent-400'
                   : subject.accuracy >= 70
                     ? 'text-primary-600 dark:text-primary-400'
-                    : 'text-amber-600 dark:text-amber-400'
+                    : 'text-primary-600 dark:text-primary-400'
               )}
             >
               {subject.accuracy}%

@@ -24,6 +24,19 @@ export const loginSchema = z.object({
   password: z.string().min(1, 'Password is required'),
 });
 
+export const resetPasswordSchema = z
+  .object({
+    password: passwordSchema.regex(
+      /[\W_]/,
+      'Password must contain at least one special character'
+    ),
+    passwordConfirm: z.string().min(1, 'Please confirm your password'),
+  })
+  .refine((data) => data.password === data.passwordConfirm, {
+    message: 'Passwords do not match',
+    path: ['passwordConfirm'],
+  });
+
 export const registerSchema = z
   .object({
     name: z.string().min(2, 'Name must be at least 2 characters'),

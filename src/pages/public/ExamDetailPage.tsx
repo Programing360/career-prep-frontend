@@ -1,9 +1,8 @@
-import {
+﻿import {
   lazy,
   Suspense,
   useCallback,
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -30,7 +29,16 @@ import { cn } from '@/lib/utils';
 import { ROUTES } from '@/constants/routes';
 import {
   getExamBySlug,
+  getExamRoadmap,
+  getExamSyllabus,
+} from '@/services/examService';
+import type { ExamRoadmapData, ExamSyllabusData } from '@/services/examService';
+import {
   categoryColorMap,
+  mapDirectoryExamToExamData,
+  mapRoadmapDataToPhases,
+  mapSyllabusSubjectsToExamData,
+  type ExamData,
 } from '@/components/exams/examDetailData';
 import { LeaderboardCompactWidget } from '@/components/leaderboard/LeaderboardCompactWidget';
 
@@ -131,7 +139,7 @@ function SEOHead({
   return null;
 }
 
-function JsonLdScript({ exam }: { exam: ReturnType<typeof getExamBySlug> }) {
+function JsonLdScript({ exam }: { exam: ExamData }) {
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Course',
@@ -175,8 +183,62 @@ export default function ExamDetailPage({
   });
   const tabListRef = useRef<HTMLDivElement>(null);
 
-  const exam = useMemo(() => getExamBySlug(slug), [slug]);
-  const catColor = categoryColorMap[exam.category] ?? categoryColorMap.other;
+  const [exam, setExam] = useState<ExamData | null>(null);
+  const [syllabus, setSyllabus] = useState<ExamSyllabusData | null>(null);
+  const [roadmap, setRoadmap] = useState<ExamRoadmapData | null>(null);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (!slug) return;
+    let cancelled = false;
+
+    getExamBySlug(slug)
+      .then((res) => {
+        if (!cancelled) setExam(mapDirectoryExamToExamData(res.data));
+      })
+      .catch((err: unknown) => {
+        if (!cancelled) {
+          setError(
+            err instanceof Error
+              ? err.message
+              : 'Failed to load the exam details.'
+          );
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [slug]);
+
+  useEffect(() => {
+    if (!slug) return;
+    let cancelled = false;
+
+    getExamSyllabus(slug)
+      .then((res) => {
+        if (!cancelled) setSyllabus(res.data.syllabus);
+      })
+      .catch(() => {
+        // No published syllabus for this exam yet — fall back to mock data.
+      });
+    getExamRoadmap(slug)
+      .then((res) => {
+        if (!cancelled) setRoadmap(res.data.roadmap);
+      })
+      .catch(() => {
+        // No published roadmap for this exam yet — fall back to mock data.
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [slug]);
+
+  const resolvedError = !slug ? 'No exam specified.' : error;
+  const loading = !exam && !resolvedError;
+  const catColor =
+    categoryColorMap[exam?.category ?? 'other'] ?? categoryColorMap.other;
 
   useEffect(() => {
     const onHashChange = () => {
@@ -217,24 +279,76 @@ export default function ExamDetailPage({
 
       handleTabChange(TABS[nextIndex].id);
 
-      const buttons = tabListRef.current?.querySelectorAll('[role="tab"]');
+      const buttons =
+        tabListRef.current?.querySelectorAll<HTMLButtonElement>('[role="tab"]');
       buttons?.[nextIndex]?.focus();
     },
     [activeTab, handleTabChange]
   );
+
+  if (loading) {
+    return (
+      <div className="min-h-screen">
+        <div className="h-72 animate-pulse bg-gray-100 dark:bg-gray-800" />
+        <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+          <TabSkeleton />
+        </div>
+      </div>
+    );
+  }
+
+  if (!exam) {
+    return (
+      <div className="flex min-h-screen items-center justify-center px-4">
+        <div className="max-w-md text-center">
+          <BookOpen
+            size={48}
+            className="mx-auto text-gray-300 dark:text-gray-600"
+          />
+          <h1 className="mt-4 text-xl font-bold font-heading text-gray-900 dark:text-white">
+            Exam not found
+          </h1>
+          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+            {resolvedError || 'The requested exam could not be loaded.'}
+          </p>
+          <Link
+            to={ROUTES.EXAMS}
+            className="mt-6 inline-flex items-center gap-2 rounded-lg bg-gray-900 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-gray-800 dark:bg-primary-600 dark:hover:bg-primary-700"
+          >
+            Browse All Exams
+            <ArrowRight size={14} />
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const renderTabContent = () => {
     switch (activeTab) {
       case 'overview':
         return <OverviewTab exam={exam} />;
       case 'syllabus':
-        return <SyllabusTab exam={exam} />;
+        return (
+          <SyllabusTab
+            exam={exam}
+            subjects={
+              syllabus ? mapSyllabusSubjectsToExamData(syllabus) : undefined
+            }
+          />
+        );
       case 'past-papers':
         return <PastPapersTab exam={exam} />;
       case 'mock-test':
         return <MockTestTab exam={exam} />;
       case 'roadmap':
-        return <RoadmapTab exam={exam} />;
+        return (
+          <RoadmapTab
+            exam={exam}
+            phases={roadmap ? mapRoadmapDataToPhases(roadmap) : undefined}
+            title={roadmap?.title}
+            strategySummary={roadmap?.overallStrategySummary}
+          />
+        );
     }
   };
 
@@ -243,7 +357,7 @@ export default function ExamDetailPage({
       <SEOHead title={exam.title} description={exam.description} />
       <JsonLdScript exam={exam} />
 
-      {/* ── Hero Section ──────────────────────────────────────────────── */}
+      {/* â”€â”€ Hero Section â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <section className="relative overflow-hidden border-b border-white/20 bg-white/70 backdrop-blur-md dark:border-gray-800/50 dark:bg-gray-900/70">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute -right-20 -top-20 h-72 w-72 rounded-full bg-primary-400/10 blur-3xl" />
@@ -338,7 +452,7 @@ export default function ExamDetailPage({
               )}
 
               <span className="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400">
-                <Star size={14} className="fill-amber-400 text-amber-400" />
+                <Star size={14} className="fill-primary-400 text-primary-400" />
                 4.8 rating by 2,400+ students
               </span>
             </div>
@@ -346,7 +460,7 @@ export default function ExamDetailPage({
         </div>
       </section>
 
-      {/* ── Sticky Tab Bar ────────────────────────────────────────────── */}
+      {/* â”€â”€ Sticky Tab Bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div
         ref={tabListRef}
         role="tablist"
@@ -397,7 +511,7 @@ export default function ExamDetailPage({
         </div>
       </div>
 
-      {/* ── Tab Content ───────────────────────────────────────────────── */}
+      {/* â”€â”€ Tab Content â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
         <Suspense fallback={<TabSkeleton />}>
           <AnimatePresence mode="wait">
@@ -418,12 +532,12 @@ export default function ExamDetailPage({
         </Suspense>
       </div>
 
-      {/* ── Leaderboard Widget ────────────────────────────────────────── */}
+      {/* â”€â”€ Leaderboard Widget â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="mx-auto max-w-5xl px-4 pb-8 sm:px-6 lg:px-8">
         <LeaderboardCompactWidget examSlug={slug} examTitle={exam.title} />
       </div>
 
-      {/* ── Sticky Registration CTA ───────────────────────────────────── */}
+      {/* â”€â”€ Sticky Registration CTA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       {/* Desktop: bottom-fixed banner */}
       <div className="pointer-events-none fixed inset-x-0 bottom-0 z-40 hidden lg:block">
         <div className="mx-auto max-w-5xl px-4 pb-4">
@@ -439,7 +553,7 @@ export default function ExamDetailPage({
             <div className="relative flex items-center justify-between gap-4">
               <div className="flex items-center gap-4">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white/10">
-                  <Award size={20} className="text-amber-400" />
+                  <Award size={20} className="text-primary-400" />
                 </div>
                 <div>
                   <h4 className="text-sm font-bold text-white">

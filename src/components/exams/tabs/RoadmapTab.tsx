@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { Map, Clock, CheckCircle2, Circle, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { roadmapPhases } from '@/components/exams/examDetailData';
-import type { ExamData } from '@/components/exams/examDetailData';
+import type { ExamData, RoadmapPhase } from '@/components/exams/examDetailData';
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 16 },
@@ -38,7 +38,19 @@ const statusConfig = {
   },
 };
 
-export function RoadmapTab({ exam }: { exam: ExamData }) {
+export function RoadmapTab({
+  exam,
+  phases,
+  title,
+  strategySummary,
+}: {
+  exam: ExamData;
+  phases?: RoadmapPhase[];
+  title?: string;
+  strategySummary?: string;
+}) {
+  const resolvedPhases = phases && phases.length > 0 ? phases : roadmapPhases;
+
   return (
     <motion.div variants={stagger} initial="hidden" animate="show">
       <motion.h3
@@ -52,10 +64,20 @@ export function RoadmapTab({ exam }: { exam: ExamData }) {
         className="mb-6 text-sm text-gray-500 dark:text-gray-400"
       >
         A structured preparation plan for {exam.title}.
+        {title ? ` ${title}.` : ''}
       </motion.p>
 
+      {strategySummary && (
+        <motion.p
+          variants={fadeInUp}
+          className="mb-6 rounded-xl border border-white/20 bg-white/70 p-4 text-sm text-gray-600 dark:border-gray-800/50 dark:bg-gray-900/70 dark:text-gray-300"
+        >
+          {strategySummary}
+        </motion.p>
+      )}
+
       <div className="space-y-4">
-        {roadmapPhases.map((phase) => {
+        {resolvedPhases.map((phase) => {
           const config = statusConfig[phase.status];
           const StatusIcon = config.icon;
 
@@ -93,16 +115,18 @@ export function RoadmapTab({ exam }: { exam: ExamData }) {
                 </div>
               </div>
 
-              <div className="mt-3 flex flex-wrap gap-1.5">
-                {phase.topics.map((topic) => (
-                  <span
-                    key={topic}
-                    className="rounded-md bg-gray-100 px-2 py-0.5 text-[11px] font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-400"
-                  >
-                    {topic}
-                  </span>
-                ))}
-              </div>
+              {phase.topics.length > 0 && (
+                <div className="mt-3 flex flex-wrap gap-1.5">
+                  {phase.topics.map((topic) => (
+                    <span
+                      key={topic}
+                      className="rounded-md bg-gray-100 px-2 py-0.5 text-[11px] font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-400"
+                    >
+                      {topic}
+                    </span>
+                  ))}
+                </div>
+              )}
 
               <div className="mt-3 flex items-center gap-1.5">
                 <span

@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+﻿import { useCallback, useState } from 'react';
 import { ToastContext, type ToastType } from './ToastContext';
 
 interface Toast {
@@ -26,8 +26,8 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   const bgColors: Record<ToastType, string> = {
     success: 'bg-green-600',
     error: 'bg-red-600',
-    info: 'bg-blue-600',
-    warning: 'bg-yellow-500 text-black',
+    info: 'bg-primary text-white',
+    warning: 'bg-primary-hover text-white',
   };
 
   return (

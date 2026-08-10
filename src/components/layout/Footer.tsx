@@ -53,14 +53,13 @@ export default function Footer({
   };
 
   return (
-    <footer className="relative overflow-hidden border-t border-white/20 bg-white/40 backdrop-blur-xl backdrop-saturate-150 dark:border-white/10 dark:bg-gray-950/60">
-      {/* Background Ambient Glow Effects */}
-      <div className="pointer-events-none absolute -left-20 -top-20 h-64 w-64 rounded-full bg-primary-500/10 blur-3xl" />
-      <div className="pointer-events-none absolute -right-20 bottom-0 h-64 w-64 rounded-full bg-blue-500/10 blur-3xl" />
+    <footer className="relative overflow-hidden border-t border-[#8B3DFF]/15 bg-[#FAF7FF] backdrop-blur-xl dark:border-purple-900/40 dark:bg-[#0F0A1C]">
+      {/* Background Ambient Glow Effects using extracted soft purple */}
+      <div className="pointer-events-none absolute -left-20 -top-20 h-64 w-64 rounded-full bg-[#8B3DFF]/15 blur-3xl" />
+      <div className="pointer-events-none absolute -right-20 bottom-0 h-64 w-64 rounded-full bg-[#8B3DFF]/15 blur-3xl" />
 
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
         <motion.div
-          //   variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: '-50px' }}
@@ -72,15 +71,15 @@ export default function Footer({
               to={ROUTES.HOME}
               className="group inline-flex items-center gap-2.5 transition-transform duration-200 active:scale-95"
             >
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-500/10 text-primary-500 transition-all duration-300 group-hover:rotate-12 group-hover:bg-primary-500 group-hover:text-white dark:bg-primary-400/10 dark:text-primary-400">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F3E8FF] text-[#8B3DFF] transition-all duration-300 group-hover:rotate-12 group-hover:bg-[#8B3DFF] group-hover:text-white dark:bg-purple-950/60 dark:text-purple-300">
                 <GraduationCap size={26} />
               </div>
-              <span className="font-heading text-xl font-bold tracking-tight text-gray-900 transition-colors group-hover:text-primary-600 dark:text-white dark:group-hover:text-primary-400">
+              <span className="font-heading text-xl font-bold tracking-tight text-gray-900 transition-colors group-hover:text-[#8B3DFF] dark:text-white dark:group-hover:text-purple-300">
                 MeritPrep
               </span>
             </Link>
 
-            <p className="max-w-sm text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+            <p className="max-w-sm text-sm leading-relaxed text-gray-600 dark:text-purple-200/70">
               Pakistan's leading platform for government test preparation.
               Master MCQs with interactive practice, AI insights, and mock
               tests.
@@ -88,7 +87,7 @@ export default function Footer({
 
             {/* Newsletter Input */}
             <div className="pt-2">
-              <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-900 dark:text-white">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-[#7E22CE] dark:text-purple-300">
                 Subscribe to updates
               </p>
               <form
@@ -100,13 +99,13 @@ export default function Footer({
                   placeholder="Enter your email"
                   className={cn(
                     'w-full rounded-xl border px-3.5 py-2 text-sm outline-none transition-all duration-200',
-                    'border-gray-200 bg-white/70 text-gray-900 placeholder:text-gray-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20',
-                    'dark:border-gray-800 dark:bg-gray-900/60 dark:text-white dark:placeholder:text-gray-500 dark:focus:border-primary-400'
+                    'border-purple-200/60 bg-white/80 text-gray-900 placeholder:text-purple-400/60 focus:border-[#8B3DFF] focus:ring-2 focus:ring-[#8B3DFF]/20',
+                    'dark:border-purple-900/50 dark:bg-purple-950/40 dark:text-white dark:placeholder:text-purple-400/50 dark:focus:border-[#8B3DFF]'
                   )}
                 />
                 <button
                   type="submit"
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary-500 text-white shadow-md transition-all duration-200 hover:bg-primary-600 hover:shadow-lg active:scale-95 dark:bg-primary-600 dark:hover:bg-primary-500"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#8B3DFF] text-white shadow-md shadow-purple-500/20 transition-all duration-200 hover:bg-[#7424ED] hover:shadow-lg hover:shadow-purple-500/30 active:scale-95 dark:bg-[#8B3DFF] dark:hover:bg-[#7424ED]"
                   aria-label="Subscribe"
                 >
                   <Send size={16} />
@@ -119,7 +118,7 @@ export default function Footer({
           <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:col-span-8">
             {footerLinks.map((group) => (
               <motion.div key={group.title} className="space-y-4">
-                <h3 className="text-sm font-bold tracking-wider uppercase text-gray-900 dark:text-white">
+                <h3 className="text-sm font-bold tracking-wider uppercase text-[#7E22CE] dark:text-purple-300">
                   {group.title}
                 </h3>
                 <ul className="space-y-2.5">
@@ -128,13 +127,13 @@ export default function Footer({
                       <Link
                         to={link.to}
                         className={cn(
-                          'group inline-flex items-center text-sm text-gray-600 transition-all duration-200 hover:translate-x-1.5 hover:text-primary-600',
-                          'dark:text-gray-400 dark:hover:text-primary-400'
+                          'group inline-flex items-center text-sm text-gray-600 transition-all duration-200 hover:translate-x-1.5 hover:text-[#8B3DFF]',
+                          'dark:text-purple-200/70 dark:hover:text-purple-300'
                         )}
                       >
                         <span className="relative">
                           {link.label}
-                          <span className="absolute -bottom-0.5 left-0 h-[1.5px] w-0 bg-primary-500 transition-all duration-200 group-hover:w-full dark:bg-primary-400" />
+                          <span className="absolute -bottom-0.5 left-0 h-[1.5px] w-0 bg-[#8B3DFF] transition-all duration-200 group-hover:w-full dark:bg-purple-400" />
                         </span>
                       </Link>
                     </li>
@@ -147,14 +146,13 @@ export default function Footer({
 
         {/* ── Bottom Bar & Back to Top ──────────────────────────────── */}
         <motion.div
-          //   variants={itemVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          className="mt-12 flex flex-col items-center justify-between gap-6 border-t border-gray-200/60 pt-8 sm:flex-row dark:border-gray-800/60"
+          className="mt-12 flex flex-col items-center justify-between gap-6 border-t border-purple-100 pt-8 sm:flex-row dark:border-purple-950"
         >
           {/* Copyright */}
-          <p className="text-center text-xs text-gray-500 dark:text-gray-400 sm:text-left">
+          <p className="text-center text-xs text-purple-900/60 dark:text-purple-300/60 sm:text-left">
             © {new Date().getFullYear()} MeritPrep Pakistan. All rights
             reserved.
           </p>
@@ -173,7 +171,7 @@ export default function Footer({
                   <a
                     key={idx}
                     href={social.href}
-                    className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100 text-gray-500 transition-all duration-200 hover:bg-primary-500 hover:text-white dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-primary-500 dark:hover:text-white"
+                    className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#F3E8FF]/60 text-[#8B3DFF] transition-all duration-200 hover:bg-[#8B3DFF] hover:text-white dark:bg-purple-950/60 dark:text-purple-300 dark:hover:bg-[#8B3DFF] dark:hover:text-white"
                   >
                     <Icon size={15} />
                   </a>
@@ -181,12 +179,12 @@ export default function Footer({
               })}
             </div>
 
-            <div className="h-4 w-px bg-gray-300 dark:bg-gray-800" />
+            <div className="h-4 w-px bg-purple-200 dark:bg-purple-900" />
 
             {/* Back to Top Button */}
             <button
               onClick={scrollToTop}
-              className="group flex h-9 w-9 items-center justify-center rounded-xl bg-primary-500/10 text-primary-600 transition-all duration-200 hover:bg-primary-500 hover:text-white active:scale-95 dark:bg-primary-400/10 dark:text-primary-400 dark:hover:bg-primary-400 dark:hover:text-gray-950"
+              className="group flex h-9 w-9 items-center justify-center rounded-xl bg-[#F3E8FF] text-[#8B3DFF] transition-all duration-200 hover:bg-[#8B3DFF] hover:text-white active:scale-95 dark:bg-purple-950/80 dark:text-purple-300 dark:hover:bg-[#8B3DFF] dark:hover:text-white"
               title="Back to Top"
             >
               <ArrowUp

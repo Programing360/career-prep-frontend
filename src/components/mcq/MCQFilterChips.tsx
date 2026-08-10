@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+﻿import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import type { TopicOption } from '@/services/mcqService';
 
@@ -117,7 +117,7 @@ export function MCQFilterChips({
                   ? diff === 'Easy'
                     ? 'border-accent-400 bg-accent-500 text-white'
                     : diff === 'Medium'
-                      ? 'border-yellow-400 bg-yellow-500 text-white'
+                      ? 'border-primary-400 bg-primary-500 text-white'
                       : 'border-danger-400 bg-danger-500 text-white'
                   : 'border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] text-[rgb(var(--color-text-secondary))] hover:border-primary-300 hover:bg-primary-50 dark:hover:border-primary-700'
               )}

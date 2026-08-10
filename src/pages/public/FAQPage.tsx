@@ -256,8 +256,8 @@ export default function FAQPage() {
   return (
     <div className="flex flex-col">
       {/* Hero */}
-      <section className="relative overflow-hidden bg-slate-50/50 px-4 py-24 dark:bg-[#0a1328] sm:px-6 lg:px-8">
-        <div className="pointer-events-none absolute left-20 top-10 h-72 w-72 rounded-full bg-blue-400/10 blur-3xl" />
+      <section className="relative overflow-hidden bg-surface px-4 py-24 sm:px-6 lg:px-8">
+        <div className="pointer-events-none absolute left-20 top-10 h-72 w-72 rounded-full bg-primary-400/10 blur-3xl" />
         <div className="pointer-events-none absolute bottom-10 right-20 h-96 w-96 rounded-full bg-emerald-400/10 blur-3xl" />
 
         <motion.div
@@ -269,11 +269,11 @@ export default function FAQPage() {
           <motion.div
             variants={fadeUp}
             transition={{ duration: 0.5 }}
-            className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-100 dark:bg-blue-900/50"
+            className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary-100 dark:bg-primary-900/50"
           >
             <HelpCircle
               size={32}
-              className="text-blue-600 dark:text-blue-400"
+              className="text-primary-600 dark:text-primary-400"
             />
           </motion.div>
 
@@ -283,7 +283,9 @@ export default function FAQPage() {
             className="text-4xl font-black tracking-tight text-slate-900 dark:text-white sm:text-5xl"
           >
             Frequently Asked{' '}
-            <span className="text-blue-600 dark:text-blue-400">Questions</span>
+            <span className="text-primary-600 dark:text-primary-400">
+              Questions
+            </span>
           </motion.h1>
 
           <motion.p
@@ -295,7 +297,7 @@ export default function FAQPage() {
             looking for?
             <Link
               to={ROUTES.CONTACT}
-              className="ml-1 font-semibold text-blue-600 hover:underline dark:text-blue-400"
+              className="ml-1 font-semibold text-primary-600 hover:underline dark:text-primary-400"
             >
               Contact us
             </Link>
@@ -399,7 +401,7 @@ export default function FAQPage() {
       </section>
 
       {/* CTA */}
-      <section className="bg-slate-50/50 px-4 py-20 dark:bg-[#0a1328] sm:px-6 lg:px-8">
+      <section className="bg-surface px-4 py-20 sm:px-6 lg:px-8">
         <motion.div
           initial="hidden"
           whileInView="visible"

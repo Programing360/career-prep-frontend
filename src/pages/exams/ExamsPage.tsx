@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+﻿import { useState, useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import {
   BookOpen,
@@ -180,7 +180,7 @@ const difficultyConfig: Record<string, { color: string; icon: typeof Target }> =
     },
     medium: {
       color:
-        'bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300',
+        'bg-primary-100 text-primary-700 dark:bg-primary-900 dark:text-primary-300',
       icon: AlertTriangle,
     },
     hard: {
@@ -193,7 +193,7 @@ const difficultyConfig: Record<string, { color: string; icon: typeof Target }> =
 const categoryColors: Record<ExamCategory, string> = {
   css: 'bg-primary-100 text-primary-700 dark:bg-primary-900 dark:text-primary-300',
   fpsc: 'bg-violet-100 text-violet-700 dark:bg-violet-900 dark:text-violet-300',
-  ppsc: 'bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300',
+  ppsc: 'bg-primary-100 text-primary-700 dark:bg-primary-900 dark:text-primary-300',
   nts: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900 dark:text-cyan-300',
   pcs: 'bg-rose-100 text-rose-700 dark:bg-rose-900 dark:text-rose-300',
   other:
@@ -351,7 +351,10 @@ export default function ExamsPage() {
                     </span>
                   </div>
                   {exam.isFollowed && (
-                    <Star size={16} className="fill-amber-400 text-amber-400" />
+                    <Star
+                      size={16}
+                      className="fill-primary-400 text-primary-400"
+                    />
                   )}
                 </div>
 

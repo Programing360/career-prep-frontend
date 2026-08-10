@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react';
+﻿import { useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Check, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -117,7 +117,7 @@ export function MCQQuestionCard({
             question.difficulty === 'Easy' &&
               'bg-accent-100 text-accent-700 dark:bg-accent-900 dark:text-accent-300',
             question.difficulty === 'Medium' &&
-              'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300',
+              'bg-primary-100 text-primary-700 dark:bg-primary-900 dark:text-primary-300',
             question.difficulty === 'Hard' &&
               'bg-danger-100 text-danger-700 dark:bg-danger-900 dark:text-danger-300'
           )}

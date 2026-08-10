@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Flame, Trophy } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -25,9 +25,9 @@ function initials(name: string): string {
 }
 
 const TOP_PLACEMENTS: Record<number, string> = {
-  1: 'from-amber-300 to-yellow-500 text-amber-950',
+  1: 'from-primary-300 to-primary-500 text-primary-950',
   2: 'from-slate-200 to-slate-400 text-slate-900',
-  3: 'from-orange-300 to-amber-600 text-orange-950',
+  3: 'from-primary-300 to-primary-600 text-primary-950',
 };
 
 function RowSkeleton() {
@@ -89,10 +89,10 @@ export function LeaderboardCompactWidget({
     >
       <header className="flex items-center justify-between gap-2 border-b border-gray-200/60 px-4 py-3 dark:border-gray-800/60">
         <div className="flex min-w-0 items-center gap-2">
-          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-950">
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary-100 dark:bg-primary-950">
             <Trophy
               size={14}
-              className="text-amber-600 dark:text-amber-400"
+              className="text-primary-600 dark:text-primary-400"
               aria-hidden="true"
             />
           </span>
@@ -167,7 +167,7 @@ export function LeaderboardCompactWidget({
       <footer className="border-t border-gray-200/60 px-4 py-3 dark:border-gray-800/60">
         {currentUserRank ? (
           <p className="flex items-center gap-1.5 text-xs font-medium text-gray-600 dark:text-gray-300">
-            <Flame size={13} className="text-orange-500" aria-hidden="true" />
+            <Flame size={13} className="text-primary-500" aria-hidden="true" />
             Your rank is{' '}
             <span className="font-extrabold text-primary-600 dark:text-primary-400">
               #{currentUserRank}

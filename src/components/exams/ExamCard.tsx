@@ -1,33 +1,19 @@
-import { Link } from 'react-router-dom';
+﻿import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { BadgeCheck, BookOpen, ChevronRight, Shield } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/Button';
-
-export interface ExamCardData {
-  id: string;
-  slug: string;
-  title: string;
-  agency: string;
-  agencyKey: string;
-  grade: string;
-  year: string;
-  questionCount: number;
-  category: string;
-  sector: string;
-  popularity: number;
-  verified: boolean;
-}
+import type { ExamCardData } from '@/components/exams/examCardData';
 
 const agencyColors: Record<string, string> = {
-  FPSC: 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300',
+  FPSC: 'bg-primary-100 text-primary-700 dark:bg-primary-900/50 dark:text-primary-300',
   PPSC: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300',
   KPPSC: 'bg-teal-100 text-teal-700 dark:bg-teal-900/50 dark:text-teal-300',
-  BPSC: 'bg-orange-100 text-orange-700 dark:bg-orange-900/50 dark:text-orange-300',
+  BPSC: 'bg-primary-100 text-primary-700 dark:bg-primary-900/50 dark:text-primary-300',
   SPSC: 'bg-pink-100 text-pink-700 dark:bg-pink-900/50 dark:text-pink-300',
   NTS: 'bg-violet-100 text-violet-700 dark:bg-violet-900/50 dark:text-violet-300',
   OTS: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/50 dark:text-cyan-300',
-  PTS: 'bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300',
+  PTS: 'bg-primary-100 text-primary-700 dark:bg-primary-900/50 dark:text-primary-300',
   ETEA: 'bg-rose-100 text-rose-700 dark:bg-rose-900/50 dark:text-rose-300',
   default: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
 };

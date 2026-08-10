@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+﻿import { useState, useCallback } from 'react';
 import {
   Bell,
   Calendar,
@@ -215,8 +215,8 @@ export default function SettingsPage() {
       </div>
 
       <div className="flex items-center gap-3 rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] p-4">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-900">
-          <Moon size={18} className="text-amber-600 dark:text-amber-400" />
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-100 dark:bg-primary-900">
+          <Moon size={18} className="text-primary-600 dark:text-primary-400" />
         </div>
         <div className="flex-1">
           <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">

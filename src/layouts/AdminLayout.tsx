@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+﻿import { useState, type ReactNode } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -15,6 +15,8 @@ import {
   Moon,
   Eye,
   Settings,
+  FolderTree,
+  Map,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
@@ -29,6 +31,8 @@ const adminSidebarLinks = [
   },
   { label: 'User Management', to: ROUTES.ADMIN_USERS, icon: Users },
   { label: 'Exam & Question Bank', to: ROUTES.ADMIN_EXAMS, icon: BookOpen },
+  { label: 'Syllabus Taxonomy', to: ROUTES.ADMIN_TAXONOMY, icon: FolderTree },
+  { label: 'Syllabus & Roadmap', to: ROUTES.ADMIN_SYLLABUS, icon: Map },
   { label: 'Token Settings', to: ROUTES.ADMIN_AI_TOKENS, icon: Coins },
 ];
 
@@ -214,7 +218,7 @@ export function AdminLayout({ children }: { children?: ReactNode }) {
               <div className="flex items-center gap-1.5 rounded-lg bg-primary-50 px-2.5 py-1 text-xs font-medium text-primary-700 dark:bg-primary-950 dark:text-primary-300">
                 <BookOpen size={12} />8 Active Exams
               </div>
-              <div className="flex items-center gap-1.5 rounded-lg bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700 dark:bg-amber-950 dark:text-amber-300">
+              <div className="flex items-center gap-1.5 rounded-lg bg-primary-50 px-2.5 py-1 text-xs font-medium text-primary-700 dark:bg-primary-950 dark:text-primary-300">
                 <Settings size={12} />3 Pending Reviews
               </div>
             </div>
@@ -246,9 +250,11 @@ export function AdminLayout({ children }: { children?: ReactNode }) {
                   {user?.name || 'Admin'}
                 </p>
                 <p className="text-xs text-[rgb(var(--color-text-muted))]">
-                  {user?.role === 'super_admin'
-                    ? 'Super Admin'
-                    : 'Content Manager'}
+                  {user?.role === 'admin'
+                    ? 'Admin'
+                    : user?.role === 'moderator'
+                      ? 'Moderator'
+                      : 'User'}
                 </p>
               </div>
             </div>

@@ -71,7 +71,7 @@ export default function ScoreTrendChart() {
     : 'rgba(100, 116, 139, 1)';
 
   return (
-    <div className="rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] p-6 transition-colors hover:border-primary-200 dark:hover:border-primary-800">
+    <div className="rounded-xl border border-[rgb(var(--color-border))] shadow-lg bg-[rgb(var(--color-surface))] p-6 transition-colors hover:border-primary-200 dark:hover:border-primary-800">
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-50 dark:bg-primary-950">
@@ -130,8 +130,8 @@ export default function ScoreTrendChart() {
           >
             <defs>
               <linearGradient id="scoreGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.3} />
-                <stop offset="100%" stopColor="#3b82f6" stopOpacity={0} />
+                <stop offset="0%" stopColor="#7E22CE" stopOpacity={0.3} />
+                <stop offset="100%" stopColor="#7E22CE" stopOpacity={0} />
               </linearGradient>
             </defs>
             <CartesianGrid
@@ -157,18 +157,18 @@ export default function ScoreTrendChart() {
             <Area
               type="monotone"
               dataKey="score"
-              stroke="#3b82f6"
+              stroke="#7E22CE"
               strokeWidth={2.5}
               fill="url(#scoreGradient)"
               dot={{
                 r: 4,
-                fill: '#3b82f6',
+                fill: '#7E22CE',
                 stroke: isDark ? '#1e293b' : '#ffffff',
                 strokeWidth: 2,
               }}
               activeDot={{
                 r: 6,
-                fill: '#3b82f6',
+                fill: '#7E22CE',
                 stroke: isDark ? '#1e293b' : '#ffffff',
                 strokeWidth: 3,
               }}

@@ -1,6 +1,5 @@
-import { Link } from 'react-router-dom';
-import { motion, useInView } from 'framer-motion';
-import { useRef, useState, useEffect } from 'react';
+﻿import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import {
   ArrowRight,
   BookOpen,
@@ -18,9 +17,11 @@ import {
 import { Button } from '@/components/ui/Button';
 import { ROUTES } from '@/constants/routes';
 
+// --- Animation Variants ---------------------------------------------------
+
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } },
 };
 
 const staggerContainer = {
@@ -31,8 +32,12 @@ const staggerContainer = {
   },
 };
 
+// --- Glassmorphism Base Style ---------------------------------------------
+
 const glassCard =
-  'backdrop-blur-md bg-white/70 dark:bg-gray-900/70 border border-white/20 dark:border-gray-800/50 shadow-xl shadow-black/5';
+  'backdrop-blur-md bg-white/70 dark:bg-[#150E28]/70 border border-purple-100/80 dark:border-purple-900/40 shadow-xl shadow-purple-950/5';
+
+// --- Data -----------------------------------------------------------------
 
 const features = [
   {
@@ -40,7 +45,8 @@ const features = [
     title: 'AI-Powered Explanations',
     description:
       'Every MCQ comes with an instant AI-generated explanation so you truly understand the concept — not just the answer.',
-    color: 'bg-blue-100 text-blue-600 dark:bg-blue-900/50 dark:text-blue-400',
+    color:
+      'bg-[#F3E8FF] text-[#8B3DFF] dark:bg-purple-950/80 dark:text-purple-300',
   },
   {
     icon: BookOpen,
@@ -48,7 +54,7 @@ const features = [
     description:
       'A massive question bank covering FPSC, PPSC, NTS, Armed Forces, Police, and Educator exams — updated regularly.',
     color:
-      'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/50 dark:text-emerald-400',
+      'bg-emerald-100 text-emerald-600 dark:bg-emerald-950/80 dark:text-emerald-300',
   },
   {
     icon: Target,
@@ -56,7 +62,7 @@ const features = [
     description:
       'Timed mock exams that simulate real test conditions so you walk into your exam with confidence.',
     color:
-      'bg-amber-100 text-amber-600 dark:bg-amber-900/50 dark:text-amber-400',
+      'bg-[#F3E8FF] text-[#8B3DFF] dark:bg-purple-950/80 dark:text-purple-300',
   },
   {
     icon: TrendingUp,
@@ -64,21 +70,21 @@ const features = [
     description:
       'Track your readiness score, identify weak areas, and follow a personalized study plan powered by data.',
     color:
-      'bg-violet-100 text-violet-600 dark:bg-violet-900/50 dark:text-violet-400',
+      'bg-violet-100 text-violet-600 dark:bg-violet-950/80 dark:text-violet-300',
   },
   {
     icon: Shield,
     title: 'Trusted by Thousands',
     description:
       'Over 50,000 students rely on MeritPrep daily. Our proven methodology helps candidates succeed in competitive exams.',
-    color: 'bg-rose-100 text-rose-600 dark:bg-rose-900/50 dark:text-rose-400',
+    color: 'bg-rose-100 text-rose-600 dark:bg-rose-950/80 dark:text-rose-300',
   },
   {
     icon: Sparkles,
     title: 'AI Study Tutor',
     description:
       'Ask any question and get instant, accurate answers from our intelligent tutor — available 24/7.',
-    color: 'bg-cyan-100 text-cyan-600 dark:bg-cyan-900/50 dark:text-cyan-400',
+    color: 'bg-teal-100 text-teal-600 dark:bg-teal-950/80 dark:text-teal-300',
   },
 ];
 
@@ -116,49 +122,16 @@ const teamMembers = [
   { name: 'Sara Malik', role: 'AI Research Lead', initials: 'SM' },
 ];
 
-function AnimatedCounter({
-  target,
-  suffix = '',
-}: {
-  target: number;
-  suffix?: string;
-}) {
-  const ref = useRef<HTMLSpanElement>(null);
-  const isInView = useInView(ref, { once: true });
-  const [count, setCount] = useState(0);
-
-  useEffect(() => {
-    if (!isInView) return;
-    let start = 0;
-    const duration = 2000;
-    const increment = target / (duration / 16);
-    const timer = setInterval(() => {
-      start += increment;
-      if (start >= target) {
-        setCount(target);
-        clearInterval(timer);
-      } else {
-        setCount(Math.floor(start));
-      }
-    }, 16);
-    return () => clearInterval(timer);
-  }, [isInView, target]);
-
-  return (
-    <span ref={ref}>
-      {count.toLocaleString()}
-      {suffix}
-    </span>
-  );
-}
+// --- Main Component -------------------------------------------------------
 
 export default function AboutPage() {
   return (
-    <div className="flex flex-col">
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-slate-50/50 px-4 py-24 dark:bg-[#0a1328] sm:px-6 lg:px-8">
-        <div className="pointer-events-none absolute left-10 top-1/4 h-72 w-72 rounded-full bg-blue-400/10 blur-3xl" />
-        <div className="pointer-events-none absolute bottom-1/4 right-10 h-96 w-96 rounded-full bg-emerald-400/10 blur-3xl" />
+    <div className="flex flex-col bg-[#FAF7FF] text-gray-900 transition-colors duration-300 dark:bg-[#0F0A1C] dark:text-white">
+      {/* Hero Section */}
+      <section className="relative overflow-hidden px-4 py-24 sm:px-6 lg:px-8">
+        {/* Glow Effects */}
+        <div className="pointer-events-none absolute left-10 top-1/4 h-72 w-72 rounded-full bg-[#8B3DFF]/15 blur-3xl" />
+        <div className="pointer-events-none absolute bottom-1/4 right-10 h-96 w-96 rounded-full bg-purple-500/10 blur-3xl dark:bg-purple-900/20" />
 
         <motion.div
           className="relative mx-auto max-w-5xl text-center"
@@ -168,27 +141,24 @@ export default function AboutPage() {
         >
           <motion.span
             variants={fadeUp}
-            transition={{ duration: 0.5 }}
-            className="mb-4 inline-block rounded-full bg-white/15 px-4 py-1.5 text-sm font-medium text-slate-700 backdrop-blur-sm dark:text-slate-200"
+            className="mb-4 inline-block rounded-full border border-[#8B3DFF]/20 bg-[#F3E8FF] px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-[#8B3DFF] dark:bg-purple-950/60 dark:text-purple-300"
           >
             About MeritPrep
           </motion.span>
 
           <motion.h1
             variants={fadeUp}
-            transition={{ duration: 0.6 }}
-            className="text-4xl font-black tracking-tight text-slate-900 dark:text-white sm:text-5xl lg:text-6xl"
+            className="text-4xl font-black font-heading tracking-tight text-gray-900 dark:text-white sm:text-5xl lg:text-6xl"
           >
             Empowering Students to{' '}
-            <span className="text-blue-600 dark:text-blue-400">
+            <span className="text-[#8B3DFF] dark:text-purple-400">
               Ace Their Exams
             </span>
           </motion.h1>
 
           <motion.p
             variants={fadeUp}
-            transition={{ duration: 0.6 }}
-            className="mx-auto mt-6 max-w-2xl text-lg text-slate-600 dark:text-slate-300"
+            className="mx-auto mt-6 max-w-2xl text-lg text-gray-600 dark:text-purple-200/80"
           >
             MeritPrep is Pakistan's leading government exam preparation
             platform, combining AI-powered learning tools with a massive
@@ -198,36 +168,35 @@ export default function AboutPage() {
           {/* Floating Glass Cards */}
           <motion.div
             variants={fadeUp}
-            transition={{ duration: 0.7 }}
             className="relative mx-auto mt-16 grid max-w-4xl grid-cols-1 gap-6 sm:grid-cols-3"
           >
             <div
               className={`${glassCard} rounded-2xl p-6 transition-transform hover:scale-105`}
             >
-              <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+              <p className="text-3xl font-extrabold text-[#8B3DFF] dark:text-purple-300">
                 50K+
               </p>
-              <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-300">
+              <p className="mt-1 text-sm font-semibold text-gray-600 dark:text-purple-200/70">
                 Active Students
               </p>
             </div>
             <div
               className={`${glassCard} rounded-2xl p-6 transition-transform hover:scale-105`}
             >
-              <p className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">
+              <p className="text-3xl font-extrabold text-emerald-600 dark:text-emerald-400">
                 25K+
               </p>
-              <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-300">
+              <p className="mt-1 text-sm font-semibold text-gray-600 dark:text-purple-200/70">
                 MCQs Available
               </p>
             </div>
             <div
               className={`${glassCard} rounded-2xl p-6 transition-transform hover:scale-105`}
             >
-              <p className="text-3xl font-bold text-amber-600 dark:text-amber-400">
+              <p className="text-3xl font-extrabold text-[#8B3DFF] dark:text-purple-300">
                 89%
               </p>
-              <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-300">
+              <p className="mt-1 text-sm font-semibold text-gray-600 dark:text-purple-200/70">
                 Success Rate
               </p>
             </div>
@@ -236,7 +205,7 @@ export default function AboutPage() {
       </section>
 
       {/* Mission Section */}
-      <section className="bg-white px-4 py-20 dark:bg-slate-900 sm:px-6 lg:px-8">
+      <section className="relative px-4 py-20 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-6xl">
           <motion.div
             initial="hidden"
@@ -245,14 +214,14 @@ export default function AboutPage() {
             variants={staggerContainer}
             className="grid items-center gap-12 lg:grid-cols-2"
           >
-            <motion.div variants={fadeUp} transition={{ duration: 0.6 }}>
-              <span className="mb-3 inline-block rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700 dark:bg-blue-900/50 dark:text-blue-300">
+            <motion.div variants={fadeUp}>
+              <span className="mb-3 inline-block rounded-full border border-[#8B3DFF]/20 bg-[#F3E8FF] px-4 py-1 text-xs font-semibold uppercase tracking-wider text-[#8B3DFF] dark:bg-purple-950/60 dark:text-purple-300">
                 Our Mission
               </span>
-              <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-4xl">
+              <h2 className="text-3xl font-bold font-heading text-gray-900 dark:text-white sm:text-4xl">
                 Making Quality Exam Prep Accessible to Everyone
               </h2>
-              <p className="mt-6 text-lg leading-relaxed text-slate-600 dark:text-slate-300">
+              <p className="mt-6 text-lg leading-relaxed text-gray-600 dark:text-purple-200/80">
                 We started MeritPrep with a simple belief: every student
                 deserves access to high-quality preparation materials for
                 government exams. Our AI-powered platform breaks down complex
@@ -268,9 +237,9 @@ export default function AboutPage() {
                   <div key={item} className="flex items-center gap-3">
                     <CheckCircle2
                       size={20}
-                      className="shrink-0 text-emerald-500"
+                      className="shrink-0 text-emerald-500 dark:text-emerald-400"
                     />
-                    <span className="text-sm font-medium text-slate-700 dark:text-slate-200">
+                    <span className="text-sm font-semibold text-gray-700 dark:text-purple-100">
                       {item}
                     </span>
                   </div>
@@ -280,7 +249,6 @@ export default function AboutPage() {
 
             <motion.div
               variants={fadeUp}
-              transition={{ duration: 0.7 }}
               className={`${glassCard} rounded-3xl p-8`}
             >
               <div className="grid grid-cols-2 gap-4">
@@ -292,12 +260,12 @@ export default function AboutPage() {
                 ].map((stat) => (
                   <div
                     key={stat.label}
-                    className="rounded-2xl bg-white/50 p-4 text-center backdrop-blur-sm dark:bg-slate-800/50"
+                    className="rounded-2xl border border-purple-100/60 bg-white/60 p-4 text-center backdrop-blur-sm dark:border-purple-900/30 dark:bg-[#1C1335]/60"
                   >
-                    <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                    <p className="text-2xl font-extrabold text-[#8B3DFF] dark:text-purple-300">
                       {stat.value}
                     </p>
-                    <p className="mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">
+                    <p className="mt-1 text-xs font-semibold text-gray-500 dark:text-purple-300/60">
                       {stat.label}
                     </p>
                   </div>
@@ -309,7 +277,7 @@ export default function AboutPage() {
       </section>
 
       {/* Features Grid */}
-      <section className="bg-slate-50/50 px-4 py-20 dark:bg-[#0a1328] sm:px-6 lg:px-8">
+      <section className="relative px-4 py-20 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-6xl">
           <motion.div
             initial="hidden"
@@ -320,22 +288,19 @@ export default function AboutPage() {
           >
             <motion.span
               variants={fadeUp}
-              transition={{ duration: 0.5 }}
-              className="mb-3 inline-block rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700 dark:bg-blue-900/50 dark:text-blue-300"
+              className="mb-3 inline-block rounded-full border border-[#8B3DFF]/20 bg-[#F3E8FF] px-4 py-1 text-xs font-semibold uppercase tracking-wider text-[#8B3DFF] dark:bg-purple-950/60 dark:text-purple-300"
             >
               Platform Features
             </motion.span>
             <motion.h2
               variants={fadeUp}
-              transition={{ duration: 0.6 }}
-              className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-4xl"
+              className="text-3xl font-bold font-heading text-gray-900 dark:text-white sm:text-4xl"
             >
               Everything You Need to Succeed
             </motion.h2>
             <motion.p
               variants={fadeUp}
-              transition={{ duration: 0.6 }}
-              className="mx-auto mt-4 max-w-2xl text-slate-600 dark:text-slate-300"
+              className="mx-auto mt-4 max-w-2xl text-gray-600 dark:text-purple-200/80"
             >
               Powerful tools designed to make your exam preparation effective
               and enjoyable.
@@ -355,19 +320,18 @@ export default function AboutPage() {
                 <motion.div
                   key={feature.title}
                   variants={fadeUp}
-                  transition={{ duration: 0.5 }}
-                  whileHover={{ scale: 1.02 }}
-                  className={`${glassCard} rounded-2xl p-6 transition-colors hover:border-blue-300/50 dark:hover:border-blue-700/50`}
+                  whileHover={{ y: -4 }}
+                  className={`${glassCard} flex h-full flex-col rounded-2xl p-6 transition-all duration-300 hover:border-[#8B3DFF]/40 hover:shadow-purple-500/10 dark:hover:border-purple-500/50`}
                 >
                   <div
                     className={`flex h-12 w-12 items-center justify-center rounded-xl ${feature.color}`}
                   >
                     <Icon size={24} />
                   </div>
-                  <h3 className="mt-4 text-lg font-semibold text-slate-900 dark:text-white">
+                  <h3 className="mt-4 text-lg font-semibold text-gray-900 dark:text-white">
                     {feature.title}
                   </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+                  <p className="mt-2 text-sm leading-relaxed text-gray-600 dark:text-purple-200/70">
                     {feature.description}
                   </p>
                 </motion.div>
@@ -377,8 +341,8 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Stats Counter */}
-      <section className="bg-gradient-to-br from-blue-600 to-blue-800 px-4 py-20 dark:from-blue-900 dark:to-slate-900 sm:px-6 lg:px-8">
+      {/* Stats Counter Banner */}
+      {/* <section className="relative border-y border-purple-200/50  px-4 py-20 text-black shadow-inner dark:border-purple-900/50 dark:from-[#2c164e] dark:to-[#24163b] sm:px-6 lg:px-8">
         <div className="mx-auto max-w-5xl">
           <motion.div
             initial="hidden"
@@ -396,23 +360,22 @@ export default function AboutPage() {
               <motion.div
                 key={stat.label}
                 variants={fadeUp}
-                transition={{ duration: 0.5 }}
                 className="text-center"
               >
-                <p className="text-4xl font-black text-white sm:text-5xl">
+                <p className="text-4xl font-extrabold tracking-tight text-black sm:text-5xl">
                   <AnimatedCounter target={stat.target} suffix={stat.suffix} />
                 </p>
-                <p className="mt-2 text-sm font-medium text-blue-100">
+                <p className="mt-2 text-sm font-semibold text-purple-100">
                   {stat.label}
                 </p>
               </motion.div>
             ))}
           </motion.div>
         </div>
-      </section>
+      </section> */}
 
-      {/* Values */}
-      <section className="bg-white px-4 py-20 dark:bg-slate-900 sm:px-6 lg:px-8">
+      {/* Values Section */}
+      <section className="relative px-4 py-20 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-6xl">
           <motion.div
             initial="hidden"
@@ -421,10 +384,15 @@ export default function AboutPage() {
             variants={staggerContainer}
             className="text-center"
           >
+            <motion.span
+              variants={fadeUp}
+              className="mb-3 inline-block rounded-full border border-[#8B3DFF]/20 bg-[#F3E8FF] px-4 py-1 text-xs font-semibold uppercase tracking-wider text-[#8B3DFF] dark:bg-purple-950/60 dark:text-purple-300"
+            >
+              What Drives Us
+            </motion.span>
             <motion.h2
               variants={fadeUp}
-              transition={{ duration: 0.6 }}
-              className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-4xl"
+              className="text-3xl font-bold font-heading text-gray-900 dark:text-white sm:text-4xl"
             >
               Our Core Values
             </motion.h2>
@@ -443,20 +411,16 @@ export default function AboutPage() {
                 <motion.div
                   key={value.title}
                   variants={fadeUp}
-                  transition={{ duration: 0.5 }}
-                  whileHover={{ scale: 1.02 }}
-                  className={`${glassCard} rounded-2xl p-6 text-center`}
+                  whileHover={{ y: -4 }}
+                  className={`${glassCard} rounded-2xl p-6 text-center transition-all duration-300`}
                 >
-                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/50">
-                    <Icon
-                      size={28}
-                      className="text-blue-600 dark:text-blue-400"
-                    />
+                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#F3E8FF] text-[#8B3DFF] dark:bg-purple-950/80 dark:text-purple-300">
+                    <Icon size={28} />
                   </div>
-                  <h3 className="mt-4 text-lg font-semibold text-slate-900 dark:text-white">
+                  <h3 className="mt-4 text-lg font-semibold text-gray-900 dark:text-white">
                     {value.title}
                   </h3>
-                  <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+                  <p className="mt-2 text-sm text-gray-600 dark:text-purple-200/70">
                     {value.description}
                   </p>
                 </motion.div>
@@ -466,8 +430,8 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Team */}
-      <section className="bg-slate-50/50 px-4 py-20 dark:bg-[#0a1328] sm:px-6 lg:px-8">
+      {/* Team Section */}
+      <section className="relative px-4 py-20 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-5xl">
           <motion.div
             initial="hidden"
@@ -476,17 +440,21 @@ export default function AboutPage() {
             variants={staggerContainer}
             className="text-center"
           >
+            <motion.span
+              variants={fadeUp}
+              className="mb-3 inline-block rounded-full border border-[#8B3DFF]/20 bg-[#F3E8FF] px-4 py-1 text-xs font-semibold uppercase tracking-wider text-[#8B3DFF] dark:bg-purple-950/60 dark:text-purple-300"
+            >
+              Behind the Platform
+            </motion.span>
             <motion.h2
               variants={fadeUp}
-              transition={{ duration: 0.6 }}
-              className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-4xl"
+              className="text-3xl font-bold font-heading text-gray-900 dark:text-white sm:text-4xl"
             >
               Meet the Team
             </motion.h2>
             <motion.p
               variants={fadeUp}
-              transition={{ duration: 0.6 }}
-              className="mx-auto mt-4 max-w-xl text-slate-600 dark:text-slate-300"
+              className="mx-auto mt-4 max-w-xl text-gray-600 dark:text-purple-200/80"
             >
               A passionate team of educators, engineers, and AI researchers
               dedicated to transforming exam preparation.
@@ -504,17 +472,16 @@ export default function AboutPage() {
               <motion.div
                 key={member.name}
                 variants={fadeUp}
-                transition={{ duration: 0.5 }}
-                whileHover={{ scale: 1.03 }}
-                className={`${glassCard} rounded-2xl p-6 text-center`}
+                whileHover={{ y: -4 }}
+                className={`${glassCard} rounded-2xl p-6 text-center transition-all duration-300`}
               >
-                <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-700 text-2xl font-bold text-white shadow-lg">
+                <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-[#8B3DFF] to-[#6C1EDC] text-2xl font-bold text-white shadow-lg shadow-purple-500/20">
                   {member.initials}
                 </div>
-                <h3 className="mt-4 text-base font-semibold text-slate-900 dark:text-white">
+                <h3 className="mt-4 text-base font-semibold text-gray-900 dark:text-white">
                   {member.name}
                 </h3>
-                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                <p className="mt-1 text-xs font-semibold text-gray-500 dark:text-purple-300/60">
                   {member.role}
                 </p>
               </motion.div>
@@ -523,20 +490,19 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="bg-white px-4 py-20 dark:bg-slate-900 sm:px-6 lg:px-8">
+      {/* CTA Section */}
+      <section className="relative px-4 py-20 sm:px-6 lg:px-8">
         <motion.div
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
           variants={fadeUp}
-          transition={{ duration: 0.6 }}
           className={`${glassCard} mx-auto max-w-4xl rounded-3xl p-10 text-center sm:p-14`}
         >
-          <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-4xl">
+          <h2 className="text-3xl font-bold font-heading text-gray-900 dark:text-white sm:text-4xl">
             Ready to Start Your Journey?
           </h2>
-          <p className="mx-auto mt-4 max-w-xl text-slate-600 dark:text-slate-300">
+          <p className="mx-auto mt-4 max-w-xl text-gray-600 dark:text-purple-200/80">
             Join over 50,000 students already preparing smarter with MeritPrep.
             Create your free account today.
           </p>
@@ -544,7 +510,7 @@ export default function AboutPage() {
             <Link to={ROUTES.REGISTER}>
               <Button
                 size="lg"
-                className="bg-gray-900 text-white shadow-md transition-all hover:bg-gray-800 dark:bg-white dark:text-slate-900 dark:hover:bg-gray-100"
+                className="bg-[#8B3DFF] font-semibold text-white shadow-lg shadow-purple-500/25 transition-all hover:bg-[#7424ED] dark:bg-purple-600 dark:hover:bg-purple-500"
               >
                 Get Started Free
                 <ArrowRight size={16} />
@@ -554,7 +520,7 @@ export default function AboutPage() {
               <Button
                 size="lg"
                 variant="outline"
-                className="border-gray-200 bg-gray-100 text-gray-900 transition-all hover:bg-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700"
+                className="border-purple-200/80 bg-white/80 font-semibold text-gray-700 hover:border-[#8B3DFF]/40 hover:bg-white hover:text-[#8B3DFF] dark:border-purple-900/50 dark:bg-[#150E28]/80 dark:text-purple-200 dark:hover:border-purple-500 dark:hover:bg-[#1A1230] dark:hover:text-purple-300"
               >
                 Explore Exams
               </Button>

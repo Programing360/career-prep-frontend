@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   User,
@@ -90,7 +90,7 @@ function BadgeCard({
       variants={fadeUp}
       className="group flex items-center gap-3 rounded-xl border border-white/20 bg-white/70 p-4 backdrop-blur-md transition-all hover:shadow-md dark:border-gray-800/50 dark:bg-gray-900/70"
     >
-      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-xl dark:bg-amber-900/50">
+      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary-100 text-xl dark:bg-primary-900/50">
         {badge.icon}
       </div>
       <div className="min-w-0 flex-1">
@@ -139,13 +139,11 @@ export default function ProfilePage() {
     : 'N/A';
 
   const roleLabel =
-    user?.role === 'super_admin'
-      ? 'Super Admin'
-      : user?.role === 'content_manager'
-        ? 'Content Manager'
-        : user?.role === 'admin'
-          ? 'Admin'
-          : 'Student';
+    user?.role === 'admin'
+      ? 'Admin'
+      : user?.role === 'moderator'
+        ? 'Moderator'
+        : 'User';
 
   return (
     <motion.div
@@ -184,7 +182,7 @@ export default function ProfilePage() {
             <span
               className={cn(
                 'absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white text-white dark:border-gray-900',
-                user?.role === 'student' ? 'bg-primary-500' : 'bg-amber-500'
+                user?.role === 'user' ? 'bg-primary-500' : 'bg-primary-500'
               )}
             >
               <BadgeCheck size={14} />
@@ -200,9 +198,9 @@ export default function ProfilePage() {
               <span
                 className={cn(
                   'inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide',
-                  user?.role === 'student'
+                  user?.role === 'user'
                     ? 'bg-primary-100 text-primary-700 dark:bg-primary-900/50 dark:text-primary-300'
-                    : 'bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300'
+                    : 'bg-primary-100 text-primary-700 dark:bg-primary-900/50 dark:text-primary-300'
                 )}
               >
                 <Shield size={10} />
@@ -245,7 +243,7 @@ export default function ProfilePage() {
           icon={Award}
           label="Coins"
           value={progress?.coins ?? 0}
-          accentClass="bg-amber-100 text-amber-600 dark:bg-amber-900/50 dark:text-amber-400"
+          accentClass="bg-primary-100 text-primary-600 dark:bg-primary-900/50 dark:text-primary-400"
         />
         <StatCard
           icon={Flame}
@@ -266,11 +264,11 @@ export default function ProfilePage() {
       {progress?.badges && progress.badges.length > 0 && (
         <motion.div variants={fadeUp} className="mt-8">
           <div className="mb-4 flex items-center gap-2">
-            <Trophy size={18} className="text-amber-500" />
+            <Trophy size={18} className="text-primary-500" />
             <h3 className="text-base font-bold text-gray-900 dark:text-white">
               Badges & Achievements
             </h3>
-            <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-amber-100 text-[10px] font-bold text-amber-700 dark:bg-amber-900/50 dark:text-amber-300">
+            <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-primary-100 text-[10px] font-bold text-primary-700 dark:bg-primary-900/50 dark:text-primary-300">
               {progress.badges.length}
             </span>
           </div>

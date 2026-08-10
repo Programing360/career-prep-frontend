@@ -7,3 +7,4 @@ export * from './mockTestService';
 export * from './currentAffairsService';
 export * from './dailyQuizService';
 export * from './leaderboardService';
+export * from './invitationService';

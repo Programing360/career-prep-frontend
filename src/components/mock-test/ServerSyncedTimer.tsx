@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+﻿import { useEffect, useRef, useState } from 'react';
 import { Clock, WifiOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { syncTestTimer } from '@/services/mockTestService';
@@ -126,7 +126,7 @@ export function ServerSyncedTimer({
       <Clock size={14} aria-hidden="true" />
       {formatTime(remainingSeconds)}
       {isOffline && (
-        <span className="ml-1 inline-flex items-center gap-1 rounded-md bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700 dark:bg-amber-900 dark:text-amber-300">
+        <span className="ml-1 inline-flex items-center gap-1 rounded-md bg-primary-100 px-1.5 py-0.5 text-[10px] font-semibold text-primary-700 dark:bg-primary-900 dark:text-primary-300">
           <WifiOff size={10} aria-hidden="true" />
           Offline
         </span>

@@ -16,14 +16,14 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary:
-    'bg-primary-500 text-white border-transparent hover:bg-primary-600 active:bg-primary-700',
+    'bg-primary text-white border-transparent hover:bg-primary-hover active:bg-primary-hover',
   secondary:
     'bg-secondary-500 text-white border-transparent hover:bg-secondary-600 active:bg-secondary-700',
   outline:
-    'bg-transparent text-primary-500 border border-primary-500 hover:bg-primary-50 active:bg-primary-100 dark:hover:bg-primary-950 dark:active:bg-primary-900',
+    'bg-transparent text-primary border border-primary hover:bg-accent active:bg-accent-hover',
   ghost:
     'bg-transparent text-[rgb(var(--color-text-primary))] border-transparent hover:bg-secondary-100 active:bg-secondary-200 dark:hover:bg-secondary-800 dark:active:bg-secondary-700',
-  link: 'bg-transparent text-primary-500 border-transparent underline underline-offset-2 hover:text-primary-600 active:text-primary-700 px-1',
+  link: 'bg-transparent text-primary border-transparent underline underline-offset-2 hover:text-primary-hover px-1',
 };
 
 const sizeStyles: Record<ButtonSize, string> = {

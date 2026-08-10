@@ -5,6 +5,8 @@ export const ROUTES = {
   VERIFY_EMAIL: '/verify-email',
   FORGOT_PASSWORD: '/forgot-password',
   RESET_PASSWORD: '/reset-password',
+  RESET_PASSWORD_TOKEN: '/reset-password/:token',
+  ACCEPT_INVITATION: '/accept-invite',
 
   DASHBOARD: '/dashboard',
   PROFILE: '/profile',
@@ -32,6 +34,8 @@ export const ROUTES = {
   ADMIN_EXAMS: '/admin/exams',
   ADMIN_EXAMS_NEW: '/admin/exams/new',
   ADMIN_USERS: '/admin/users',
+  ADMIN_TAXONOMY: '/admin/taxonomy',
+  ADMIN_SYLLABUS: '/admin/syllabus',
   ADMIN_AI_TOKENS: '/admin/tokens',
   ADMIN_SETTINGS: '/admin/settings',
 

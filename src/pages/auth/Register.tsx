@@ -12,8 +12,7 @@ import { useToast } from '@/hooks/useToast';
 import { ROUTES } from '@/constants/routes';
 import { registerSchema } from '@/utils/validationHelpers';
 import { registerUser } from '@/services';
-import lotieAnimation from '../../assets/Study discussion.svg';
-
+import registerAnimation from '../../assets/Login verification.svg';
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
 export default function Register() {
@@ -86,11 +85,16 @@ export default function Register() {
         {/* Left Side: Illustration & Branding Section */}
         <div className="hidden flex-1 flex-col  justify-between  bg-gradient-to-b from-purple-500 to-indigo-600 dark:from-purple-900/80 dark:to-indigo-950 p-8 text-white md:flex">
           <div className="flex w-full items-center  h-full justify-center pt-6">
-            <div className="relative flex h-96 w-96 items-center justify-center rounded-full bg-indigo-300/30 dark:bg-purple-800/20 backdrop-blur-sm">
+            <div className="relative flex  items-center justify-center rounded-full bg-indigo-300/30 dark:bg-purple-800/20 backdrop-blur-sm">
+              {/* <GraduationCap
+                  size={120}
+                  className="text-white"
+                  strokeWidth={1.2}
+                /> */}
               <img
-                src={lotieAnimation}
-                alt="Illustration"
-                className="h-66 w-11/12 object-contain"
+                src={registerAnimation}
+                alt="Register Animation"
+                className="h-full w-full object-contain"
               />
             </div>
           </div>

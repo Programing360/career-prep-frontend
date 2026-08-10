@@ -141,7 +141,7 @@ export function DashboardLayout({ children }: { children?: ReactNode }) {
   const admin = user?.role === 'admin';
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[hsl(var(--background))] bg-slate-400/30">
+    <div className="flex h-screen overflow-hidden ">
       <SidebarWrapper collapsed={collapsed} className="hidden lg:flex">
         <SidebarInner collapsed={collapsed} onNavigate={() => {}} />
         <button
