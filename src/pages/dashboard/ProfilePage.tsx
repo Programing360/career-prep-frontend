@@ -23,6 +23,7 @@ import { useAppSelector } from '@/store/hooks';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { cn } from '@/lib/utils';
+import adminLottie from '../../assets/Man and robot with computers sitting together in workplace.svg';
 
 const stagger = {
   hidden: { opacity: 0 },
@@ -224,6 +225,9 @@ export default function ProfilePage() {
               )}
             </div>
           </div>
+          <div>
+            <img className="w-full" src={adminLottie} alt="admin image" />
+          </div>
         </div>
       </motion.div>
 
@@ -284,7 +288,7 @@ export default function ProfilePage() {
       <motion.div
         variants={fadeUp}
         className={cn(
-          'mt-8 rounded-2xl border p-6',
+          'mt-8 rounded-2xl border p-6 shadow-lg',
           'border-white/20 bg-white/70 backdrop-blur-md dark:border-gray-800/50 dark:bg-gray-900/70'
         )}
       >
@@ -297,6 +301,7 @@ export default function ProfilePage() {
           </div>
           {!editing ? (
             <Button
+              className="hover:shadow-lg shadow-md"
               variant="ghost"
               size="sm"
               leftIcon={<Pencil size={14} />}
@@ -307,6 +312,7 @@ export default function ProfilePage() {
           ) : (
             <div className="flex gap-2">
               <Button
+                className="shadow-md"
                 variant="ghost"
                 size="sm"
                 leftIcon={<X size={14} />}
@@ -315,6 +321,7 @@ export default function ProfilePage() {
                 Cancel
               </Button>
               <Button
+                className="shadow-md"
                 variant="primary"
                 size="sm"
                 leftIcon={<Check size={14} />}
@@ -393,7 +400,7 @@ export default function ProfilePage() {
           ].map((link) => (
             <button
               key={link.label}
-              className="flex items-center gap-3 rounded-xl border border-white/20 bg-white/50 p-4 text-left transition-all hover:shadow-md dark:border-gray-800/50 dark:bg-gray-900/50"
+              className="flex items-center gap-3 rounded-xl border border-white/20 bg-white/50 shadow-lg p-4 text-left transition-all hover:shadow-md dark:border-gray-800/50 dark:bg-gray-900/50"
             >
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800">
                 <link.icon

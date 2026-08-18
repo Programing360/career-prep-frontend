@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { Select } from '@/components/ui/Select';
+import { Label } from '@/components/ui/Label';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/useToast';
 import { ROUTES } from '@/constants/routes';
@@ -32,18 +33,14 @@ const CATEGORY_LABELS: Record<string, string> = {
   federal: 'Federal',
   provincial: 'Provincial',
   armed_forces: 'Armed Forces',
-  'armed-forces': 'Armed Forces',
-  banking: 'Banking',
   testing_service: 'Testing Service',
-  other: 'Other',
 };
 
 const standardCategoryOptions = [
   { label: 'Federal (e.g. FPSC)', value: 'federal' },
   { label: 'Provincial (e.g. PPSC / SPSC)', value: 'provincial' },
-  { label: 'Armed Forces', value: 'armed-forces' },
-  { label: 'Banking', value: 'banking' },
-  { label: 'Other', value: 'other' },
+  { label: 'Armed Forces', value: 'armed_forces' },
+  { label: 'Testing Service (e.g. NTS / ETEA)', value: 'testing_service' },
 ];
 
 const conductingAuthorityOptions = [
@@ -70,7 +67,7 @@ const provinceOptions = [
   { label: 'Federal', value: 'Federal' },
   { label: 'Punjab', value: 'Punjab' },
   { label: 'Sindh', value: 'Sindh' },
-  { label: 'Khyber Pakhtunkhwa', value: 'Khyber Pakhtunkhwa' },
+  { label: 'Khyber Pakhtunkhwa (KPK)', value: 'KPK' },
   { label: 'Balochistan', value: 'Balochistan' },
   { label: 'AJK', value: 'AJK' },
   { label: 'Gilgit-Baltistan', value: 'Gilgit-Baltistan' },
@@ -81,6 +78,7 @@ const genderOptions = [
   { label: 'Both Male & Female', value: 'both' },
   { label: 'Male', value: 'male' },
   { label: 'Female', value: 'female' },
+  { label: 'Transgender', value: 'transgender' },
 ];
 
 const formatOptions = [
@@ -94,6 +92,13 @@ const negativeMarkingOptions = [
   { label: 'Yes', value: 'yes' },
 ];
 
+interface EditSelectionStage {
+  stageNumber: number;
+  title: string;
+  description: string;
+  isEliminationStage: boolean;
+}
+
 interface EditFormState {
   title: string;
   conductingAuthority: string;
@@ -101,15 +106,24 @@ interface EditFormState {
   province: string;
   bpsScale: string;
   departmentName: string;
+  advertisementNumber: string;
+  applicationStartDate: string;
+  applicationDeadline: string;
+  expectedExamDate: string;
   minAge: string;
   maxAge: string;
+  ageRelaxationYears: string;
   qualificationRequired: string;
+  minimumGradeOrCgpa: string;
   allowedGender: string;
   eligibleDomiciles: string;
   totalMarks: string;
   durationMinutes: string;
   negativeMarking: string;
+  negativeMarkingValue: string;
+  passingPercentage: string;
   format: string;
+  selectionProcess: EditSelectionStage[];
   sourceUrl: string;
   officialNotificationUrl: string;
 }
@@ -122,11 +136,26 @@ function toEditForm(exam: DirectoryExam): EditFormState {
     province: exam.province ?? '',
     bpsScale: exam.bpsScale != null ? String(exam.bpsScale) : '',
     departmentName: exam.departmentName ?? '',
+    advertisementNumber: exam.advertisementNumber ?? '',
+    applicationStartDate: exam.applicationStartDate
+      ? exam.applicationStartDate.slice(0, 10)
+      : '',
+    applicationDeadline: exam.applicationDeadline
+      ? exam.applicationDeadline.slice(0, 10)
+      : '',
+    expectedExamDate: exam.expectedExamDate
+      ? exam.expectedExamDate.slice(0, 10)
+      : '',
     minAge:
       exam.eligibility?.minAge != null ? String(exam.eligibility.minAge) : '',
     maxAge:
       exam.eligibility?.maxAge != null ? String(exam.eligibility.maxAge) : '',
+    ageRelaxationYears:
+      exam.eligibility?.ageRelaxationYears != null
+        ? String(exam.eligibility.ageRelaxationYears)
+        : '',
     qualificationRequired: exam.eligibility?.qualificationRequired ?? '',
+    minimumGradeOrCgpa: exam.eligibility?.minimumGradeOrCgpa ?? '',
     allowedGender: exam.eligibility?.allowedGender ?? '',
     eligibleDomiciles: (exam.eligibility?.eligibleDomiciles ?? []).join(', '),
     totalMarks:
@@ -138,7 +167,21 @@ function toEditForm(exam: DirectoryExam): EditFormState {
         ? String(exam.examPattern.durationMinutes)
         : '',
     negativeMarking: exam.examPattern?.negativeMarking ? 'yes' : 'no',
+    negativeMarkingValue:
+      exam.examPattern?.negativeMarkingValue != null
+        ? String(exam.examPattern.negativeMarkingValue)
+        : '',
+    passingPercentage:
+      exam.examPattern?.passingPercentage != null
+        ? String(exam.examPattern.passingPercentage)
+        : '',
     format: exam.examPattern?.format ?? '',
+    selectionProcess: (exam.selectionProcess ?? []).map((s) => ({
+      stageNumber: s.stageNumber,
+      title: s.title,
+      description: s.description ?? '',
+      isEliminationStage: s.isEliminationStage,
+    })),
     sourceUrl: exam.audit?.sourceUrl ?? '',
     officialNotificationUrl: exam.audit?.officialNotificationUrl ?? '',
   };
@@ -179,6 +222,28 @@ function validateEditForm(form: EditFormState): Record<string, string> {
   if (!form.negativeMarking) errs.negativeMarking = 'Select yes or no.';
   if (!form.format) errs.format = 'Select the paper format.';
 
+  if (form.negativeMarking === 'yes') {
+    const negValue = Number(form.negativeMarkingValue);
+    if (
+      !form.negativeMarkingValue ||
+      !Number.isFinite(negValue) ||
+      negValue < 0
+    )
+      errs.negativeMarkingValue =
+        'Enter a non-negative value for negative marking.';
+  }
+
+  const passingPct = Number(form.passingPercentage);
+  if (
+    form.passingPercentage &&
+    (!Number.isFinite(passingPct) || passingPct <= 0 || passingPct > 100)
+  )
+    errs.passingPercentage = 'Passing percentage must be between 1 and 100.';
+
+  const ageRelax = Number(form.ageRelaxationYears);
+  if (form.ageRelaxationYears && (!Number.isInteger(ageRelax) || ageRelax < 0))
+    errs.ageRelaxationYears = 'Age relaxation must be a non-negative integer.';
+
   return errs;
 }
 
@@ -191,15 +256,36 @@ function QueueStatusBadge() {
   );
 }
 
+function CatalogStatusBadge({ active }: { active: boolean }) {
+  if (!active) {
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full bg-danger-100 px-2 py-0.5 text-xs font-semibold text-danger-600 dark:bg-danger-900 dark:text-danger-300">
+        Inactive
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1 rounded-full bg-primary-100 px-2 py-0.5 text-xs font-semibold text-primary-600 dark:bg-primary-800 dark:text-primary-300">
+      <ShieldCheck size={12} />
+      Verified
+    </span>
+  );
+}
+
 export default function AdminExamsPage() {
   const navigate = useNavigate();
   const { showToast } = useToast();
 
+  const [activeTab, setActiveTab] = useState<'all' | 'pending'>('all');
   const [queue, setQueue] = useState<DirectoryExam[]>([]);
   const [totalQueue, setTotalQueue] = useState(0);
+  const [exams, setExams] = useState<DirectoryExam[]>([]);
+  const [totalExams, setTotalExams] = useState(0);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [allLoading, setAllLoading] = useState(false);
+  const [allError, setAllError] = useState('');
   const [verifyingId, setVerifyingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [examToDelete, setExamToDelete] = useState<DirectoryExam | null>(null);
@@ -208,17 +294,18 @@ export default function AdminExamsPage() {
   const [editErrors, setEditErrors] = useState<Record<string, string>>({});
   const [savingEdit, setSavingEdit] = useState(false);
 
-  useEffect(() => {
-    const loadExamData = async () => {
-      try {
-        const examData = await getPublicExams({ page: 1, limit: 10 });
-        console.log(examData);
-      } catch (err) {
-        console.error('Failed to fetch public exams:', err);
-      }
-    };
-
-    loadExamData();
+  const loadAllExams = useCallback(async () => {
+    setAllLoading(true);
+    setAllError('');
+    try {
+      const res = await getPublicExams({ page: 1, limit: 50 });
+      setExams(res.data ?? []);
+      setTotalExams(res.meta?.total ?? res.data?.length ?? 0);
+    } catch (err) {
+      setAllError(err instanceof Error ? err.message : 'Failed to load exams.');
+    } finally {
+      setAllLoading(false);
+    }
   }, []);
 
   const loadQueue = useCallback(async () => {
@@ -242,9 +329,10 @@ export default function AdminExamsPage() {
   useEffect(() => {
     const t = setTimeout(() => {
       void loadQueue();
+      void loadAllExams();
     }, 0);
     return () => clearTimeout(t);
-  }, [loadQueue]);
+  }, [loadQueue, loadAllExams]);
 
   const filteredQueue = useMemo(() => {
     if (!search.trim()) return queue;
@@ -256,6 +344,17 @@ export default function AdminExamsPage() {
         e.conductingAuthority.toLowerCase().includes(q)
     );
   }, [queue, search]);
+
+  const filteredExams = useMemo(() => {
+    if (!search.trim()) return exams;
+    const q = search.toLowerCase();
+    return exams.filter(
+      (e) =>
+        e.title.toLowerCase().includes(q) ||
+        e.departmentName?.toLowerCase().includes(q) ||
+        e.conductingAuthority.toLowerCase().includes(q)
+    );
+  }, [exams, search]);
 
   const categoryOptions = useMemo(() => {
     if (
@@ -275,9 +374,10 @@ export default function AdminExamsPage() {
       // console.log(examId);
       setVerifyingId(examId);
       try {
-        await verifyStagedExam(examId);
-        // console.log(examId);
+        const res = await verifyStagedExam(examId);
         setQueue((prev) => prev.filter((e) => e._id !== examId));
+        setExams((prev) => [res.data, ...prev]);
+        setTotalExams((prev) => prev + 1);
         showToast('Exam verified and published to catalog.', 'success');
       } catch (err) {
         showToast(
@@ -302,6 +402,8 @@ export default function AdminExamsPage() {
     try {
       await deleteExam(examId);
       setQueue((prev) => prev.filter((e) => e._id !== examId));
+      setExams((prev) => prev.filter((e) => e._id !== examId));
+      setTotalExams((prev) => Math.max(0, prev - 1));
       setExamToDelete(null);
       showToast('Exam permanently deleted.', 'success');
     } catch (err) {
@@ -339,6 +441,58 @@ export default function AdminExamsPage() {
     []
   );
 
+  const handleEditStageChange = useCallback(
+    (
+      index: number,
+      field: keyof EditSelectionStage,
+      value: string | boolean
+    ) => {
+      setEditForm((prev) =>
+        prev
+          ? {
+              ...prev,
+              selectionProcess: prev.selectionProcess.map((stage, i) =>
+                i === index ? { ...stage, [field]: value } : stage
+              ),
+            }
+          : prev
+      );
+    },
+    []
+  );
+
+  const handleAddEditStage = useCallback(() => {
+    setEditForm((prev) =>
+      prev
+        ? {
+            ...prev,
+            selectionProcess: [
+              ...prev.selectionProcess,
+              {
+                stageNumber: prev.selectionProcess.length + 1,
+                title: '',
+                description: '',
+                isEliminationStage: true,
+              },
+            ],
+          }
+        : prev
+    );
+  }, []);
+
+  const handleRemoveEditStage = useCallback((index: number) => {
+    setEditForm((prev) =>
+      prev
+        ? {
+            ...prev,
+            selectionProcess: prev.selectionProcess
+              .filter((_, i) => i !== index)
+              .map((stage, i) => ({ ...stage, stageNumber: i + 1 })),
+          }
+        : prev
+    );
+  }, []);
+
   const handleEditSave = useCallback(async () => {
     if (!editingExam || !editForm) return;
 
@@ -360,19 +514,51 @@ export default function AdminExamsPage() {
         minAge: Number(editForm.minAge),
         maxAge: Number(editForm.maxAge),
         qualificationRequired: editForm.qualificationRequired.trim(),
-        allowedGender: editForm.allowedGender as 'male' | 'female' | 'both',
+        allowedGender: editForm.allowedGender as
+          'male' | 'female' | 'both' | 'transgender',
         eligibleDomiciles: editForm.eligibleDomiciles
           .split(',')
           .map((d) => d.trim())
           .filter(Boolean),
+        ...(editForm.ageRelaxationYears
+          ? { ageRelaxationYears: Number(editForm.ageRelaxationYears) }
+          : {}),
+        ...(editForm.minimumGradeOrCgpa.trim()
+          ? { minimumGradeOrCgpa: editForm.minimumGradeOrCgpa.trim() }
+          : {}),
       },
       examPattern: {
         totalMarks: Number(editForm.totalMarks),
         durationMinutes: Number(editForm.durationMinutes),
         negativeMarking: editForm.negativeMarking === 'yes',
         format: editForm.format as 'mcq' | 'descriptive' | 'hybrid',
+        ...(editForm.negativeMarking === 'yes' && editForm.negativeMarkingValue
+          ? { negativeMarkingValue: Number(editForm.negativeMarkingValue) }
+          : {}),
+        ...(editForm.passingPercentage
+          ? { passingPercentage: Number(editForm.passingPercentage) }
+          : {}),
       },
     };
+
+    if (editForm.advertisementNumber.trim())
+      payload.advertisementNumber = editForm.advertisementNumber.trim();
+    if (editForm.applicationStartDate)
+      payload.applicationStartDate = editForm.applicationStartDate;
+    if (editForm.applicationDeadline)
+      payload.applicationDeadline = editForm.applicationDeadline;
+    if (editForm.expectedExamDate)
+      payload.expectedExamDate = editForm.expectedExamDate;
+
+    const stages = editForm.selectionProcess
+      .filter((s) => s.title.trim())
+      .map((s) => ({
+        stageNumber: s.stageNumber,
+        title: s.title.trim(),
+        description: s.description.trim() || undefined,
+        isEliminationStage: s.isEliminationStage,
+      }));
+    if (stages.length > 0) payload.selectionProcess = stages;
 
     if (editForm.sourceUrl.trim())
       payload.sourceUrl = editForm.sourceUrl.trim();
@@ -383,6 +569,9 @@ export default function AdminExamsPage() {
     try {
       const res = await updateExam(editingExam._id, payload);
       setQueue((prev) =>
+        prev.map((e) => (e._id === editingExam._id ? res.data : e))
+      );
+      setExams((prev) =>
         prev.map((e) => (e._id === editingExam._id ? res.data : e))
       );
       showToast('Exam updated successfully.', 'success');
@@ -401,17 +590,72 @@ export default function AdminExamsPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold font-heading text-[rgb(var(--color-text-primary))]">
-          Exam Verification Queue
+          Exam Management
         </h1>
         <p className="mt-1 text-sm text-[rgb(var(--color-text-secondary))]">
-          Review unverified exams and publish them to the public catalog.
+          Manage the public exam catalog and review pending verifications.
         </p>
       </div>
 
-      {error && (
+      <div className="inline-flex rounded-lg border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] p-1">
+        <button
+          type="button"
+          onClick={() => setActiveTab('all')}
+          className={cn(
+            'inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors',
+            activeTab === 'all'
+              ? 'bg-gray-900 text-white dark:bg-primary-600'
+              : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'
+          )}
+        >
+          <BookOpen size={16} />
+          All Exams
+          <span
+            className={cn(
+              'rounded-full px-1.5 py-0.5 text-xs font-semibold',
+              activeTab === 'all'
+                ? 'bg-white/20 text-white'
+                : 'bg-[rgb(var(--color-surface-elevated))] text-[rgb(var(--color-text-muted))]'
+            )}
+          >
+            {totalExams}
+          </span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab('pending')}
+          className={cn(
+            'inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors',
+            activeTab === 'pending'
+              ? 'bg-gray-900 text-white dark:bg-primary-600'
+              : 'text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]'
+          )}
+        >
+          <Clock size={16} />
+          Pending Verification
+          <span
+            className={cn(
+              'rounded-full px-1.5 py-0.5 text-xs font-semibold',
+              activeTab === 'pending'
+                ? 'bg-white/20 text-white'
+                : 'bg-[rgb(var(--color-surface-elevated))] text-[rgb(var(--color-text-muted))]'
+            )}
+          >
+            {totalQueue}
+          </span>
+        </button>
+      </div>
+
+      {(activeTab === 'all' ? allError : error) && (
         <div className="flex items-center justify-between rounded-xl border border-danger-200 bg-danger-50 px-4 py-3 text-sm text-danger-700 dark:border-danger-900 dark:bg-danger-950 dark:text-danger-300">
-          <span>{error}</span>
-          <Button variant="ghost" size="sm" onClick={() => void loadQueue()}>
+          <span>{activeTab === 'all' ? allError : error}</span>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() =>
+              void (activeTab === 'all' ? loadAllExams() : loadQueue())
+            }
+          >
             Retry
           </Button>
         </div>
@@ -425,7 +669,11 @@ export default function AdminExamsPage() {
           />
           <input
             type="text"
-            placeholder="Search queue by title, department, or authority..."
+            placeholder={
+              activeTab === 'all'
+                ? 'Search exams by title, department, or authority...'
+                : 'Search queue by title, department, or authority...'
+            }
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="h-10 w-full rounded-md border border-[rgb(var(--color-border))] bg-transparent pl-9 pr-3 text-sm text-[rgb(var(--color-text-primary))] placeholder:text-secondary-400 transition-colors hover:border-[rgb(var(--color-border-hover))] focus-ring"
@@ -442,7 +690,7 @@ export default function AdminExamsPage() {
       </div>
 
       <div className="rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))]">
-        {loading ? (
+        {(activeTab === 'all' ? allLoading : loading) ? (
           <div className="space-y-3 p-6">
             {Array.from({ length: 5 }).map((_, i) => (
               <div
@@ -480,7 +728,8 @@ export default function AdminExamsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[rgb(var(--color-border))]">
-                {filteredQueue.length === 0 ? (
+                {(activeTab === 'all' ? filteredExams : filteredQueue)
+                  .length === 0 ? (
                   <tr>
                     <td
                       colSpan={7}
@@ -488,105 +737,115 @@ export default function AdminExamsPage() {
                     >
                       {search.trim()
                         ? 'No exams found matching your search.'
-                        : 'The verification queue is empty. All exams are verified.'}
+                        : activeTab === 'all'
+                          ? 'No exams found in the catalog yet.'
+                          : 'The verification queue is empty. All exams are verified.'}
                     </td>
                   </tr>
                 ) : (
-                  filteredQueue.map((exam) => (
-                    <tr
-                      key={exam._id}
-                      className="transition-colors hover:bg-[rgb(var(--color-surface-elevated))]"
-                    >
-                      <td className="max-w-[260px] px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-50 text-primary-500 dark:bg-primary-950">
-                            <BookOpen size={16} />
+                  (activeTab === 'all' ? filteredExams : filteredQueue).map(
+                    (exam) => (
+                      <tr
+                        key={exam._id}
+                        className="transition-colors hover:bg-[rgb(var(--color-surface-elevated))]"
+                      >
+                        <td className="max-w-[260px] px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-50 text-primary-500 dark:bg-primary-950">
+                              <BookOpen size={16} />
+                            </div>
+                            <div className="min-w-0">
+                              <p className="truncate text-sm font-medium text-[rgb(var(--color-text-primary))]">
+                                {exam.title}
+                              </p>
+                              <p className="truncate text-xs text-[rgb(var(--color-text-muted))]">
+                                BPS-{exam.bpsScale ?? '—'} · {exam.province}
+                              </p>
+                            </div>
                           </div>
-                          <div className="min-w-0">
-                            <p className="truncate text-sm font-medium text-[rgb(var(--color-text-primary))]">
-                              {exam.title}
-                            </p>
-                            <p className="truncate text-xs text-[rgb(var(--color-text-muted))]">
-                              BPS-{exam.bpsScale ?? '—'} · {exam.province}
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="whitespace-nowrap px-6 py-4 text-sm text-[rgb(var(--color-text-secondary))]">
-                        {exam.departmentName ?? '—'}
-                      </td>
-                      <td className="whitespace-nowrap px-6 py-4">
-                        <span className="inline-flex items-center gap-1 text-sm text-[rgb(var(--color-text-secondary))]">
-                          <Building2
-                            size={14}
-                            className="text-[rgb(var(--color-text-muted))]"
-                          />
-                          {exam.conductingAuthority}
-                        </span>
-                      </td>
-                      <td className="whitespace-nowrap px-6 py-4 text-sm text-[rgb(var(--color-text-secondary))]">
-                        {CATEGORY_LABELS[exam.category] ?? exam.category}
-                      </td>
-                      <td className="whitespace-nowrap px-6 py-4 text-sm text-[rgb(var(--color-text-muted))]">
-                        {exam.updatedAt
-                          ? new Date(exam.updatedAt).toLocaleDateString(
-                              'en-US',
-                              {
-                                month: 'short',
-                                day: 'numeric',
-                                year: 'numeric',
-                              }
-                            )
-                          : '—'}
-                      </td>
-                      <td className="whitespace-nowrap px-6 py-4">
-                        <QueueStatusBadge />
-                      </td>
-                      <td className="whitespace-nowrap px-6 py-4 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            leftIcon={<ShieldCheck size={14} />}
-                            isLoading={verifyingId === exam._id}
-                            disabled={
-                              verifyingId !== null || deletingId !== null
-                            }
-                            onClick={() => void handleVerify(exam._id)}
-                            className={cn(
-                              'border-accent-500 text-accent-600 hover:bg-accent-50 dark:border-accent-700 dark:text-accent-400 dark:hover:bg-accent-950'
+                        </td>
+                        <td className="whitespace-nowrap px-6 py-4 text-sm text-[rgb(var(--color-text-secondary))]">
+                          {exam.departmentName ?? '—'}
+                        </td>
+                        <td className="whitespace-nowrap px-6 py-4">
+                          <span className="inline-flex items-center gap-1 text-sm text-[rgb(var(--color-text-secondary))]">
+                            <Building2
+                              size={14}
+                              className="text-[rgb(var(--color-text-muted))]"
+                            />
+                            {exam.conductingAuthority}
+                          </span>
+                        </td>
+                        <td className="whitespace-nowrap px-6 py-4 text-sm text-[rgb(var(--color-text-secondary))]">
+                          {CATEGORY_LABELS[exam.category] ?? exam.category}
+                        </td>
+                        <td className="whitespace-nowrap px-6 py-4 text-sm text-[rgb(var(--color-text-muted))]">
+                          {exam.updatedAt
+                            ? new Date(exam.updatedAt).toLocaleDateString(
+                                'en-US',
+                                {
+                                  month: 'short',
+                                  day: 'numeric',
+                                  year: 'numeric',
+                                }
+                              )
+                            : '—'}
+                        </td>
+                        <td className="whitespace-nowrap px-6 py-4">
+                          {activeTab === 'all' ? (
+                            <CatalogStatusBadge active={exam.isActive} />
+                          ) : (
+                            <QueueStatusBadge />
+                          )}
+                        </td>
+                        <td className="whitespace-nowrap px-6 py-4 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            {activeTab === 'pending' && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                leftIcon={<ShieldCheck size={14} />}
+                                isLoading={verifyingId === exam._id}
+                                disabled={
+                                  verifyingId !== null || deletingId !== null
+                                }
+                                onClick={() => void handleVerify(exam._id)}
+                                className={cn(
+                                  'border-accent-500 text-accent-600 hover:bg-accent-50 dark:border-accent-700 dark:text-accent-400 dark:hover:bg-accent-950'
+                                )}
+                              >
+                                Verify & Publish
+                              </Button>
                             )}
-                          >
-                            Verify & Publish
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            leftIcon={<Pencil size={14} />}
-                            disabled={
-                              verifyingId !== null || deletingId !== null
-                            }
-                            onClick={() => openEdit(exam)}
-                          >
-                            Edit
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            leftIcon={<Trash2 size={14} />}
-                            isLoading={deletingId === exam._id}
-                            disabled={
-                              verifyingId !== null || deletingId !== null
-                            }
-                            onClick={() => handleDelete(exam)}
-                            className="text-danger-600 hover:bg-danger-50 hover:text-danger-700 dark:text-danger-400 dark:hover:bg-danger-950"
-                          >
-                            Delete
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              leftIcon={<Pencil size={14} />}
+                              disabled={
+                                verifyingId !== null || deletingId !== null
+                              }
+                              onClick={() => openEdit(exam)}
+                            >
+                              Edit
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              leftIcon={<Trash2 size={14} />}
+                              isLoading={deletingId === exam._id}
+                              disabled={
+                                verifyingId !== null || deletingId !== null
+                              }
+                              onClick={() => handleDelete(exam)}
+                              className="text-danger-600 hover:bg-danger-50 hover:text-danger-700 dark:text-danger-400 dark:hover:bg-danger-950"
+                            >
+                              Delete
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  )
                 )}
               </tbody>
             </table>
@@ -595,7 +854,10 @@ export default function AdminExamsPage() {
 
         <div className="flex items-center justify-between border-t border-[rgb(var(--color-border))] px-6 py-3">
           <p className="text-xs text-[rgb(var(--color-text-muted))]">
-            Showing {filteredQueue.length} of {totalQueue} pending exams
+            Showing{' '}
+            {activeTab === 'all'
+              ? `${filteredExams.length} of ${totalExams} exams`
+              : `${filteredQueue.length} of ${totalQueue} pending exams`}
           </p>
         </div>
       </div>
@@ -687,6 +949,44 @@ export default function AdminExamsPage() {
                   error={editErrors.departmentName}
                 />
               </div>
+              <Input
+                label="Advertisement Number"
+                placeholder="e.g. F.4-1/2025-IG"
+                value={editForm.advertisementNumber}
+                onChange={(e) =>
+                  handleEditChange('advertisementNumber', e.target.value)
+                }
+                error={editErrors.advertisementNumber}
+              />
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <Input
+                  label="Application Start Date"
+                  type="date"
+                  value={editForm.applicationStartDate}
+                  onChange={(e) =>
+                    handleEditChange('applicationStartDate', e.target.value)
+                  }
+                  error={editErrors.applicationStartDate}
+                />
+                <Input
+                  label="Application Deadline"
+                  type="date"
+                  value={editForm.applicationDeadline}
+                  onChange={(e) =>
+                    handleEditChange('applicationDeadline', e.target.value)
+                  }
+                  error={editErrors.applicationDeadline}
+                />
+                <Input
+                  label="Expected Exam Date"
+                  type="date"
+                  value={editForm.expectedExamDate}
+                  onChange={(e) =>
+                    handleEditChange('expectedExamDate', e.target.value)
+                  }
+                  error={editErrors.expectedExamDate}
+                />
+              </div>
 
               <div className="h-px bg-[rgb(var(--color-border))]" />
 
@@ -719,6 +1019,27 @@ export default function AdminExamsPage() {
                     handleEditChange('allowedGender', e.target.value)
                   }
                   error={editErrors.allowedGender}
+                />
+              </div>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <Input
+                  label="Age Relaxation (years)"
+                  type="number"
+                  min={0}
+                  value={editForm.ageRelaxationYears}
+                  onChange={(e) =>
+                    handleEditChange('ageRelaxationYears', e.target.value)
+                  }
+                  error={editErrors.ageRelaxationYears}
+                />
+                <Input
+                  label="Minimum Grade / CGPA"
+                  placeholder="e.g. 2.5 CGPA or B Grade"
+                  value={editForm.minimumGradeOrCgpa}
+                  onChange={(e) =>
+                    handleEditChange('minimumGradeOrCgpa', e.target.value)
+                  }
+                  error={editErrors.minimumGradeOrCgpa}
                 />
               </div>
               <Textarea
@@ -788,6 +1109,122 @@ export default function AdminExamsPage() {
                   onChange={(e) => handleEditChange('format', e.target.value)}
                   error={editErrors.format}
                 />
+              </div>
+              {editForm.negativeMarking === 'yes' && (
+                <Input
+                  label="Negative Marking Value"
+                  type="number"
+                  step="0.01"
+                  min={0}
+                  value={editForm.negativeMarkingValue}
+                  onChange={(e) =>
+                    handleEditChange('negativeMarkingValue', e.target.value)
+                  }
+                  error={editErrors.negativeMarkingValue}
+                  hint="Marks deducted for every wrong answer."
+                />
+              )}
+              <Input
+                label="Passing Percentage"
+                type="number"
+                min={1}
+                max={100}
+                value={editForm.passingPercentage}
+                onChange={(e) =>
+                  handleEditChange('passingPercentage', e.target.value)
+                }
+                error={editErrors.passingPercentage}
+              />
+
+              <div className="h-px bg-[rgb(var(--color-border))]" />
+
+              <div>
+                <div className="flex items-center justify-between gap-2">
+                  <Label className="text-[13px] font-medium text-[rgb(var(--color-text-primary))]">
+                    Selection Process
+                  </Label>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    leftIcon={<Plus size={14} />}
+                    onClick={handleAddEditStage}
+                  >
+                    Add Stage
+                  </Button>
+                </div>
+                <div className="mt-3 space-y-3">
+                  {editForm.selectionProcess.length === 0 ? (
+                    <p className="text-sm text-[rgb(var(--color-text-muted))]">
+                      No stages added yet.
+                    </p>
+                  ) : (
+                    editForm.selectionProcess.map((stage, index) => (
+                      <div
+                        key={stage.stageNumber}
+                        className="rounded-xl border border-[rgb(var(--color-border))] p-4"
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="text-xs font-semibold uppercase tracking-wider text-[rgb(var(--color-text-muted))]">
+                            Stage {stage.stageNumber}
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveEditStage(index)}
+                            className="flex h-8 w-8 items-center justify-center rounded-md border border-[rgb(var(--color-border))] text-danger-600 transition-colors hover:bg-danger-50 dark:text-danger-400 dark:hover:bg-danger-950"
+                            aria-label={`Remove stage ${stage.stageNumber}`}
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                        <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                          <Input
+                            label="Stage Title"
+                            required
+                            placeholder="e.g. Written Test"
+                            value={stage.title}
+                            onChange={(e) =>
+                              handleEditStageChange(
+                                index,
+                                'title',
+                                e.target.value
+                              )
+                            }
+                          />
+                          <label className="flex items-center gap-2 pt-6 text-sm font-medium text-[rgb(var(--color-text-secondary))]">
+                            <input
+                              type="checkbox"
+                              checked={stage.isEliminationStage}
+                              onChange={(e) =>
+                                handleEditStageChange(
+                                  index,
+                                  'isEliminationStage',
+                                  e.target.checked
+                                )
+                              }
+                              className="h-4 w-4 rounded border-[rgb(var(--color-border))] accent-primary-600"
+                            />
+                            Elimination Stage
+                          </label>
+                        </div>
+                        <div className="mt-3">
+                          <Input
+                            label="Stage Description"
+                            placeholder="e.g. MCQ-based screening test out of 100 marks"
+                            value={stage.description}
+                            onChange={(e) =>
+                              handleEditStageChange(
+                                index,
+                                'description',
+                                e.target.value
+                              )
+                            }
+                          />
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
               </div>
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

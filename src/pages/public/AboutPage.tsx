@@ -13,6 +13,8 @@ import {
   GraduationCap,
   TrendingUp,
   CheckCircle2,
+  Clock,
+  Check,
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { ROUTES } from '@/constants/routes';
@@ -35,7 +37,7 @@ const staggerContainer = {
 // --- Glassmorphism Base Style ---------------------------------------------
 
 const glassCard =
-  'backdrop-blur-md bg-white/70 dark:bg-[#150E28]/70 border border-purple-100/80 dark:border-purple-900/40 shadow-xl shadow-purple-950/5';
+  'backdrop-blur-xl bg-white/70 dark:bg-[#150E28]/70 border border-purple-100/80 dark:border-purple-900/40 shadow-xl shadow-purple-950/5';
 
 // --- Data -----------------------------------------------------------------
 
@@ -127,81 +129,166 @@ const teamMembers = [
 export default function AboutPage() {
   return (
     <div className="flex flex-col bg-[#FAF7FF] text-gray-900 transition-colors duration-300 dark:bg-[#0F0A1C] dark:text-white">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden px-4 py-24 sm:px-6 lg:px-8">
+      {/* ─── Hero Section with Gradient Banner & Image Layout ─── */}
+      <section className="relative overflow-hidden px-4 py-16 sm:px-6 sm:py-24 lg:px-8 bg-gradient-to-br from-purple-100/60 via-indigo-50/40 to-[#FAF7FF] dark:from-[#190F35] dark:via-[#120B27] dark:to-[#0F0A1C] border-b border-purple-100/50 dark:border-purple-900/20">
         {/* Glow Effects */}
-        <div className="pointer-events-none absolute left-10 top-1/4 h-72 w-72 rounded-full bg-[#8B3DFF]/15 blur-3xl" />
-        <div className="pointer-events-none absolute bottom-1/4 right-10 h-96 w-96 rounded-full bg-purple-500/10 blur-3xl dark:bg-purple-900/20" />
+        <div className="pointer-events-none absolute left-0 top-0 h-96 w-96 rounded-full bg-[#8B3DFF]/20 blur-3xl dark:bg-[#8B3DFF]/15" />
+        <div className="pointer-events-none absolute bottom-0 right-0 h-[30rem] w-[30rem] rounded-full bg-cyan-500/10 blur-3xl dark:bg-purple-900/30" />
 
-        <motion.div
-          className="relative mx-auto max-w-5xl text-center"
-          initial="hidden"
-          animate="visible"
-          variants={staggerContainer}
-        >
-          <motion.span
-            variants={fadeUp}
-            className="mb-4 inline-block rounded-full border border-[#8B3DFF]/20 bg-[#F3E8FF] px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-[#8B3DFF] dark:bg-purple-950/60 dark:text-purple-300"
-          >
-            About MeritPrep
-          </motion.span>
-
-          <motion.h1
-            variants={fadeUp}
-            className="text-4xl font-black font-heading tracking-tight text-gray-900 dark:text-white sm:text-5xl lg:text-6xl"
-          >
-            Empowering Students to{' '}
-            <span className="text-[#8B3DFF] dark:text-purple-400">
-              Ace Their Exams
-            </span>
-          </motion.h1>
-
-          <motion.p
-            variants={fadeUp}
-            className="mx-auto mt-6 max-w-2xl text-lg text-gray-600 dark:text-purple-200/80"
-          >
-            MeritPrep is Pakistan's leading government exam preparation
-            platform, combining AI-powered learning tools with a massive
-            question bank to help you succeed.
-          </motion.p>
-
-          {/* Floating Glass Cards */}
+        <div className="relative mx-auto max-w-7xl">
           <motion.div
-            variants={fadeUp}
-            className="relative mx-auto mt-16 grid max-w-4xl grid-cols-1 gap-6 sm:grid-cols-3"
+            initial="hidden"
+            animate="visible"
+            variants={staggerContainer}
+            className="grid items-center gap-12 lg:grid-cols-12"
           >
-            <div
-              className={`${glassCard} rounded-2xl p-6 transition-transform hover:scale-105`}
-            >
-              <p className="text-3xl font-extrabold text-[#8B3DFF] dark:text-purple-300">
-                50K+
+            {/* Left Column: Text & Hero CTA */}
+            <motion.div variants={fadeUp} className="text-left lg:col-span-7">
+              <span className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#8B3DFF]/20 bg-[#F3E8FF] px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-[#8B3DFF] dark:bg-purple-950/80 dark:text-purple-300">
+                <Sparkles size={14} className="animate-pulse" />
+                About MeritPrep
+              </span>
+
+              <h1 className="text-4xl font-black font-heading tracking-tight text-slate-900 dark:text-white sm:text-5xl lg:text-6xl leading-[1.15]">
+                Best Online Training Exam{' '}
+                <span className="bg-gradient-to-r from-[#8B3DFF] via-purple-600 to-cyan-500 bg-clip-text text-transparent dark:from-purple-400 dark:to-cyan-400">
+                  Platform
+                </span>
+              </h1>
+
+              <p className="mt-6 max-w-2xl text-lg leading-relaxed text-slate-600 dark:text-purple-200/80">
+                MeritPrep is Pakistan's leading government exam preparation
+                platform, combining AI-powered learning tools with a massive
+                question bank to help you succeed.
               </p>
-              <p className="mt-1 text-sm font-semibold text-gray-600 dark:text-purple-200/70">
-                Active Students
-              </p>
-            </div>
-            <div
-              className={`${glassCard} rounded-2xl p-6 transition-transform hover:scale-105`}
-            >
-              <p className="text-3xl font-extrabold text-emerald-600 dark:text-emerald-400">
-                25K+
-              </p>
-              <p className="mt-1 text-sm font-semibold text-gray-600 dark:text-purple-200/70">
-                MCQs Available
-              </p>
-            </div>
-            <div
-              className={`${glassCard} rounded-2xl p-6 transition-transform hover:scale-105`}
-            >
-              <p className="text-3xl font-extrabold text-[#8B3DFF] dark:text-purple-300">
-                89%
-              </p>
-              <p className="mt-1 text-sm font-semibold text-gray-600 dark:text-purple-200/70">
-                Success Rate
-              </p>
-            </div>
+
+              <div className="mt-8 flex flex-wrap items-center gap-4">
+                <Link to={ROUTES.REGISTER}>
+                  <Button
+                    size="lg"
+                    className="bg-[#8B3DFF] font-semibold text-white shadow-lg shadow-purple-500/25 transition-all hover:bg-[#7424ED] dark:bg-purple-600 dark:hover:bg-purple-500"
+                  >
+                    Get Started Free
+                    <ArrowRight size={16} />
+                  </Button>
+                </Link>
+                <Link to={ROUTES.EXAMS}>
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="border-purple-200/80 bg-white/80 font-semibold text-gray-700 hover:border-[#8B3DFF]/40 hover:bg-white hover:text-[#8B3DFF] dark:border-purple-900/50 dark:bg-[#150E28]/80 dark:text-purple-200 dark:hover:border-purple-500 dark:hover:bg-[#1A1230] dark:hover:text-purple-300"
+                  >
+                    Explore Exams
+                  </Button>
+                </Link>
+              </div>
+
+              {/* Stats Bar Integrated in Hero */}
+              <div className="mt-12 grid grid-cols-3 gap-4 border-t border-purple-200/60 dark:border-purple-900/40 pt-6">
+                <div>
+                  <p className="text-2xl sm:text-3xl font-black text-[#8B3DFF] dark:text-purple-300">
+                    50K+
+                  </p>
+                  <p className="text-xs font-medium text-slate-500 dark:text-purple-300/60">
+                    Active Students
+                  </p>
+                </div>
+                <div>
+                  <p className="text-2xl sm:text-3xl font-black text-emerald-600 dark:text-emerald-400">
+                    25K+
+                  </p>
+                  <p className="text-xs font-medium text-slate-500 dark:text-purple-300/60">
+                    MCQs Bank
+                  </p>
+                </div>
+                <div>
+                  <p className="text-2xl sm:text-3xl font-black text-[#8B3DFF] dark:text-purple-300">
+                    89%
+                  </p>
+                  <p className="text-xs font-medium text-slate-500 dark:text-purple-300/60">
+                    Success Rate
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Right Column: Isometric Graphic Mockup */}
+            <motion.div variants={fadeUp} className="relative lg:col-span-5">
+              <div className="relative mx-auto max-w-md lg:max-w-none">
+                {/* Decorative Background Card Glow */}
+                <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-purple-600 to-cyan-500 opacity-20 blur-xl dark:opacity-40" />
+
+                <div
+                  className={`${glassCard} relative overflow-hidden rounded-3xl p-6 sm:p-8 border border-white/50 dark:border-purple-500/20 shadow-2xl`}
+                >
+                  {/* Mock Exam Graphic Card Visual */}
+                  <div className="relative rounded-2xl bg-white/90 p-5 shadow-inner dark:bg-[#1C1335]/90 border border-purple-100 dark:border-purple-900/50">
+                    <div className="flex items-center justify-between border-b border-purple-100 dark:border-purple-900/40 pb-3">
+                      <div className="flex items-center gap-2">
+                        <div className="h-3 w-3 rounded-full bg-rose-400" />
+                        <div className="h-3 w-3 rounded-full bg-amber-400" />
+                        <div className="h-3 w-3 rounded-full bg-emerald-400" />
+                      </div>
+                      <span className="flex items-center gap-1 text-[11px] font-bold text-purple-600 dark:text-purple-300">
+                        <Clock size={12} /> 12:45 mins
+                      </span>
+                    </div>
+
+                    {/* MCQ Questions Vector Simulation */}
+                    <div className="mt-4 space-y-3">
+                      <div className="h-4 w-3/4 rounded-md bg-purple-100 dark:bg-purple-950" />
+
+                      <div className="space-y-2 pt-2">
+                        {[
+                          'A. Option Sample One',
+                          'B. Option Sample Two',
+                          'C. Correct Answer Option',
+                        ].map((opt, idx) => (
+                          <div
+                            key={opt}
+                            className={`flex items-center justify-between rounded-xl p-2.5 text-xs font-semibold ${
+                              idx === 2
+                                ? 'bg-emerald-500/10 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-500/30'
+                                : 'bg-slate-50 dark:bg-purple-950/30 text-slate-600 dark:text-purple-200/70'
+                            }`}
+                          >
+                            <span>{opt}</span>
+                            {idx === 2 && (
+                              <Check size={14} className="text-emerald-500" />
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Floating Micro Badge Elements */}
+                  <motion.div
+                    animate={{ y: [0, -8, 0] }}
+                    transition={{
+                      duration: 4,
+                      repeat: Infinity,
+                      ease: 'easeInOut',
+                    }}
+                    className="absolute -bottom-3 -left-3 flex items-center gap-2 rounded-2xl bg-white dark:bg-[#231545] px-4 py-2.5 shadow-lg border border-purple-100 dark:border-purple-800/50"
+                  >
+                    <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-purple-100 dark:bg-purple-900/80 text-purple-600 dark:text-purple-300">
+                      <Brain size={18} />
+                    </div>
+                    <div>
+                      <p className="text-[10px] uppercase tracking-wider font-bold text-slate-400">
+                        AI Powered
+                      </p>
+                      <p className="text-xs font-bold text-slate-800 dark:text-white">
+                        Instant Explanations
+                      </p>
+                    </div>
+                  </motion.div>
+                </div>
+              </div>
+            </motion.div>
           </motion.div>
-        </motion.div>
+        </div>
       </section>
 
       {/* Mission Section */}
@@ -340,39 +427,6 @@ export default function AboutPage() {
           </motion.div>
         </div>
       </section>
-
-      {/* Stats Counter Banner */}
-      {/* <section className="relative border-y border-purple-200/50  px-4 py-20 text-black shadow-inner dark:border-purple-900/50 dark:from-[#2c164e] dark:to-[#24163b] sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-5xl">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: '-100px' }}
-            variants={staggerContainer}
-            className="grid grid-cols-2 gap-8 lg:grid-cols-4"
-          >
-            {[
-              { target: 50000, suffix: '+', label: 'Active Students' },
-              { target: 25000, suffix: '+', label: 'MCQs in Database' },
-              { target: 500, suffix: '+', label: 'Mock Tests' },
-              { target: 89, suffix: '%', label: 'Student Success Rate' },
-            ].map((stat) => (
-              <motion.div
-                key={stat.label}
-                variants={fadeUp}
-                className="text-center"
-              >
-                <p className="text-4xl font-extrabold tracking-tight text-black sm:text-5xl">
-                  <AnimatedCounter target={stat.target} suffix={stat.suffix} />
-                </p>
-                <p className="mt-2 text-sm font-semibold text-purple-100">
-                  {stat.label}
-                </p>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section> */}
 
       {/* Values Section */}
       <section className="relative px-4 py-20 sm:px-6 lg:px-8">

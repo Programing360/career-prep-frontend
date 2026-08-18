@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -8,18 +8,30 @@ import {
   Coins,
   FileText,
   Eye,
+  Plus,
   Send,
+  Trash2,
   Building2,
+  ListChecks,
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { Select } from '@/components/ui/Select';
+import { Label } from '@/components/ui/Label';
 import { cn } from '@/lib/utils';
 import { ROUTES } from '@/constants/routes';
 import { useToast } from '@/hooks/useToast';
 import { createExam, type CreateExamPayload } from '@/services/adminService';
+import { getSubjects } from '@/services/taxonomyService';
 import { isApiError, type ApiError } from '@/lib/axios';
+
+interface SelectionStageDraft {
+  stageNumber: number;
+  title: string;
+  description: string;
+  isEliminationStage: boolean;
+}
 
 interface ExamDetails {
   title: string;
@@ -29,15 +41,26 @@ interface ExamDetails {
   province: string;
   bpsScale: string;
   departmentName: string;
+  advertisementNumber: string;
+  applicationStartDate: string;
+  applicationDeadline: string;
+  expectedExamDate: string;
   minAge: string;
   maxAge: string;
+  ageRelaxationYears: string;
   qualificationRequired: string;
+  minimumGradeOrCgpa: string;
   allowedGender: string;
   eligibleDomiciles: string;
   totalMarks: string;
   durationMinutes: string;
   negativeMarking: string;
+  negativeMarkingValue: string;
+  passingPercentage: string;
   format: string;
+  selectionProcess: SelectionStageDraft[];
+  categoryRef: string;
+  targetSubjects: string[];
   sourceUrl: string;
   officialNotificationUrl: string;
 }
@@ -52,25 +75,26 @@ const steps: { id: StepId; label: string; icon: typeof FileText }[] = [
 const categoryOptions = [
   { label: 'Federal (e.g. FPSC)', value: 'federal' },
   { label: 'Provincial (e.g. PPSC / SPSC)', value: 'provincial' },
-  { label: 'Armed Forces', value: 'armed-forces' },
-  { label: 'Banking', value: 'banking' },
-  { label: 'Other', value: 'other' },
+  { label: 'Armed Forces', value: 'armed_forces' },
+  { label: 'Testing Service (e.g. NTS / ETEA)', value: 'testing_service' },
 ];
 
 const provinceOptions = [
   { label: 'Federal', value: 'Federal' },
   { label: 'Punjab', value: 'Punjab' },
+  { label: 'Khyber Pakhtunkhwa (KPK)', value: 'KPK' },
   { label: 'Sindh', value: 'Sindh' },
-  { label: 'Khyber Pakhtunkhwa', value: 'Khyber Pakhtunkhwa' },
   { label: 'Balochistan', value: 'Balochistan' },
   { label: 'AJK', value: 'AJK' },
   { label: 'Gilgit-Baltistan', value: 'Gilgit-Baltistan' },
+  { label: 'Nationwide', value: 'Nationwide' },
 ];
 
 const genderOptions = [
   { label: 'Both Male & Female', value: 'both' },
   { label: 'Male', value: 'male' },
   { label: 'Female', value: 'female' },
+  { label: 'Transgender', value: 'transgender' },
 ];
 
 const conductingAuthorityOptions = [
@@ -112,15 +136,26 @@ const defaultDetails: ExamDetails = {
   province: '',
   bpsScale: '',
   departmentName: '',
+  advertisementNumber: '',
+  applicationStartDate: '',
+  applicationDeadline: '',
+  expectedExamDate: '',
   minAge: '',
   maxAge: '',
+  ageRelaxationYears: '',
   qualificationRequired: '',
+  minimumGradeOrCgpa: '',
   allowedGender: '',
   eligibleDomiciles: '',
   totalMarks: '',
   durationMinutes: '',
   negativeMarking: '',
+  negativeMarkingValue: '',
+  passingPercentage: '',
   format: '',
+  selectionProcess: [],
+  categoryRef: '',
+  targetSubjects: [],
   sourceUrl: '',
   officialNotificationUrl: '',
 };
@@ -232,10 +267,24 @@ function BasicDetailsStep({
   details,
   onChange,
   errors,
+  subjectOptions,
+  onToggleSubject,
+  onAddStage,
+  onRemoveStage,
+  onStageChange,
 }: {
   details: ExamDetails;
   onChange: (field: keyof ExamDetails, value: string) => void;
   errors: Record<string, string>;
+  subjectOptions: { label: string; value: string }[];
+  onToggleSubject: (subjectId: string) => void;
+  onAddStage: () => void;
+  onRemoveStage: (index: number) => void;
+  onStageChange: (
+    index: number,
+    field: keyof SelectionStageDraft,
+    value: string | boolean
+  ) => void;
 }) {
   return (
     <div className="space-y-8">
@@ -311,6 +360,36 @@ function BasicDetailsStep({
             error={errors.departmentName}
           />
         </div>
+        <Input
+          label="Advertisement Number"
+          placeholder="e.g. F.4-1/2025-IG"
+          value={details.advertisementNumber}
+          onChange={(e) => onChange('advertisementNumber', e.target.value)}
+          error={errors.advertisementNumber}
+        />
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <Input
+            label="Application Start Date"
+            type="date"
+            value={details.applicationStartDate}
+            onChange={(e) => onChange('applicationStartDate', e.target.value)}
+            error={errors.applicationStartDate}
+          />
+          <Input
+            label="Application Deadline"
+            type="date"
+            value={details.applicationDeadline}
+            onChange={(e) => onChange('applicationDeadline', e.target.value)}
+            error={errors.applicationDeadline}
+          />
+          <Input
+            label="Expected Exam Date"
+            type="date"
+            value={details.expectedExamDate}
+            onChange={(e) => onChange('expectedExamDate', e.target.value)}
+            error={errors.expectedExamDate}
+          />
+        </div>
       </section>
 
       <section className="space-y-4">
@@ -350,6 +429,25 @@ function BasicDetailsStep({
             value={details.allowedGender}
             onChange={(e) => onChange('allowedGender', e.target.value)}
             error={errors.allowedGender}
+          />
+        </div>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <Input
+            label="Age Relaxation (years)"
+            type="number"
+            min={0}
+            placeholder="e.g. 5"
+            value={details.ageRelaxationYears}
+            onChange={(e) => onChange('ageRelaxationYears', e.target.value)}
+            error={errors.ageRelaxationYears}
+            hint="Extra age relaxation allowed for reserved categories."
+          />
+          <Input
+            label="Minimum Grade / CGPA"
+            placeholder="e.g. 2.5 CGPA or B Grade"
+            value={details.minimumGradeOrCgpa}
+            onChange={(e) => onChange('minimumGradeOrCgpa', e.target.value)}
+            error={errors.minimumGradeOrCgpa}
           />
         </div>
         <Textarea
@@ -419,6 +517,167 @@ function BasicDetailsStep({
             error={errors.format}
           />
         </div>
+        {details.negativeMarking === 'yes' && (
+          <Input
+            label="Negative Marking Value"
+            type="number"
+            step="0.01"
+            min={0}
+            placeholder="e.g. 0.25"
+            value={details.negativeMarkingValue}
+            onChange={(e) => onChange('negativeMarkingValue', e.target.value)}
+            error={errors.negativeMarkingValue}
+            hint="Marks deducted for every wrong answer."
+          />
+        )}
+        <Input
+          label="Passing Percentage"
+          type="number"
+          min={1}
+          max={100}
+          placeholder="e.g. 33"
+          value={details.passingPercentage}
+          onChange={(e) => onChange('passingPercentage', e.target.value)}
+          error={errors.passingPercentage}
+          hint="Minimum percentage required to pass the exam."
+        />
+      </section>
+
+      <section className="space-y-4">
+        <SectionHeading
+          icon={ListChecks}
+          title="Selection Process"
+          description="Ordered stages of the recruitment / selection process."
+        />
+        {details.selectionProcess.length === 0 && (
+          <p className="text-sm text-[rgb(var(--color-text-muted))]">
+            No stages added yet. Add at least one stage for the selection
+            process.
+          </p>
+        )}
+        <div className="space-y-3">
+          {details.selectionProcess.map((stage, index) => (
+            <div
+              key={stage.stageNumber}
+              className="rounded-xl border border-[rgb(var(--color-border))] p-4"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-xs font-semibold uppercase tracking-wider text-[rgb(var(--color-text-muted))]">
+                  Stage {stage.stageNumber}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => onRemoveStage(index)}
+                  className="flex h-8 w-8 items-center justify-center rounded-md border border-[rgb(var(--color-border))] text-danger-600 transition-colors hover:bg-danger-50 dark:text-danger-400 dark:hover:bg-danger-950"
+                  aria-label={`Remove stage ${stage.stageNumber}`}
+                >
+                  <Trash2 size={14} />
+                </button>
+              </div>
+              <div className="mt-3 space-y-3">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <Input
+                    label="Stage Title"
+                    required
+                    placeholder="e.g. Written Test"
+                    value={stage.title}
+                    onChange={(e) =>
+                      onStageChange(index, 'title', e.target.value)
+                    }
+                  />
+                  <label className="flex items-center gap-2 pt-6 text-sm font-medium text-[rgb(var(--color-text-secondary))]">
+                    <input
+                      type="checkbox"
+                      checked={stage.isEliminationStage}
+                      onChange={(e) =>
+                        onStageChange(
+                          index,
+                          'isEliminationStage',
+                          e.target.checked
+                        )
+                      }
+                      className="h-4 w-4 rounded border-[rgb(var(--color-border))] accent-primary-600"
+                    />
+                    Elimination Stage
+                  </label>
+                </div>
+                <Input
+                  label="Stage Description"
+                  placeholder="e.g. MCQ-based screening test out of 100 marks"
+                  value={stage.description}
+                  onChange={(e) =>
+                    onStageChange(index, 'description', e.target.value)
+                  }
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          leftIcon={<Plus size={14} />}
+          onClick={onAddStage}
+        >
+          Add Stage
+        </Button>
+        {errors.selectionProcess && (
+          <p className="text-sm text-danger-600 dark:text-danger-400">
+            {errors.selectionProcess}
+          </p>
+        )}
+      </section>
+
+      <section className="space-y-4">
+        <SectionHeading
+          icon={ListChecks}
+          title="Taxonomy Mapping"
+          description="Link the exam to a category record and relevant subjects."
+        />
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <Input
+            label="Category Ref ID"
+            placeholder="ExamCategory ObjectId (optional)"
+            value={details.categoryRef}
+            onChange={(e) => onChange('categoryRef', e.target.value)}
+            error={errors.categoryRef}
+            hint="ObjectId of the ExamCategory record this exam belongs to."
+          />
+          <div>
+            <Label>Target Subjects</Label>
+            <div className="mt-1.5 max-h-56 overflow-y-auto rounded-md border border-[rgb(var(--color-border))] p-2">
+              {subjectOptions.length === 0 ? (
+                <p className="px-2 py-3 text-sm text-[rgb(var(--color-text-muted))]">
+                  No subjects available. Add subjects in Taxonomy first.
+                </p>
+              ) : (
+                subjectOptions.map((subject) => {
+                  const checked = details.targetSubjects.includes(
+                    subject.value
+                  );
+                  return (
+                    <label
+                      key={subject.value}
+                      className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm text-[rgb(var(--color-text-secondary))] transition-colors hover:bg-[rgb(var(--color-surface-elevated))]"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={() => onToggleSubject(subject.value)}
+                        className="h-4 w-4 rounded border-[rgb(var(--color-border))] accent-primary-600"
+                      />
+                      <span className="truncate">{subject.label}</span>
+                    </label>
+                  );
+                })
+              )}
+            </div>
+            <p className="mt-1 text-xs text-secondary-500">
+              Subjects included in this exam's syllabus.
+            </p>
+          </div>
+        </div>
       </section>
 
       <section className="space-y-4">
@@ -463,7 +722,13 @@ function ReviewRow({ label, value }: { label: string; value: string }) {
   );
 }
 
-function ReviewPublishStep({ details }: { details: ExamDetails }) {
+function ReviewPublishStep({
+  details,
+  subjectOptions,
+}: {
+  details: ExamDetails;
+  subjectOptions: { label: string; value: string }[];
+}) {
   const categoryLabel =
     categoryOptions.find((o) => o.value === details.category)?.label ??
     details.category;
@@ -476,6 +741,9 @@ function ReviewPublishStep({ details }: { details: ExamDetails }) {
   const formatLabel =
     formatOptions.find((o) => o.value === details.format)?.label ??
     details.format;
+  const selectedSubjectLabels = details.targetSubjects
+    .map((id) => subjectOptions.find((s) => s.value === id)?.label ?? id)
+    .filter(Boolean);
 
   return (
     <div className="space-y-6">
@@ -508,6 +776,52 @@ function ReviewPublishStep({ details }: { details: ExamDetails }) {
             value={details.bpsScale ? `BS-${details.bpsScale}` : ''}
           />
           <ReviewRow label="Department" value={details.departmentName} />
+          <ReviewRow
+            label="Advertisement Number"
+            value={details.advertisementNumber}
+          />
+          <ReviewRow
+            label="Application Start Date"
+            value={
+              details.applicationStartDate
+                ? new Date(
+                    details.applicationStartDate + 'T00:00:00'
+                  ).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
+                  })
+                : ''
+            }
+          />
+          <ReviewRow
+            label="Application Deadline"
+            value={
+              details.applicationDeadline
+                ? new Date(
+                    details.applicationDeadline + 'T00:00:00'
+                  ).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
+                  })
+                : ''
+            }
+          />
+          <ReviewRow
+            label="Expected Exam Date"
+            value={
+              details.expectedExamDate
+                ? new Date(
+                    details.expectedExamDate + 'T00:00:00'
+                  ).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
+                  })
+                : ''
+            }
+          />
         </div>
       </div>
 
@@ -525,7 +839,19 @@ function ReviewPublishStep({ details }: { details: ExamDetails }) {
                 : ''
             }
           />
+          <ReviewRow
+            label="Age Relaxation"
+            value={
+              details.ageRelaxationYears
+                ? `${details.ageRelaxationYears} years`
+                : ''
+            }
+          />
           <ReviewRow label="Allowed Gender" value={genderLabel} />
+          <ReviewRow
+            label="Minimum Grade / CGPA"
+            value={details.minimumGradeOrCgpa}
+          />
           <ReviewRow
             label="Required Qualification"
             value={details.qualificationRequired}
@@ -554,13 +880,79 @@ function ReviewPublishStep({ details }: { details: ExamDetails }) {
             label="Negative Marking"
             value={
               details.negativeMarking === 'yes'
-                ? 'Yes'
+                ? details.negativeMarkingValue
+                  ? `Yes (${details.negativeMarkingValue} per wrong answer)`
+                  : 'Yes'
                 : details.negativeMarking === 'no'
                   ? 'No'
                   : ''
             }
           />
           <ReviewRow label="Paper Format" value={formatLabel} />
+          <ReviewRow
+            label="Passing Percentage"
+            value={
+              details.passingPercentage ? `${details.passingPercentage}%` : ''
+            }
+          />
+        </div>
+      </div>
+
+      <div className="rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] p-5">
+        <h4 className="mb-4 flex items-center gap-2 text-sm font-semibold text-[rgb(var(--color-text-primary))]">
+          <ListChecks size={16} className="text-primary-500" />
+          Selection Process
+        </h4>
+        {details.selectionProcess.length === 0 ? (
+          <p className="text-sm text-[rgb(var(--color-text-muted))]">
+            No stages added.
+          </p>
+        ) : (
+          <div className="space-y-3">
+            {details.selectionProcess.map((stage) => (
+              <div
+                key={stage.stageNumber}
+                className="rounded-lg border border-[rgb(var(--color-border))] p-3"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
+                    Stage {stage.stageNumber}: {stage.title}
+                  </p>
+                  <span
+                    className={cn(
+                      'rounded-full px-2 py-0.5 text-xs font-semibold',
+                      stage.isEliminationStage
+                        ? 'bg-danger-100 text-danger-700 dark:bg-danger-950 dark:text-danger-400'
+                        : 'bg-primary-100 text-primary-700 dark:bg-primary-950 dark:text-primary-400'
+                    )}
+                  >
+                    {stage.isEliminationStage
+                      ? 'Elimination'
+                      : 'Non-elimination'}
+                  </span>
+                </div>
+                {stage.description && (
+                  <p className="mt-1 text-sm text-[rgb(var(--color-text-muted))]">
+                    {stage.description}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] p-5">
+        <h4 className="mb-4 flex items-center gap-2 text-sm font-semibold text-[rgb(var(--color-text-primary))]">
+          <ListChecks size={16} className="text-primary-500" />
+          Taxonomy Mapping
+        </h4>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <ReviewRow label="Category Ref ID" value={details.categoryRef} />
+          <ReviewRow
+            label="Target Subjects"
+            value={selectedSubjectLabels.join(', ')}
+          />
         </div>
       </div>
 
@@ -591,6 +983,27 @@ export default function CreateExamPage() {
   const [details, setDetails] = useState<ExamDetails>(defaultDetails);
   const [detailErrors, setDetailErrors] = useState<Record<string, string>>({});
   const [publishing, setPublishing] = useState(false);
+  const [subjectOptions, setSubjectOptions] = useState<
+    { label: string; value: string }[]
+  >([]);
+
+  useEffect(() => {
+    const loadSubjects = async () => {
+      try {
+        const res = await getSubjects({ limit: 100 });
+        const subjects = res.data.subjects ?? [];
+        setSubjectOptions(
+          subjects.map((s) => ({ label: s.title, value: s._id }))
+        );
+      } catch {
+        // Subjects are optional for manual exam creation; ignore failures.
+      }
+    };
+    const t = setTimeout(() => {
+      void loadSubjects();
+    }, 0);
+    return () => clearTimeout(t);
+  }, []);
 
   const handleDetailChange = useCallback(
     (field: keyof ExamDetails, value: string) => {
@@ -600,6 +1013,55 @@ export default function CreateExamPage() {
         return next;
       });
       setDetailErrors((prev) => ({ ...prev, [field]: '' }));
+    },
+    []
+  );
+
+  const handleToggleSubject = useCallback((subjectId: string) => {
+    setDetails((prev) => ({
+      ...prev,
+      targetSubjects: prev.targetSubjects.includes(subjectId)
+        ? prev.targetSubjects.filter((id) => id !== subjectId)
+        : [...prev.targetSubjects, subjectId],
+    }));
+  }, []);
+
+  const handleAddStage = useCallback(() => {
+    setDetails((prev) => ({
+      ...prev,
+      selectionProcess: [
+        ...prev.selectionProcess,
+        {
+          stageNumber: prev.selectionProcess.length + 1,
+          title: '',
+          description: '',
+          isEliminationStage: true,
+        },
+      ],
+    }));
+  }, []);
+
+  const handleRemoveStage = useCallback((index: number) => {
+    setDetails((prev) => {
+      const stages = prev.selectionProcess
+        .filter((_, i) => i !== index)
+        .map((stage, i) => ({ ...stage, stageNumber: i + 1 }));
+      return { ...prev, selectionProcess: stages };
+    });
+  }, []);
+
+  const handleStageChange = useCallback(
+    (
+      index: number,
+      field: keyof SelectionStageDraft,
+      value: string | boolean
+    ) => {
+      setDetails((prev) => ({
+        ...prev,
+        selectionProcess: prev.selectionProcess.map((stage, i) =>
+          i === index ? { ...stage, [field]: value } : stage
+        ),
+      }));
     },
     []
   );
@@ -652,6 +1114,36 @@ export default function CreateExamPage() {
       errs.durationMinutes = 'Duration must be a positive integer (minutes).';
     if (!details.negativeMarking) errs.negativeMarking = 'Select yes or no.';
     if (!details.format) errs.format = 'Select the paper format.';
+
+    if (details.negativeMarking === 'yes') {
+      const negValue = Number(details.negativeMarkingValue);
+      if (
+        !details.negativeMarkingValue ||
+        !Number.isFinite(negValue) ||
+        negValue < 0
+      )
+        errs.negativeMarkingValue =
+          'Enter a non-negative value for negative marking.';
+    }
+
+    const passingPct = Number(details.passingPercentage);
+    if (
+      details.passingPercentage &&
+      (!Number.isFinite(passingPct) || passingPct <= 0 || passingPct > 100)
+    )
+      errs.passingPercentage = 'Passing percentage must be between 1 and 100.';
+
+    const ageRelaxation = Number(details.ageRelaxationYears);
+    if (
+      details.ageRelaxationYears &&
+      (!Number.isInteger(ageRelaxation) || ageRelaxation < 0)
+    )
+      errs.ageRelaxationYears =
+        'Age relaxation must be a non-negative integer.';
+
+    const namedStages = details.selectionProcess.filter((s) => s.title.trim());
+    if (namedStages.length === 0)
+      errs.selectionProcess = 'Add at least one stage with a title.';
 
     if (details.sourceUrl.trim() && !isValidUrl(details.sourceUrl.trim()))
       errs.sourceUrl = 'Enter a valid URL (http/https).';
@@ -713,6 +1205,45 @@ export default function CreateExamPage() {
         format: details.format as CreateExamPayload['examPattern']['format'],
       },
     };
+
+    if (details.advertisementNumber.trim())
+      payload.advertisementNumber = details.advertisementNumber.trim();
+    if (details.applicationStartDate)
+      payload.applicationStartDate = details.applicationStartDate;
+    if (details.applicationDeadline)
+      payload.applicationDeadline = details.applicationDeadline;
+    if (details.expectedExamDate)
+      payload.expectedExamDate = details.expectedExamDate;
+
+    if (details.ageRelaxationYears)
+      payload.eligibility.ageRelaxationYears = Number(
+        details.ageRelaxationYears
+      );
+    if (details.minimumGradeOrCgpa.trim())
+      payload.eligibility.minimumGradeOrCgpa =
+        details.minimumGradeOrCgpa.trim();
+
+    if (details.negativeMarking === 'yes' && details.negativeMarkingValue)
+      payload.examPattern.negativeMarkingValue = Number(
+        details.negativeMarkingValue
+      );
+    if (details.passingPercentage)
+      payload.examPattern.passingPercentage = Number(details.passingPercentage);
+
+    const stages = details.selectionProcess
+      .filter((s) => s.title.trim())
+      .map((s) => ({
+        stageNumber: s.stageNumber,
+        title: s.title.trim(),
+        description: s.description.trim() || undefined,
+        isEliminationStage: s.isEliminationStage,
+      }));
+    if (stages.length > 0) payload.selectionProcess = stages;
+
+    if (details.categoryRef.trim())
+      payload.categoryRef = details.categoryRef.trim();
+    if (details.targetSubjects.length > 0)
+      payload.targetSubjects = details.targetSubjects;
 
     if (details.sourceUrl.trim()) payload.sourceUrl = details.sourceUrl.trim();
     if (details.officialNotificationUrl.trim())
@@ -785,9 +1316,19 @@ export default function CreateExamPage() {
             details={details}
             onChange={handleDetailChange}
             errors={detailErrors}
+            subjectOptions={subjectOptions}
+            onToggleSubject={handleToggleSubject}
+            onAddStage={handleAddStage}
+            onRemoveStage={handleRemoveStage}
+            onStageChange={handleStageChange}
           />
         )}
-        {currentStep === 2 && <ReviewPublishStep details={details} />}
+        {currentStep === 2 && (
+          <ReviewPublishStep
+            details={details}
+            subjectOptions={subjectOptions}
+          />
+        )}
       </div>
 
       <div className="flex items-center justify-between border-t border-[rgb(var(--color-border))] pt-4">

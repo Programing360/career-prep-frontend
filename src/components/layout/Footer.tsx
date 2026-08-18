@@ -53,7 +53,7 @@ export default function Footer({
   };
 
   return (
-    <footer className="relative overflow-hidden border-t border-[#8B3DFF]/15 bg-[#FAF7FF] backdrop-blur-xl dark:border-purple-900/40 dark:bg-[#0F0A1C]">
+    <footer className="relative overflow-hidden border-t border-[#8B3DFF]/15 rounded-t-3xl bg-gradient-to-b from-[#a1a2e6] to-[#a671e3] backdrop-blur-xl dark:border-purple-900/40 dark:from-[#714c95] dark:to-[#25146d] ">
       {/* Background Ambient Glow Effects using extracted soft purple */}
       <div className="pointer-events-none absolute -left-20 -top-20 h-64 w-64 rounded-full bg-[#8B3DFF]/15 blur-3xl" />
       <div className="pointer-events-none absolute -right-20 bottom-0 h-64 w-64 rounded-full bg-[#8B3DFF]/15 blur-3xl" />
@@ -152,7 +152,7 @@ export default function Footer({
           className="mt-12 flex flex-col items-center justify-between gap-6 border-t border-purple-100 pt-8 sm:flex-row dark:border-purple-950"
         >
           {/* Copyright */}
-          <p className="text-center text-xs text-purple-900/60 dark:text-purple-300/60 sm:text-left">
+          <p className="text-center text-xs text-white dark:text-purple-300/60 sm:text-left">
             © {new Date().getFullYear()} MeritPrep Pakistan. All rights
             reserved.
           </p>

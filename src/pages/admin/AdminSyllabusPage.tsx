@@ -348,7 +348,8 @@ function SyllabusForm({
                 </div>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
                   <Select
-                    className="lg:col-span-2"
+                    className="lg:col-span-2 bg-[rgb(var(--color-surface))] text-[rgb(var(--color-text))] dark:bg-[rgb(var(--color-surface))] dark:text-gray-100 dark:border-[rgb(var(--color-border))]"
+
                     label="Subject"
                     value={row.subjectId}
                     onChange={(e) =>
@@ -363,6 +364,7 @@ function SyllabusForm({
                   <Input
                     label="Marks"
                     type="number"
+                    className="bg-[rgb(var(--color-surface))] text-[rgb(var(--color-text))] dark:bg-[rgb(var(--color-surface))] dark:text-gray-100 dark:border-[rgb(var(--color-border))]"
                     min={0}
                     value={row.marks}
                     onChange={(e) =>
@@ -372,6 +374,7 @@ function SyllabusForm({
                   <Input
                     label="Weightage %"
                     type="number"
+                    className="bg-[rgb(var(--color-surface))] text-[rgb(var(--color-text))] dark:bg-[rgb(var(--color-surface))] dark:text-gray-100 dark:border-[rgb(var(--color-border))]"
                     min={0}
                     max={100}
                     value={row.weightagePercentage}
@@ -394,7 +397,7 @@ function SyllabusForm({
                   </div>
                 </div>
                 <Input
-                  className="mt-3"
+                  className="mt-3 bg-[rgb(var(--color-surface))] text-[rgb(var(--color-text))] dark:bg-[rgb(var(--color-surface))] dark:text-gray-100 dark:border-[rgb(var(--color-border))]"
                   label="Custom Notes"
                   placeholder="Optional notes for this subject (e.g. focus areas)"
                   value={row.customNotes}
@@ -453,9 +456,10 @@ function SyllabusForm({
                       <Trash2 size={14} />
                     </button>
                   </div>
-                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5 dark:text-black">
                     <Select
                       label="Gender"
+                      className="bg-[rgb(var(--color-surface))] text-[rgb(var(--color-text))] dark:bg-[rgb(var(--color-surface))] dark:text-gray-100 dark:border-[rgb(var(--color-border))]"
                       value={row.gender}
                       onChange={(e) =>
                         updateStandardRow(row.id, { gender: e.target.value })
@@ -469,6 +473,7 @@ function SyllabusForm({
                     <Input
                       label="Min Height (in)"
                       type="number"
+                      className="bg-[rgb(var(--color-surface))] text-[rgb(var(--color-text))] dark:bg-[rgb(var(--color-surface))] dark:text-gray-100 dark:border-[rgb(var(--color-border))]"
                       min={0}
                       value={row.minHeightInches}
                       onChange={(e) =>
@@ -480,6 +485,7 @@ function SyllabusForm({
                     <Input
                       label="Chest Unexpanded (in)"
                       type="number"
+                      className="bg-[rgb(var(--color-surface))] text-[rgb(var(--color-text))] dark:bg-[rgb(var(--color-surface))] dark:text-gray-100 dark:border-[rgb(var(--color-border))]"
                       min={0}
                       value={row.chestUnexpandedInches}
                       onChange={(e) =>
@@ -491,6 +497,7 @@ function SyllabusForm({
                     <Input
                       label="Chest Expanded (in)"
                       type="number"
+                      className="bg-[rgb(var(--color-surface))] text-[rgb(var(--color-text))] dark:bg-[rgb(var(--color-surface))] dark:text-gray-100 dark:border-[rgb(var(--color-border))]"
                       min={0}
                       value={row.chestExpandedInches}
                       onChange={(e) =>
@@ -501,6 +508,7 @@ function SyllabusForm({
                     />
                     <Input
                       label="Running Test"
+                      className="bg-[rgb(var(--color-surface))] text-[rgb(var(--color-text))] dark:bg-[rgb(var(--color-surface))] dark:text-gray-100 dark:border-[rgb(var(--color-border))]"
                       placeholder="e.g. 1.6 km in 8 minutes"
                       value={row.runningTestRequirement}
                       onChange={(e) =>

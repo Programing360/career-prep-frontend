@@ -337,7 +337,7 @@ export default function PremiumPage() {
             <div
               key={pack.id}
               className={cn(
-                'relative flex flex-col rounded-xl border bg-[rgb(var(--color-surface))] p-4 transition-all hover:border-primary-300 hover:shadow-md dark:hover:border-primary-700',
+                'relative flex flex-col rounded-xl border shadow-md shadow-indigo-500 bg-[rgb(var(--color-surface))] p-4 transition-all hover:border-primary-300 hover:shadow-md dark:hover:border-primary-700',
                 pack.badge === '1 Day'
                   ? 'border-primary-300 dark:border-primary-700'
                   : 'border-[rgb(var(--color-border))]'

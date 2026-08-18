@@ -44,7 +44,7 @@ function MetricCardComponent({ metric }: { metric: MetricCard }) {
   const Icon = metric.icon;
 
   return (
-    <div className="rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] p-6 transition-colors hover:border-primary-200 dark:hover:border-primary-800">
+    <div className="rounded-xl shadow-lg border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] p-6 transition-colors hover:border-primary-200 dark:hover:border-primary-800">
       <div className="flex items-start justify-between">
         <div
           className={`flex h-10 w-10 items-center justify-center rounded-lg ${metric.iconBg}`}

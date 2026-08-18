@@ -217,7 +217,7 @@ export interface UpdateExamPayload {
   title?: string;
   slug?: string;
   conductingAuthority?: string;
-  category?: 'federal' | 'provincial' | 'armed-forces' | 'banking' | 'other';
+  category?: 'federal' | 'provincial' | 'armed_forces' | 'testing_service';
   province?: string;
   bpsScale?: number;
   departmentName?: string;
@@ -228,16 +228,28 @@ export interface UpdateExamPayload {
   eligibility?: {
     minAge?: number;
     maxAge?: number;
+    ageRelaxationYears?: number;
     qualificationRequired?: string;
-    allowedGender?: 'male' | 'female' | 'both';
+    minimumGradeOrCgpa?: string;
+    allowedGender?: 'male' | 'female' | 'both' | 'transgender';
     eligibleDomiciles?: string[];
   };
   examPattern?: {
     totalMarks?: number;
     durationMinutes?: number;
     negativeMarking?: boolean;
+    negativeMarkingValue?: number;
     format?: 'mcq' | 'descriptive' | 'hybrid';
+    passingPercentage?: number;
   };
+  selectionProcess?: Array<{
+    stageNumber: number;
+    title: string;
+    description?: string;
+    isEliminationStage?: boolean;
+  }>;
+  categoryRef?: string;
+  targetSubjects?: string[];
   sourceUrl?: string;
   officialNotificationUrl?: string;
 }

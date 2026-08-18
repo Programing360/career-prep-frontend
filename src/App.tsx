@@ -51,14 +51,7 @@ const CurrentAffairsPage = lazy(
 );
 const DailyQuizPage = lazy(() => import('@/pages/public/DailyQuizPage'));
 const LeaderboardPage = lazy(() => import('@/pages/public/LeaderboardPage'));
-
-function NotFound() {
-  return (
-    <div className="flex min-h-screen items-center justify-center">
-      <h1 className="text-2xl font-semibold">404 — Page Not Found</h1>
-    </div>
-  );
-}
+const NotFoundPage = lazy(() => import('@/pages/public/NotFoundPage'));
 
 export default function App() {
   return (
@@ -147,7 +140,7 @@ export default function App() {
         </Route>
 
         <Route path="/dev/components" element={<ComponentShowcase />} />
-        <Route path="*" element={<NotFound />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Suspense>
   );

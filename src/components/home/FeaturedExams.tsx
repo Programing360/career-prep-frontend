@@ -85,7 +85,7 @@ export default function FeaturedExams() {
           </div>
           <Link
             to={ROUTES.EXAMS}
-            className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#8B3DFF] px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-purple-500/20 transition-colors hover:bg-[#7424ED] dark:bg-purple-600 dark:hover:bg-purple-500"
+            className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#8B3DFF] px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-purple-500 transition-colors hover:bg-[#7424ED] dark:bg-purple-600 dark:hover:bg-purple-500"
           >
             View All Exams
             <ArrowRight size={16} />
@@ -104,7 +104,7 @@ export default function FeaturedExams() {
               <BookOpen size={28} />
             </div>
             <p className="mt-4 text-lg font-semibold text-gray-900 dark:text-white">
-              Couldn&apos;t Load Featured Exams
+              Couldn't Load Featured Exams
             </p>
             <p className="mt-1 max-w-md text-sm text-gray-600 dark:text-purple-200/70">
               {error}

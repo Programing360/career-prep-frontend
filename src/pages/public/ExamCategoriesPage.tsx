@@ -20,6 +20,7 @@ import type { ExamCardData } from '@/components/exams/examCardData';
 import { CurrentAffairsCompactWidget } from '@/components/current-affairs/CurrentAffairsCompactWidget';
 import { DailyQuizCompactWidget } from '@/components/daily-quiz/DailyQuizCompactWidget';
 import { getPublicExams } from '@/services/examService';
+import examLottie from '../../assets/exam student.svg';
 
 const PAGE_SIZE = 12;
 const SEARCH_DEBOUNCE_MS = 300;
@@ -209,7 +210,7 @@ export default function ExamCategoriesPage() {
 
       {/* Header Banner */}
       <section className="relative border-b border-white/40 dark:border-purple-500/20 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl shadow-lg shadow-purple-950/5">
-        <div className="relative mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+        <div className="relative flex flex-col md:flex-row items-center justify-between gap-10 md:gap-28 mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -240,6 +241,12 @@ export default function ExamCategoriesPage() {
               </span>
             </div>
           </motion.div>
+          <img
+            data-aos="zoom-in"
+            className="max-w-96"
+            src={examLottie}
+            alt="exam image"
+          />
         </div>
       </section>
 

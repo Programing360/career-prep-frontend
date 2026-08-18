@@ -25,6 +25,7 @@ import Hero from '@/components/landing/Hero';
 import { CurrentAffairsCompactWidget } from '@/components/current-affairs/CurrentAffairsCompactWidget';
 import { DailyQuizCompactWidget } from '@/components/daily-quiz/DailyQuizCompactWidget';
 import FeaturedExams from '@/components/home/FeaturedExams';
+import { ExamSupportSection } from './ExamSupportSection';
 
 // --- Animation Variants ---------------------------------------------------
 
@@ -514,6 +515,9 @@ export default function Home() {
             </motion.div>
           )}
         </div>
+      </section>
+      <section>
+        <ExamSupportSection></ExamSupportSection>
       </section>
 
       {/* Social Proof & Platform Stats Block */}

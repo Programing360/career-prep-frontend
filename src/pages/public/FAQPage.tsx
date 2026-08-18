@@ -9,12 +9,17 @@ import {
   Coins,
   HeadphonesIcon,
   ArrowRight,
+  Sparkles,
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { ROUTES } from '@/constants/routes';
 
+// --- Glassmorphism Base Style ---------------------------------------------
+
 const glassCard =
-  'backdrop-blur-md bg-white/70 dark:bg-gray-900/70 border border-white/20 dark:border-gray-800/50 shadow-xl shadow-black/5';
+  'backdrop-blur-xl bg-white/70 dark:bg-[#150E28]/70 border border-purple-100/80 dark:border-purple-900/40 shadow-xl shadow-purple-950/5';
+
+// --- Types & Data ---------------------------------------------------------
 
 type FaqCategory = 'general' | 'exams' | 'tokens' | 'support';
 
@@ -169,6 +174,8 @@ const faqs: FAQ[] = [
   },
 ];
 
+// --- Animation Variants ---------------------------------------------------
+
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0 },
@@ -181,6 +188,8 @@ const staggerContainer = {
     transition: { staggerChildren: 0.08 },
   },
 };
+
+// --- Accordion Item Component ---------------------------------------------
 
 function AccordionItem({
   faq,
@@ -195,24 +204,25 @@ function AccordionItem({
     <motion.div
       variants={fadeUp}
       transition={{ duration: 0.4 }}
-      className={`${glassCard} overflow-hidden rounded-2xl`}
+      className={`${glassCard} overflow-hidden rounded-2xl transition-all duration-300 ${
+        isOpen
+          ? 'border-[#8B3DFF]/40 shadow-purple-500/10 dark:border-purple-500/50'
+          : 'hover:border-purple-200 dark:hover:border-purple-800/60'
+      }`}
     >
       <button
         onClick={onToggle}
-        className="flex w-full items-center justify-between gap-4 p-5 text-left transition-colors hover:bg-white/30 dark:hover:bg-gray-800/30 sm:p-6"
+        className="flex w-full items-center justify-between gap-4 p-5 text-left transition-colors hover:bg-purple-50/50 dark:hover:bg-purple-950/30 sm:p-6"
       >
-        <span className="text-sm font-semibold text-slate-900 dark:text-white sm:text-base">
+        <span className="text-sm font-bold text-slate-900 dark:text-white sm:text-base">
           {faq.question}
         </span>
         <motion.div
           animate={{ rotate: isOpen ? 180 : 0 }}
           transition={{ duration: 0.3 }}
-          className="shrink-0"
+          className="shrink-0 text-[#8B3DFF] dark:text-purple-300"
         >
-          <ChevronDown
-            size={20}
-            className="text-slate-400 dark:text-slate-500"
-          />
+          <ChevronDown size={20} />
         </motion.div>
       </button>
       <AnimatePresence initial={false}>
@@ -223,8 +233,8 @@ function AccordionItem({
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
           >
-            <div className="border-t border-white/20 px-5 pb-5 pt-4 dark:border-gray-800/50 sm:px-6 sm:pb-6">
-              <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+            <div className="border-t border-purple-100/60 px-5 pb-5 pt-4 dark:border-purple-900/40 sm:px-6 sm:pb-6">
+              <p className="text-sm leading-relaxed text-slate-600 dark:text-purple-200/80">
                 {faq.answer}
               </p>
             </div>
@@ -234,6 +244,8 @@ function AccordionItem({
     </motion.div>
   );
 }
+
+// --- Main FAQ Page Component ----------------------------------------------
 
 export default function FAQPage() {
   const [activeCategory, setActiveCategory] = useState<FaqCategory>('general');
@@ -254,11 +266,12 @@ export default function FAQPage() {
   };
 
   return (
-    <div className="flex flex-col">
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-surface px-4 py-24 sm:px-6 lg:px-8">
-        <div className="pointer-events-none absolute left-20 top-10 h-72 w-72 rounded-full bg-primary-400/10 blur-3xl" />
-        <div className="pointer-events-none absolute bottom-10 right-20 h-96 w-96 rounded-full bg-emerald-400/10 blur-3xl" />
+    <div className="flex flex-col bg-[#FAF7FF] text-gray-900 transition-colors duration-300 dark:bg-[#0F0A1C] dark:text-white">
+      {/* ─── Hero Section ─── */}
+      <section className="relative overflow-hidden border-b border-purple-100/50 bg-gradient-to-br from-purple-100/60 via-indigo-50/40 to-[#FAF7FF] px-4 py-20 dark:border-purple-900/20 dark:from-[#190F35] dark:via-[#120B27] dark:to-[#0F0A1C] sm:px-6 lg:px-8">
+        {/* Glow Effects */}
+        <div className="pointer-events-none absolute left-1/2 top-0 h-96 w-96 -translate-x-1/2 rounded-full bg-[#8B3DFF]/15 blur-3xl dark:bg-[#8B3DFF]/20" />
+        <div className="pointer-events-none absolute right-10 top-20 h-72 w-72 rounded-full bg-cyan-500/10 blur-3xl dark:bg-purple-900/30" />
 
         <motion.div
           className="relative mx-auto max-w-3xl text-center"
@@ -269,21 +282,29 @@ export default function FAQPage() {
           <motion.div
             variants={fadeUp}
             transition={{ duration: 0.5 }}
-            className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary-100 dark:bg-primary-900/50"
+            className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#F3E8FF] shadow-inner dark:bg-purple-950/80"
           >
             <HelpCircle
               size={32}
-              className="text-primary-600 dark:text-primary-400"
+              className="text-[#8B3DFF] dark:text-purple-300"
             />
           </motion.div>
+
+          <motion.span
+            variants={fadeUp}
+            className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#8B3DFF]/20 bg-[#F3E8FF] px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-[#8B3DFF] dark:bg-purple-950/80 dark:text-purple-300"
+          >
+            <Sparkles size={14} className="animate-pulse" />
+            Help Center
+          </motion.span>
 
           <motion.h1
             variants={fadeUp}
             transition={{ duration: 0.6 }}
-            className="text-4xl font-black tracking-tight text-slate-900 dark:text-white sm:text-5xl"
+            className="mt-2 text-4xl font-black font-heading tracking-tight text-slate-900 dark:text-white sm:text-5xl"
           >
             Frequently Asked{' '}
-            <span className="text-primary-600 dark:text-primary-400">
+            <span className="bg-gradient-to-r from-[#8B3DFF] via-purple-600 to-cyan-500 bg-clip-text text-transparent dark:from-purple-400 dark:to-cyan-400">
               Questions
             </span>
           </motion.h1>
@@ -291,13 +312,13 @@ export default function FAQPage() {
           <motion.p
             variants={fadeUp}
             transition={{ duration: 0.6 }}
-            className="mx-auto mt-4 max-w-xl text-slate-600 dark:text-slate-300"
+            className="mx-auto mt-4 max-w-xl text-base text-slate-600 dark:text-purple-200/80 sm:text-lg"
           >
             Everything you need to know about MeritPrep. Can't find what you're
             looking for?
             <Link
               to={ROUTES.CONTACT}
-              className="ml-1 font-semibold text-primary-600 hover:underline dark:text-primary-400"
+              className="ml-1 font-semibold text-[#8B3DFF] hover:underline dark:text-purple-300"
             >
               Contact us
             </Link>
@@ -311,23 +332,26 @@ export default function FAQPage() {
             className="relative mx-auto mt-8 max-w-lg"
           >
             <div
-              className={`${glassCard} flex items-center gap-3 rounded-full px-5 py-3`}
+              className={`${glassCard} flex items-center gap-3 rounded-2xl px-5 py-3.5 border-purple-200/80 dark:border-purple-800/40 focus-within:border-[#8B3DFF] dark:focus-within:border-purple-500 transition-all shadow-lg`}
             >
-              <Search size={20} className="shrink-0 text-slate-400" />
+              <Search
+                size={20}
+                className="shrink-0 text-slate-400 dark:text-purple-300/60"
+              />
               <input
                 type="text"
-                placeholder="Search questions..."
+                placeholder="Search questions or topics..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-transparent text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none dark:text-white dark:placeholder:text-slate-500"
+                className="w-full bg-transparent text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none dark:text-white dark:placeholder:text-purple-300/40"
               />
             </div>
           </motion.div>
         </motion.div>
       </section>
 
-      {/* Tabs + FAQ List */}
-      <section className="bg-white px-4 py-16 dark:bg-slate-900 sm:px-6 lg:px-8">
+      {/* ─── Tabs & FAQ List Section ─── */}
+      <section className="relative px-4 py-16 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl">
           {/* Category Tabs */}
           <motion.div
@@ -351,10 +375,10 @@ export default function FAQPage() {
                     setOpenId(null);
                     setSearchQuery('');
                   }}
-                  className={`flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition-all ${
+                  className={`flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition-all shadow-sm ${
                     isActive
-                      ? 'bg-gray-900 text-white shadow-md dark:bg-white dark:text-slate-900'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+                      ? 'bg-[#8B3DFF] text-white shadow-purple-500/25 dark:bg-purple-600'
+                      : 'bg-white/80 text-gray-600 hover:bg-white hover:text-[#8B3DFF] dark:bg-[#150E28]/80 dark:text-purple-200/70 dark:hover:bg-[#1C1335] dark:hover:text-purple-300 border border-purple-100 dark:border-purple-900/40'
                   }`}
                 >
                   <Icon size={16} />
@@ -385,13 +409,13 @@ export default function FAQPage() {
               <motion.div
                 variants={fadeUp}
                 transition={{ duration: 0.4 }}
-                className="py-12 text-center"
+                className={`${glassCard} py-12 text-center rounded-2xl`}
               >
                 <Search
                   size={40}
-                  className="mx-auto text-slate-300 dark:text-slate-600"
+                  className="mx-auto text-purple-300 dark:text-purple-800"
                 />
-                <p className="mt-4 text-sm font-medium text-slate-500 dark:text-slate-400">
+                <p className="mt-4 text-sm font-semibold text-slate-500 dark:text-purple-300/60">
                   No questions found matching your search.
                 </p>
               </motion.div>
@@ -400,20 +424,20 @@ export default function FAQPage() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="bg-surface px-4 py-20 sm:px-6 lg:px-8">
+      {/* ─── Contact CTA Section ─── */}
+      <section className="relative px-4 py-16 sm:px-6 lg:px-8">
         <motion.div
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
           variants={fadeUp}
           transition={{ duration: 0.6 }}
-          className={`${glassCard} mx-auto max-w-3xl rounded-3xl p-10 text-center sm:p-14`}
+          className={`${glassCard} mx-auto max-w-3xl rounded-3xl p-10 text-center sm:p-14 border border-purple-100 dark:border-purple-800/40`}
         >
-          <h2 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-3xl">
+          <h2 className="text-2xl font-bold font-heading tracking-tight text-slate-900 dark:text-white sm:text-3xl">
             Still Have Questions?
           </h2>
-          <p className="mx-auto mt-4 max-w-md text-slate-600 dark:text-slate-300">
+          <p className="mx-auto mt-4 max-w-md text-sm text-slate-600 dark:text-purple-200/80 sm:text-base">
             Our support team is here to help. Reach out and we'll get back to
             you within 24 hours.
           </p>
@@ -421,7 +445,7 @@ export default function FAQPage() {
             <Link to={ROUTES.CONTACT}>
               <Button
                 size="lg"
-                className="bg-gray-900 text-white shadow-md transition-all hover:bg-gray-800 dark:bg-white dark:text-slate-900 dark:hover:bg-gray-100"
+                className="bg-[#8B3DFF] font-semibold text-white shadow-lg shadow-purple-500/25 transition-all hover:bg-[#7424ED] dark:bg-purple-600 dark:hover:bg-purple-500"
               >
                 Contact Support
                 <ArrowRight size={16} />

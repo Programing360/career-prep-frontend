@@ -17,6 +17,7 @@ import {
 import { cn } from '@/lib/utils';
 import { ROUTES } from '@/constants/routes';
 import { MCQPracticeContainer } from '@/components/mcq/MCQPracticeContainer';
+import StudentLottie from '../../assets/STUDENT.svg';
 
 interface Subject {
   id: string;
@@ -300,7 +301,7 @@ export default function SubjectsLibrary() {
 
       {/* Header */}
       <section className={`relative ${glassHeader}`}>
-        <div className="relative mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+        <div className="relative flex flex-col md:flex-row items-center gap-10 md:gap-28 mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -319,7 +320,7 @@ export default function SubjectsLibrary() {
               </span>
             </div>
 
-            <h1 className="mt-4 text-3xl font-black tracking-tight text-slate-900 dark:text-white sm:text-4xl">
+            <h1 className="mt-4 text-3xl font-black tracking-tight text-slate-900 dark:text-white sm:text-5xl">
               Subjects{' '}
               <span className="text-purple-600 dark:text-purple-400">
                 Library
@@ -330,6 +331,7 @@ export default function SubjectsLibrary() {
               preparation for competitive exams.
             </p>
           </motion.div>
+          <img data-aos="zoom-in" className="w-80" src={StudentLottie} alt="" />
         </div>
       </section>
 

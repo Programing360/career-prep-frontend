@@ -14,6 +14,7 @@ import {
 import { Button } from '@/components/ui/Button';
 import { ROUTES } from '@/constants/routes';
 import { Link } from 'react-router-dom';
+import contactLottie from '../../assets/contact us.svg';
 
 // 💜 PURPLE & GLASS THEME CONFIGURATION
 const THEME = {
@@ -126,37 +127,48 @@ export default function ContactPage() {
       />
 
       {/* Hero Section */}
-      <section className="relative px-4 py-24 sm:px-6 lg:px-8">
+      <section className="relative max-w-full  px-4 py-24 sm:px-6 lg:px-8 bg-gradient-to-r from-[#5c66ab] to-white dark:from-[#430877] dark:to-[#9e65df]">
         <motion.div
-          className="relative mx-auto max-w-3xl text-center"
+          className="relative  flex flex-col md:flex-row items-center md:gap-16 mx-auto max-w-6xl text-center"
           initial="hidden"
           animate="visible"
           variants={staggerContainer}
         >
-          <motion.div
-            variants={fadeUp}
-            transition={{ duration: 0.5 }}
-            className={`mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl ${THEME.badges.email}`}
-          >
-            <MessageSquare size={32} />
-          </motion.div>
+          <div className="w-full">
+            <motion.div
+              variants={fadeUp}
+              transition={{ duration: 0.5 }}
+              className={`mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl ${THEME.badges.email}`}
+            >
+              <MessageSquare size={32} />
+            </motion.div>
 
-          <motion.h1
-            variants={fadeUp}
-            transition={{ duration: 0.6 }}
-            className="text-4xl font-black tracking-tight sm:text-5xl"
-          >
-            Get in <span className={THEME.accentText}>Touch</span>
-          </motion.h1>
+            <motion.h1
+              variants={fadeUp}
+              transition={{ duration: 0.6 }}
+              className="text-4xl font-black tracking-tight sm:text-6xl"
+            >
+              CONTACT <span className={THEME.accentText}>US</span>
+            </motion.h1>
 
-          <motion.p
-            variants={fadeUp}
-            transition={{ duration: 0.6 }}
-            className="mx-auto mt-4 max-w-xl text-slate-600 dark:text-slate-300"
-          >
-            Have a question, suggestion, or need help? We'd love to hear from
-            you. Our team is ready to assist.
-          </motion.p>
+            <motion.p
+              variants={fadeUp}
+              transition={{ duration: 0.6 }}
+              className="mx-auto mt-4 max-w-xl text-slate-600 dark:text-slate-300"
+            >
+              Have a question, suggestion, or need help? We'd love to hear from
+              you. Our team is ready to assist.
+            </motion.p>
+          </div>
+          <div>
+            <img
+              className="max-w-6xl"
+              width={600}
+              height={400}
+              src={contactLottie}
+              alt=""
+            />
+          </div>
         </motion.div>
       </section>
 
@@ -196,7 +208,7 @@ export default function ContactPage() {
                       variants={fadeUp}
                       transition={{ duration: 0.5 }}
                       whileHover={{ scale: 1.02, x: 4 }}
-                      className={`${glassCard} flex items-start gap-4 rounded-2xl p-5 transition-all hover:border-purple-300/80 dark:hover:border-purple-500/50`}
+                      className={`${glassCard} flex items-start gap-4 shadow-md shadow-slate-500 rounded-2xl p-5 transition-all hover:border-purple-300/80 dark:hover:border-purple-500/50`}
                     >
                       <div
                         className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${item.color}`}
@@ -224,7 +236,7 @@ export default function ContactPage() {
               animate="visible"
               variants={fadeUp}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="lg:col-span-3"
+              className="lg:col-span-3 shadow-md shadow-slate-500 rounded-2xl"
             >
               <div className={`${glassCard} rounded-3xl p-6 sm:p-8`}>
                 <AnimatePresence mode="wait">
@@ -260,7 +272,7 @@ export default function ContactPage() {
                           onChange={handleChange}
                           onFocus={() => setFocusedField('name')}
                           onBlur={() => setFocusedField(null)}
-                          className={`w-full rounded-xl border border-white/50 bg-white/40 px-4 pb-2 pt-7 text-sm  transition-all outline-none dark:border-purple-500/20 dark:bg-slate-900/40 ${THEME.accentRing}`}
+                          className={`w-full rounded-xl border shadow-md bg-white/40 px-4 pb-2 pt-7 text-sm  transition-all outline-none dark:border-purple-500/20 dark:bg-slate-900/40 ${THEME.accentRing}`}
                         />
                       </div>
 
@@ -285,7 +297,7 @@ export default function ContactPage() {
                           onChange={handleChange}
                           onFocus={() => setFocusedField('email')}
                           onBlur={() => setFocusedField(null)}
-                          className={`w-full rounded-xl border border-white/50 bg-white/40 px-4 pb-2 pt-7 text-sm  transition-all outline-none dark:border-purple-500/20 dark:bg-slate-900/40 ${THEME.accentRing}`}
+                          className={`w-full rounded-xl border shadow-md bg-white/40 px-4 pb-2 pt-7 text-sm  transition-all outline-none dark:border-purple-500/20 dark:bg-slate-900/40 ${THEME.accentRing}`}
                         />
                       </div>
 
@@ -305,7 +317,7 @@ export default function ContactPage() {
                           onChange={handleChange}
                           onFocus={() => setFocusedField('subject')}
                           onBlur={() => setFocusedField(null)}
-                          className={`w-full appearance-none rounded-xl border border-white/50 bg-white/40 px-4 pb-2 pt-7 text-sm  transition-all outline-none dark:border-purple-500/20 dark:bg-slate-900/40 ${THEME.accentRing}`}
+                          className={`w-full appearance-none rounded-xl border shadow-md bg-white/40 px-4 pb-2 pt-7 text-sm  transition-all outline-none dark:border-purple-500/20 dark:bg-slate-900/40 ${THEME.accentRing}`}
                         >
                           <option value="" disabled hidden>
                             Select a topic
@@ -374,7 +386,7 @@ export default function ContactPage() {
                           onChange={handleChange}
                           onFocus={() => setFocusedField('message')}
                           onBlur={() => setFocusedField(null)}
-                          className={`w-full resize-none rounded-xl border border-white/50 bg-white/40 px-4 pb-2 pt-7 text-sm transition-all outline-none dark:border-purple-500/20 dark:bg-slate-900/40 ${THEME.accentRing}`}
+                          className={`w-full resize-none rounded-xl border shadow-md bg-white/40 px-4 pb-2 pt-7 text-sm transition-all outline-none dark:border-purple-500/20 dark:bg-slate-900/40 ${THEME.accentRing}`}
                         />
                       </div>
 
@@ -386,7 +398,7 @@ export default function ContactPage() {
                           type="submit"
                           size="lg"
                           fullWidth
-                          className={`shadow-lg transition-all ${THEME.accentBg}`}
+                          className={`shadow-md shadow-slate-400 transition-all ${THEME.accentBg}`}
                         >
                           <Send size={16} />
                           Send Message
@@ -443,7 +455,7 @@ export default function ContactPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="relative px-4 py-20 sm:px-6 lg:px-8">
+      <section className="relative px-4 shadow-md shadow-zinc-400 py-20 sm:px-6 lg:px-8">
         <motion.div
           initial="hidden"
           whileInView="visible"

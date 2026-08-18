@@ -35,6 +35,7 @@ export default function ForgotPassword() {
     setIsLoading(true);
     try {
       await forgotPassword({ email: data.email });
+      // console.log(res);
       setSubmittedEmail(data.email);
       showToast('Reset link sent if the account exists', 'success');
     } catch (err) {
