@@ -1,6 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, type Variants } from 'framer-motion';
 import {
   Brain,
   Clock,
@@ -24,12 +24,12 @@ const MCQPracticeContainer = lazy(() =>
   }))
 );
 
-const fadeInUp = {
+const fadeInUp: Variants = {
   hidden: { opacity: 0, y: 16 },
   show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' } },
 };
 
-const stagger = {
+const stagger: Variants = {
   hidden: { opacity: 0 },
   show: { opacity: 1, transition: { staggerChildren: 0.06 } },
 };

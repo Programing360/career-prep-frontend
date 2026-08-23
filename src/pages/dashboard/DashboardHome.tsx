@@ -1,4 +1,5 @@
 ﻿import { Link } from 'react-router-dom';
+import type { ElementType } from 'react';
 import {
   Flame,
   TrendingUp,
@@ -418,7 +419,7 @@ function RecentActivityCard() {
 
       <div className="mt-4 divide-y divide-[rgb(var(--color-border))]">
         {mockRecentActivity.map((item) => {
-          const Wrapper = item.examId ? Link : 'div';
+          const Wrapper = (item.examId ? Link : 'div') as ElementType;
           const wrapperProps = item.examId
             ? {
                 to: ROUTES.EXAM_ATTEMPT.replace(':id', item.examId),

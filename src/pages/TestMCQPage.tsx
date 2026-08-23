@@ -3,7 +3,7 @@ import { MCQPracticeContainer } from '@/components/mcq/MCQPracticeContainer';
 const TestMCQPage = () => {
   return (
     <div>
-      <MCQPracticeContainer />
+      <MCQPracticeContainer examSlug="css" />
     </div>
   );
 };

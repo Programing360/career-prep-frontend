@@ -1,11 +1,17 @@
 ﻿import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { BadgeCheck, BookOpen, ChevronRight, Shield } from 'lucide-react';
+import {
+  BadgeCheck,
+  BookOpen,
+  ChevronRight,
+  Shield,
+  Image as ImageIcon,
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/Button';
 import type { ExamCardData } from '@/components/exams/examCardData';
 
-// প্রতিটি এজেন্সির জন্য আলাদা থিম স্ট্রাকচার (কার্ডের ব্যাকগ্রাউন্ড, বর্ডার, ব্যাজ ও টেক্সটের কালার)
+// এজেন্সির জন্য কালার থিম স্ট্রাকচার
 interface AgencyTheme {
   cardBg: string;
   badgeBg: string;
@@ -129,7 +135,12 @@ function getAgencyTheme(key: string): AgencyTheme {
   return agencyThemes[key] ?? agencyThemes.default;
 }
 
-export function ExamCard({ exam }: { exam: ExamCardData }) {
+// ExamCardData ইন্টারফেসে `imageUrl` অথবা `coverImage` যোগ করতে নিশ্চিত হোন
+export function ExamCard({
+  exam,
+}: {
+  exam: ExamCardData & { imageUrl?: string };
+}) {
   const theme = getAgencyTheme(exam.agencyKey);
 
   return (
@@ -146,18 +157,34 @@ export function ExamCard({ exam }: { exam: ExamCardData }) {
     >
       <div
         className={cn(
-          'flex h-full flex-col rounded-2xl border backdrop-blur-md shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl',
+          'flex h-full flex-col overflow-hidden rounded-2xl border backdrop-blur-md shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl',
           theme.cardBg,
           theme.border,
           theme.hoverBorder
         )}
       >
-        <div className="flex flex-1 flex-col p-5">
-          {/* Header Badge */}
-          <div className="flex items-start justify-between">
+        {/* Card Header Image Section */}
+        <div className="relative h-44 w-full overflow-hidden bg-slate-200 dark:bg-slate-800">
+          {exam.imageUrl ? (
+            <img
+              src={exam.imageUrl}
+              alt={exam.title}
+              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-800 dark:to-slate-900 text-slate-400 dark:text-slate-600">
+              <ImageIcon size={40} />
+            </div>
+          )}
+
+          {/* Overlay Gradient for readability */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+
+          {/* Badges on Top of Image */}
+          <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
             <span
               className={cn(
-                'inline-flex items-center gap-1 rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wider shadow-xs',
+                'inline-flex items-center gap-1 rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wider shadow-sm backdrop-blur-md',
                 theme.badgeBg
               )}
             >
@@ -166,15 +193,18 @@ export function ExamCard({ exam }: { exam: ExamCardData }) {
             </span>
 
             {exam.verified && (
-              <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-200/60 dark:border-emerald-800/60">
-                <BadgeCheck size={14} />
+              <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-300 bg-emerald-950/80 backdrop-blur-md px-2.5 py-1 rounded-full border border-emerald-500/40 shadow-xs">
+                <BadgeCheck size={14} className="text-emerald-400" />
                 Verified
               </span>
             )}
           </div>
+        </div>
 
+        {/* Card Body */}
+        <div className="flex flex-1 flex-col p-5">
           {/* Exam Title */}
-          <h3 className="mt-4 text-base font-bold leading-snug text-slate-900 dark:text-white transition-colors group-hover:text-purple-600 dark:group-hover:text-purple-400">
+          <h3 className="text-base font-bold leading-snug text-slate-900 dark:text-white transition-colors group-hover:text-purple-600 dark:group-hover:text-purple-400 line-clamp-2">
             {exam.title}
           </h3>
 

@@ -267,14 +267,26 @@ export default function FAQPage() {
 
   return (
     <div className="flex flex-col bg-[#FAF7FF] text-gray-900 transition-colors duration-300 dark:bg-[#0F0A1C] dark:text-white">
-      {/* ─── Hero Section ─── */}
-      <section className="relative overflow-hidden border-b border-purple-100/50 bg-gradient-to-br from-purple-100/60 via-indigo-50/40 to-[#FAF7FF] px-4 py-20 dark:border-purple-900/20 dark:from-[#190F35] dark:via-[#120B27] dark:to-[#0F0A1C] sm:px-6 lg:px-8">
-        {/* Glow Effects */}
-        <div className="pointer-events-none absolute left-1/2 top-0 h-96 w-96 -translate-x-1/2 rounded-full bg-[#8B3DFF]/15 blur-3xl dark:bg-[#8B3DFF]/20" />
-        <div className="pointer-events-none absolute right-10 top-20 h-72 w-72 rounded-full bg-cyan-500/10 blur-3xl dark:bg-purple-900/30" />
+      {/* ─── Hero Section with Background Image ─── */}
+      <section className="relative min-h-[420px] overflow-hidden border-b border-purple-100/50 px-4 py-20 dark:border-purple-900/20 sm:px-6 lg:px-8">
+        {/* Background Image Layer */}
+        <div className="absolute inset-0 z-0">
+          <img
+            src="https://images.unsplash.com/photo-1457369804613-52c61a468e7d?q=80&w=1600&auto=format&fit=crop" // পছন্দমতো ইমেজ URL ব্যবহার করুন
+            alt="FAQ Background"
+            className="h-full w-full object-cover object-center transition-transform duration-700 hover:scale-105"
+          />
+          {/* Light & Dark Overlay for Text Readability */}
+          <div className="absolute inset-0 bg-gradient-to-b from-[#FAF7FF]/90 via-[#FAF7FF]/80 to-[#FAF7FF] dark:from-[#0F0A1C]/95 dark:via-[#120B27]/90 dark:to-[#0F0A1C] backdrop-blur-[2px]" />
+        </div>
 
+        {/* Glow Effects */}
+        <div className="pointer-events-none absolute left-1/2 top-0 z-0 h-96 w-96 -translate-x-1/2 rounded-full bg-[#8B3DFF]/15 blur-3xl dark:bg-[#8B3DFF]/25" />
+        <div className="pointer-events-none absolute right-10 top-20 z-0 h-72 w-72 rounded-full bg-cyan-500/10 blur-3xl dark:bg-purple-900/30" />
+
+        {/* Content Container */}
         <motion.div
-          className="relative mx-auto max-w-3xl text-center"
+          className="relative z-10 mx-auto max-w-3xl text-center"
           initial="hidden"
           animate="visible"
           variants={staggerContainer}
@@ -282,7 +294,7 @@ export default function FAQPage() {
           <motion.div
             variants={fadeUp}
             transition={{ duration: 0.5 }}
-            className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#F3E8FF] shadow-inner dark:bg-purple-950/80"
+            className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#F3E8FF] shadow-inner dark:bg-purple-950/80 border border-purple-200/50 dark:border-purple-800/40"
           >
             <HelpCircle
               size={32}
@@ -292,7 +304,7 @@ export default function FAQPage() {
 
           <motion.span
             variants={fadeUp}
-            className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#8B3DFF]/20 bg-[#F3E8FF] px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-[#8B3DFF] dark:bg-purple-950/80 dark:text-purple-300"
+            className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#8B3DFF]/20 bg-[#F3E8FF]/80 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-[#8B3DFF] backdrop-blur-md dark:bg-purple-950/80 dark:text-purple-300"
           >
             <Sparkles size={14} className="animate-pulse" />
             Help Center

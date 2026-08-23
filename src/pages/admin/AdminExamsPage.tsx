@@ -589,10 +589,10 @@ export default function AdminExamsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold font-heading text-[rgb(var(--color-text-primary))]">
+        <h1 className="text-2xl font-bold font-heading text-white">
           Exam Management
         </h1>
-        <p className="mt-1 text-sm text-[rgb(var(--color-text-secondary))]">
+        <p className="mt-1 text-sm text-gray-400">
           Manage the public exam catalog and review pending verifications.
         </p>
       </div>

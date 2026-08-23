@@ -1100,7 +1100,7 @@ function ChatHistory({
         </div>
       )}
 
-      <div ref={{ current: null } as React.RefObject<HTMLDivElement>} />
+      <div />
     </div>
   );
 }

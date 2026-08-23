@@ -288,7 +288,7 @@ export default function ExamCategoriesPage() {
                 <BookOpen size={32} />
               </div>
               <p className="text-xl font-bold text-slate-900 dark:text-white">
-                Couldn&apos;t Load Exams
+                Couldn't Load Exams
               </p>
               <p className="mt-1 max-w-md text-sm text-slate-600 dark:text-slate-400">
                 {error}

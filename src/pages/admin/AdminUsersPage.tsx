@@ -733,10 +733,10 @@ export default function AdminUsersPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold font-heading text-[rgb(var(--color-text-primary))]">
+        <h1 className="text-2xl font-bold font-heading text-white">
           User Management
         </h1>
-        <p className="mt-1 text-sm text-[rgb(var(--color-text-secondary))]">
+        <p className="mt-1 text-sm text-gray-400">
           Manage accounts, roles, tokens, and access status.
         </p>
       </div>
@@ -777,7 +777,7 @@ export default function AdminUsersPage() {
         </div>
 
         <div className="flex items-center gap-2">
-          <Filter size={16} className="text-[rgb(var(--color-text-muted))]" />
+          <Filter size={16} className="text-white" />
           {(['all', 'active', 'suspended'] as const).map((status) => (
             <button
               key={status}
@@ -786,7 +786,7 @@ export default function AdminUsersPage() {
                 'rounded-lg px-3 py-1.5 text-xs font-medium transition-colors',
                 statusFilter === status
                   ? 'bg-primary-50 text-primary-600 dark:bg-primary-950 dark:text-primary-400'
-                  : 'text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-surface-elevated))]'
+                  : 'text-white hover:bg-[rgb(var(--color-surface-elevated))] hover:text-black'
               )}
             >
               {status === 'all'
@@ -799,7 +799,7 @@ export default function AdminUsersPage() {
         </div>
       </div>
 
-      <div className="rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))]">
+      <div className="rounded-xl border border-[rgb(var(--color-border))] bg-white dark:bg-[#101c44]">
         {loading ? (
           <div className="space-y-3 p-6">
             {Array.from({ length: 5 }).map((_, i) => (

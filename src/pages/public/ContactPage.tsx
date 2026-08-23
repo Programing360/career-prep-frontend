@@ -5,7 +5,6 @@ import {
   MapPin,
   Clock,
   Send,
-  MessageSquare,
   CheckCircle2,
   Phone,
   ArrowRight,
@@ -127,48 +126,72 @@ export default function ContactPage() {
       />
 
       {/* Hero Section */}
-      <section className="relative max-w-full  px-4 py-24 sm:px-6 lg:px-8 bg-gradient-to-r from-[#5c66ab] to-white dark:from-[#430877] dark:to-[#9e65df]">
+      <section className="relative min-h-[480px] w-full overflow-hidden px-4 py-20 sm:px-6 lg:px-8">
+        {/* Background Image Layer */}
+        <div className="absolute inset-0 z-0">
+          <img
+            src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1600&auto=format&fit=crop" // আপনার ব্যাকগ্রাউন্ড ইমেজের Path/URL এখানে দিন
+            alt="Contact Background"
+            className="h-full w-full object-cover object-center transition-transform duration-700 hover:scale-105"
+          />
+          {/* Gradient Overlay for Light & Dark Mode Readability */}
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-900/90 via-slate-900/70 to-indigo-950/80 dark:from-[#150E28]/95 dark:via-[#150E28]/85 dark:to-[#430877]/90 backdrop-blur-[2px]" />
+        </div>
+
+        {/* Content Layer */}
         <motion.div
-          className="relative  flex flex-col md:flex-row items-center md:gap-16 mx-auto max-w-6xl text-center"
+          className="relative z-10 mx-auto  max-w-6xl flex-col items-center justify-between gap-10 lg:flex-row"
           initial="hidden"
           animate="visible"
           variants={staggerContainer}
         >
-          <div className="w-full">
+          {/* Text Content */}
+          {/* <div className="flex-1 text-center lg:text-left">
             <motion.div
               variants={fadeUp}
               transition={{ duration: 0.5 }}
-              className={`mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl ${THEME.badges.email}`}
+              className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 backdrop-blur-md shadow-lg shadow-cyan-500/10 lg:mx-0"
             >
-              <MessageSquare size={32} />
+              <MessageSquare size={28} />
             </motion.div>
 
             <motion.h1
               variants={fadeUp}
               transition={{ duration: 0.6 }}
-              className="text-4xl font-black tracking-tight sm:text-6xl"
+              className="text-4xl font-black tracking-tight text-white sm:text-6xl"
             >
-              CONTACT <span className={THEME.accentText}>US</span>
+              CONTACT{' '}
+              <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                US
+              </span>
             </motion.h1>
 
             <motion.p
               variants={fadeUp}
               transition={{ duration: 0.6 }}
-              className="mx-auto mt-4 max-w-xl text-slate-600 dark:text-slate-300"
+              className="mt-4 max-w-xl text-base text-slate-300 dark:text-purple-100/80 sm:text-lg leading-relaxed"
             >
               Have a question, suggestion, or need help? We'd love to hear from
-              you. Our team is ready to assist.
+              you. Our team is ready to assist you anytime.
             </motion.p>
-          </div>
-          <div>
-            <img
-              className="max-w-6xl"
-              width={600}
-              height={400}
-              src={contactLottie}
-              alt=""
-            />
-          </div>
+          </div> */}
+
+          {/* Lottie / Image Visual */}
+          <motion.div
+            variants={fadeUp}
+            transition={{ duration: 0.7 }}
+            className=" "
+          >
+            <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-md shadow-2xl">
+              <img
+                className="h-auto max-w-full mx-auto rounded-xl object-contain lg:max-w-md"
+                width={600}
+                height={400}
+                src={contactLottie}
+                alt="Contact Illustration"
+              />
+            </div>
+          </motion.div>
         </motion.div>
       </section>
 

@@ -1294,10 +1294,10 @@ export default function CreateExamPage() {
           <ArrowLeft size={16} />
         </button>
         <div className="flex-1">
-          <h1 className="text-2xl font-bold font-heading text-[rgb(var(--color-text-primary))]">
+          <h1 className="text-2xl font-bold font-heading text-white">
             Create New Exam
           </h1>
-          <p className="mt-1 text-sm text-[rgb(var(--color-text-secondary))]">
+          <p className="mt-1 text-sm text-gray-400">
             Set up an exam profile and publish it to the catalog.
           </p>
         </div>

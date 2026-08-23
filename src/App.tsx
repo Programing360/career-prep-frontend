@@ -63,10 +63,10 @@ export default function App() {
       }
     >
       <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
         <Route element={<PublicLayout />}>
           <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
           <Route path={ROUTES.VERIFY_EMAIL} element={<VerifyEmail />} />
           <Route path={ROUTES.FORGOT_PASSWORD} element={<ForgotPassword />} />
           <Route

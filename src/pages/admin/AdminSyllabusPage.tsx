@@ -959,10 +959,10 @@ export default function AdminSyllabusPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold font-heading text-[rgb(var(--color-text-primary))]">
-            Syllabus &amp; Roadmap Publisher
+          <h1 className="text-2xl font-bold font-heading text-white">
+            Syllabus & Roadmap Publisher
           </h1>
-          <p className="mt-1 text-sm text-[rgb(var(--color-text-muted))]">
+          <p className="mt-1 text-sm text-gray-400">
             Publish official syllabus versions and preparation roadmaps per
             exam.
           </p>
@@ -970,6 +970,7 @@ export default function AdminSyllabusPage() {
         <Button
           variant="outline"
           leftIcon={<RefreshCw size={16} />}
+          className="bg-white"
           onClick={() => void loadReferences()}
         >
           Refresh
@@ -988,6 +989,7 @@ export default function AdminSyllabusPage() {
           <Select
             value={selectedExamId}
             onChange={(e) => handleExamChange(e.target.value)}
+            className=""
             placeholder="Choose an exam to manage"
             options={exams.map((exam) => ({
               label: exam.title,
@@ -1032,7 +1034,7 @@ export default function AdminSyllabusPage() {
                 className={cn(
                   'flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors',
                   tab === key
-                    ? 'bg-primary-50 text-primary-700 dark:bg-primary-950 dark:text-primary-300'
+                    ? 'bg-[#7253aa] text-white dark:bg-primary-950 dark:text-primary-300'
                     : 'text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-surface-elevated))]'
                 )}
               >

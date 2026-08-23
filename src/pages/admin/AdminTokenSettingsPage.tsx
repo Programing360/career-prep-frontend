@@ -157,12 +157,12 @@ function ReadOnlySettingCard({
 
 export default function AdminTokenSettingsPage() {
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 ">
       <div>
-        <h1 className="text-2xl font-bold font-heading text-[rgb(var(--color-text-primary))]">
+        <h1 className="text-2xl font-bold font-heading text-white">
           Token Economy & System Settings
         </h1>
-        <p className="mt-1 text-sm text-[rgb(var(--color-text-secondary))]">
+        <p className="mt-1 text-sm text-gray-400">
           View token costs, bonuses, and top-up packages.
         </p>
       </div>
@@ -177,10 +177,10 @@ export default function AdminTokenSettingsPage() {
 
       <section className="space-y-4">
         <div>
-          <h2 className="text-lg font-semibold font-heading text-[rgb(var(--color-text-primary))]">
+          <h2 className="text-lg font-semibold font-heading text-white">
             AI Feature Token Costs
           </h2>
-          <p className="text-sm text-[rgb(var(--color-text-muted))]">
+          <p className="text-sm text-gray-400">
             Tokens deducted per feature use.
           </p>
         </div>
@@ -201,10 +201,10 @@ export default function AdminTokenSettingsPage() {
 
       <section className="space-y-4">
         <div>
-          <h2 className="text-lg font-semibold font-heading text-[rgb(var(--color-text-primary))]">
+          <h2 className="text-lg font-semibold font-heading text-white">
             New User & Daily Bonus
           </h2>
-          <p className="text-sm text-[rgb(var(--color-text-muted))]">
+          <p className="text-sm text-gray-400">
             Sign-up rewards and daily engagement bonuses.
           </p>
         </div>
@@ -225,10 +225,10 @@ export default function AdminTokenSettingsPage() {
 
       <section className="space-y-4">
         <div>
-          <h2 className="text-lg font-semibold font-heading text-[rgb(var(--color-text-primary))]">
+          <h2 className="text-lg font-semibold font-heading text-white">
             Token Top-Up Packages
           </h2>
-          <p className="text-sm text-[rgb(var(--color-text-muted))]">
+          <p className="text-sm text-gray-400">
             Purchasable token packs available in the store.
           </p>
         </div>

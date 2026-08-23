@@ -207,7 +207,7 @@ export default function Navbar() {
         </nav>
 
         {/* ── Global Search (desktop) ───────────────────────────────── */}
-        <div className="hidden items-center lg:flex">
+        <div className="hidden items-center shadow-sm rounded-2xl lg:flex">
           <GlobalSearch placeholder="Search exams…" className="w-64 xl:w-72" />
         </div>
 

@@ -133,7 +133,7 @@ export function ExamSupportSection() {
   };
 
   return (
-    <section className="relative w-full py-12 px-4 sm:px-6 lg:px-8">
+    <section className="relative w-full py-12 px-4 sm:px-6 lg:px-8 dark:bg-[#1c0131]">
       {/* Outer Container with Soft Purple Background */}
       <div
         data-aos="fade-up"

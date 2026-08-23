@@ -184,6 +184,7 @@ export async function getChapters(
     '/taxonomy/chapters',
     { params }
   );
+  // console.log(params, data);
   return data;
 }
 

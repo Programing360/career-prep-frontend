@@ -15,9 +15,8 @@ import {
   Zap,
   Lightbulb,
   Shield,
-  Flame,
-  Hash,
   BarChart3,
+  ImageIcon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { ROUTES } from '@/constants/routes';
@@ -26,27 +25,33 @@ import { CurrentAffairsCompactWidget } from '@/components/current-affairs/Curren
 import { DailyQuizCompactWidget } from '@/components/daily-quiz/DailyQuizCompactWidget';
 import FeaturedExams from '@/components/home/FeaturedExams';
 import { ExamSupportSection } from './ExamSupportSection';
+import TestimonialsSection from './TestimonialsSection';
+import AboutFeatureSection from './AboutFeatureSection';
 
 // --- Animation Variants ---------------------------------------------------
 
-const staggerContainer = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.1 },
-  },
-};
+// const staggerContainer = {
+//   hidden: { opacity: 0 },
+//   show: {
+//     opacity: 1,
+//     transition: { staggerChildren: 0.1 },
+//   },
+// };
 
-const fadeInUp = {
-  hidden: { opacity: 0, y: 24 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } },
-};
+// const fadeInUp = {
+//   hidden: { opacity: 0, y: 24 },
+//   show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } },
+// };
 
 // --- Data -----------------------------------------------------------------
+
+// import { FileText, ClipboardCheck, Zap, Lightbulb } from 'lucide-react';
+// import { ROUTES } from '@/constants/routes';
 
 const freeValueCards = [
   {
     icon: FileText,
+    image: 'https://i.ibb.co.com/CLY61hY/multiple-choice-quiz-game.avif', // আপনার ছবির Path বা Unsplash URL দিন
     title: '20 Free MCQs',
     description:
       'Access 20 practice questions from our 2,000+ question bank — no signup required.',
@@ -55,6 +60,7 @@ const freeValueCards = [
   },
   {
     icon: ClipboardCheck,
+    image: 'https://i.ibb.co.com/vCMJTxGz/Screenshot-2026-08-19-082413.png',
     title: '1 Demo Mock Test',
     description:
       'Experience a full-length mock test with real exam conditions and instant scoring.',
@@ -63,6 +69,7 @@ const freeValueCards = [
   },
   {
     icon: Zap,
+    image: 'https://i.ibb.co.com/PsMLbGL7/daily-quiz-4-800x480-0001.webp',
     title: 'Daily Quiz',
     description:
       'Challenge yourself with fresh questions every day across multiple subjects.',
@@ -71,25 +78,13 @@ const freeValueCards = [
   },
   {
     icon: Lightbulb,
+    image: 'https://i.ibb.co.com/M5QNFhrR/visual-literacy-AI.jpg',
     title: 'AI Explanation Preview',
     description:
       'See how our AI tutor breaks down complex concepts into simple, clear explanations.',
     cta: 'Preview AI Tutor',
     href: ROUTES.AI_TUTOR,
   },
-];
-
-const trendingExams = [
-  { name: 'CSS', hot: true },
-  { name: 'PMS', hot: true },
-  { name: 'NTS GAT', hot: false },
-  { name: 'FIA Sub Inspector', hot: true },
-  { name: 'FPSC STS', hot: false },
-  { name: 'PPSC Lecturer', hot: false },
-  { name: 'ISSB', hot: true },
-  { name: 'Police ASI', hot: false },
-  { name: 'CT/TT Educators', hot: false },
-  { name: 'Auditor', hot: false },
 ];
 
 const examCategories = [
@@ -284,6 +279,20 @@ export default function Home() {
     return () => clearTimeout(timer);
   }, []);
 
+  // Animation variants (আপনার ফাইলে যদি ইতিমধ্যে থাকে তবে এগুলো এড়িয়ে যেতে পারেন)
+  const staggerContainer = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 },
+    },
+  };
+
+  const fadeInUp = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.4 } },
+  };
+
   return (
     <div className="flex flex-col bg-[#FAF7FF] text-gray-900 transition-colors duration-300 dark:bg-[#0F0A1C] dark:text-white">
       {/* Hero Section */}
@@ -292,8 +301,9 @@ export default function Home() {
       </section>
 
       {/* Free-Value Highlight Strip */}
-      <section className="relative px-4 py-16 sm:px-6 lg:px-8">
+      <section className="relative px-4 py-16 sm:px-6 lg:px-8 bg-[#f5f1fb] dark:bg-[#1c0131]">
         <div className="mx-auto max-w-6xl">
+          {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -313,6 +323,7 @@ export default function Home() {
             </p>
           </motion.div>
 
+          {/* Cards Grid */}
           <motion.div
             variants={staggerContainer}
             initial="hidden"
@@ -324,29 +335,51 @@ export default function Home() {
               const Icon = card.icon;
               return (
                 <motion.div key={card.title} variants={fadeInUp}>
-                  <div className="group flex h-full flex-col rounded-2xl border border-purple-100/80 bg-white/70 p-6 shadow-lg shadow-purple-950/5 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-[#8B3DFF]/30 hover:shadow-xl hover:shadow-purple-500/10 dark:border-purple-900/40 dark:bg-[#150E28]/70">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#F3E8FF] text-[#8B3DFF] dark:bg-purple-950/80 dark:text-purple-300">
-                      <Icon size={22} />
+                  <div className="group flex h-full flex-col overflow-hidden rounded-2xl border border-purple-100/80 bg-white/70 shadow-lg shadow-purple-950/5 backdrop-blur-md transition-all duration-300 hover:-translate-y-1.5 hover:border-[#8B3DFF]/40 hover:shadow-xl hover:shadow-purple-500/15 dark:border-purple-900/40 dark:bg-[#150E28]/70">
+                    {/* Card Image Section */}
+                    <div className="relative h-40 w-full overflow-hidden bg-purple-50 dark:bg-purple-950/30">
+                      {card.image ? (
+                        <img
+                          src={card.image}
+                          alt={card.title}
+                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center text-purple-300 dark:text-purple-700">
+                          <ImageIcon size={36} />
+                        </div>
+                      )}
+
+                      {/* Gradient Overlay for subtle contrast */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-60" />
+
+                      {/* Floating Icon Badge on top of Image */}
+                      <div className="absolute bottom-3 left-3 flex h-10 w-10 items-center justify-center rounded-xl bg-white/80 text-[#8B3DFF] shadow-md backdrop-blur-md dark:bg-[#150E28]/80 dark:text-purple-300 dark:border dark:border-purple-500/30">
+                        <Icon size={20} />
+                      </div>
                     </div>
 
-                    <h3 className="mt-4 text-lg font-semibold text-gray-900 dark:text-white">
-                      {card.title}
-                    </h3>
+                    {/* Card Content */}
+                    <div className="flex flex-1 flex-col p-5">
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors group-hover:text-[#8B3DFF] dark:group-hover:text-purple-300">
+                        {card.title}
+                      </h3>
 
-                    <p className="mt-2 flex-1 text-sm leading-relaxed text-gray-600 dark:text-purple-200/70">
-                      {card.description}
-                    </p>
+                      <p className="mt-2 flex-1 text-sm leading-relaxed text-gray-600 dark:text-purple-200/70">
+                        {card.description}
+                      </p>
 
-                    <Link
-                      to={card.href}
-                      className="mt-5 inline-flex items-center gap-2 self-start rounded-xl bg-[#8B3DFF] px-4 py-2.5 text-sm font-semibold text-white shadow-md transition-colors hover:bg-[#7424ED] dark:bg-purple-600 dark:hover:bg-purple-500"
-                    >
-                      {card.cta}
-                      <ArrowRight
-                        size={16}
-                        className="transition-transform group-hover:translate-x-0.5"
-                      />
-                    </Link>
+                      <Link
+                        to={card.href}
+                        className="mt-5 inline-flex items-center justify-between gap-2 rounded-xl bg-[#8B3DFF] px-4 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:bg-[#7424ED] hover:shadow-lg hover:shadow-purple-500/25 dark:bg-purple-600 dark:hover:bg-purple-500"
+                      >
+                        <span>{card.cta}</span>
+                        <ArrowRight
+                          size={16}
+                          className="transition-transform group-hover:translate-x-1"
+                        />
+                      </Link>
+                    </div>
                   </div>
                 </motion.div>
               );
@@ -355,64 +388,11 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Popular / Trending Exams Strip */}
-      <section className="relative px-4 py-12 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-6xl">
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-50px' }}
-            transition={{ duration: 0.5 }}
-            className="text-center"
-          >
-            <span className="mb-3 inline-block rounded-full border border-[#8B3DFF]/20 bg-[#F3E8FF] px-4 py-1 text-xs font-semibold uppercase tracking-wider text-[#8B3DFF] dark:bg-purple-950/60 dark:text-purple-300">
-              Trending
-            </span>
-            <h2 className="text-3xl font-bold font-heading text-gray-900 dark:text-white sm:text-4xl">
-              Popular Exams
-            </h2>
-            <p className="mx-auto mt-3 max-w-2xl text-gray-600 dark:text-purple-200/80">
-              Quick access to the most sought-after exams among our students.
-            </p>
-          </motion.div>
-
-          <motion.div
-            variants={staggerContainer}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, margin: '-50px' }}
-            className="mt-8 flex flex-wrap justify-center gap-3"
-          >
-            {trendingExams.map((exam) => (
-              <motion.div key={exam.name} variants={fadeInUp}>
-                <Link
-                  to={`${ROUTES.EXAMS}?search=${encodeURIComponent(exam.name)}`}
-                  className="group inline-flex items-center gap-2 rounded-full border border-purple-100/80 bg-white/80 px-5 py-2.5 text-sm font-semibold text-gray-700 shadow-sm backdrop-blur-md transition-all hover:-translate-y-0.5 hover:border-[#8B3DFF]/40 hover:bg-white hover:text-[#8B3DFF] hover:shadow-md dark:border-purple-900/50 dark:bg-[#150E28]/80 dark:text-purple-200 dark:hover:border-purple-500 dark:hover:bg-[#1A1230] dark:hover:text-purple-300"
-                >
-                  {exam.hot ? (
-                    <Flame
-                      size={15}
-                      className="text-[#8B3DFF] transition-transform group-hover:scale-110 dark:text-purple-400"
-                    />
-                  ) : (
-                    <Hash
-                      size={15}
-                      className="text-purple-400/60 dark:text-purple-400/40"
-                    />
-                  )}
-                  {exam.name}
-                </Link>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
-
       {/* Featured Exams (live catalog) */}
       <FeaturedExams />
 
       {/* Daily Quiz & Current Affairs Widgets */}
-      <section className="relative px-4 py-12 sm:px-6 lg:px-8">
+      <section className="relative px-4 py-12 sm:px-6 lg:px-8 bg-[#f5f1fb] dark:bg-[#1c0131]">
         <div className="mx-auto max-w-6xl">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
@@ -471,7 +451,7 @@ export default function Home() {
                 const Icon = category.icon;
                 return (
                   <motion.div key={category.id} variants={fadeInUp}>
-                    <div className="group flex h-full cursor-pointer flex-col rounded-2xl border border-purple-100/80 bg-white/70 p-6 shadow-lg shadow-purple-950/5 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-[#8B3DFF]/40 hover:shadow-xl hover:shadow-purple-500/10 dark:border-purple-900/40 dark:bg-[#150E28]/70 dark:hover:border-purple-500/50">
+                    <div className="group flex h-full cursor-pointer flex-col rounded-2xl border border-purple-100/80 bg-white/70 p-6 shadow-lg shadow-purple-950/5 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-[#8B3DFF]/40 hover:shadow-xl hover:shadow-purple-500/10 dark:border-purple-900/40 dark:bg-[#0a1022]/70 dark:hover:border-purple-500/50">
                       <div className="flex items-start gap-4">
                         <div
                           className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl font-bold ${category.color}`}
@@ -521,8 +501,9 @@ export default function Home() {
       </section>
 
       {/* Social Proof & Platform Stats Block */}
-      <section className="relative px-4 py-16 sm:px-6 lg:px-8">
+      <section className="relative overflow-hidden px-4 py-16 sm:px-6 lg:px-8 bg-[#f5f1fb] dark:bg-[#0F0A1C]">
         <div className="mx-auto max-w-6xl">
+          {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -542,53 +523,80 @@ export default function Home() {
             </p>
           </motion.div>
 
-          <motion.div
-            variants={staggerContainer}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, margin: '-80px' }}
-            className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4"
-          >
-            {platformStats.map((stat) => {
-              const Icon = stat.icon;
-              return (
-                <motion.div key={stat.label} variants={fadeInUp}>
-                  <div className="group rounded-2xl border border-purple-100/80 bg-white/70 p-6 text-center shadow-lg shadow-purple-950/5 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-[#8B3DFF]/30 dark:border-purple-900/40 dark:bg-[#150E28]/70">
-                    <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#F3E8FF] transition-colors group-hover:bg-[#E9D5FF] dark:bg-purple-950/80 dark:group-hover:bg-purple-900/80">
-                      <Icon size={26} className={stat.color} />
-                    </div>
-                    <p className="mt-4 text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">
-                      {stat.value}
-                    </p>
-                    <p className="mt-1 text-sm font-semibold text-gray-500 dark:text-purple-300/70">
-                      {stat.label}
+          {/* Left Image & Right Cards Container */}
+          <div className="mt-12 grid items-center gap-10 lg:grid-cols-12">
+            {/* Left Side: Image Container */}
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: '-50px' }}
+              transition={{ duration: 0.6 }}
+              className="lg:col-span-5"
+            >
+              <div className="relative overflow-hidden rounded-3xl border border-purple-100/80 bg-gradient-to-br from-purple-500/10 to-indigo-500/10 p-2 shadow-xl shadow-purple-950/5 backdrop-blur-md dark:border-purple-900/40 dark:bg-[#150E28]/70">
+                <div className="relative h-[380px] w-full overflow-hidden rounded-2xl bg-purple-100 dark:bg-purple-950/40 sm:h-[420px]">
+                  {/* আপনার ইমেজ URL এখানে ব্যবহার করুন */}
+                  <img
+                    src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=1200&auto=format&fit=crop"
+                    alt="Students learning together"
+                    className="h-full w-full object-cover object-center transition-transform duration-700 hover:scale-105"
+                  />
+
+                  {/* Gradient Overlay for Aesthetics */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#150E28]/60 via-transparent to-transparent opacity-80" />
+
+                  {/* Floating Real-time Badge */}
+                  <div className="absolute bottom-4 left-4 right-4 flex items-center justify-center gap-2 rounded-xl bg-white/80 p-3 shadow-lg backdrop-blur-md dark:bg-[#150E28]/80 dark:border dark:border-purple-500/30">
+                    <BarChart3
+                      size={18}
+                      className="text-[#8B3DFF] dark:text-purple-400"
+                    />
+                    <p className="text-xs font-semibold text-gray-700 dark:text-purple-200">
+                      Data updated in real-time
                     </p>
                   </div>
-                </motion.div>
-              );
-            })}
-          </motion.div>
+                </div>
+              </div>
+            </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="mt-10 text-center"
-          >
-            <BarChart3
-              size={20}
-              className="mx-auto mb-2 text-[#8B3DFF]/60 dark:text-purple-400/60"
-            />
-            <p className="text-sm font-medium text-gray-500 dark:text-purple-300/70">
-              Data updated in real-time across all platforms
-            </p>
-          </motion.div>
+            {/* Right Side: Stats Cards Grid (2x2 Grid) */}
+            <motion.div
+              variants={staggerContainer}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, margin: '-80px' }}
+              className="grid gap-5 sm:grid-cols-2 lg:col-span-7"
+            >
+              {platformStats.map((stat) => {
+                const Icon = stat.icon;
+                return (
+                  <motion.div key={stat.label} variants={fadeInUp}>
+                    <div className="group flex flex-col items-center rounded-2xl border border-purple-100/80 bg-white/70 p-6 text-center shadow-lg shadow-purple-950/5 backdrop-blur-md transition-all duration-300 hover:-translate-y-1.5 hover:border-[#8B3DFF]/40 hover:shadow-xl hover:shadow-purple-500/10 dark:border-purple-900/40 dark:bg-[#150E28]/70">
+                      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#F3E8FF] transition-transform duration-300 group-hover:scale-110 dark:bg-purple-950/80">
+                        <Icon size={26} className={stat.color} />
+                      </div>
+                      <p className="mt-4 text-3xl font-black tracking-tight text-gray-900 dark:text-white">
+                        {stat.value}
+                      </p>
+                      <p className="mt-1 text-sm font-semibold text-gray-500 dark:text-purple-300/70">
+                        {stat.label}
+                      </p>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </motion.div>
+          </div>
         </div>
       </section>
-
+      <section>
+        <AboutFeatureSection></AboutFeatureSection>
+      </section>
+      <section>
+        <TestimonialsSection></TestimonialsSection>
+      </section>
       {/* Value Propositions */}
-      <section className="relative px-4 py-16 sm:px-6 lg:px-8">
+      <section className="relative px-4 py-16 sm:px-6 lg:px-8 bg-[#f5f1fb] dark:bg-[#0f0a1c]">
         <div className="mx-auto max-w-6xl">
           <div className="text-center">
             <h2 className="text-3xl font-bold font-heading text-gray-900 dark:text-white sm:text-4xl">

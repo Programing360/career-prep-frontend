@@ -242,12 +242,12 @@ export default function AnalyticsPage() {
                   className={cn(
                     'absolute inset-y-0 left-0 rounded-full transition-all duration-700',
                     subject.accuracy >= 75
-                      ? 'bg-accent-500'
+                      ? 'bg-accent-800'
                       : subject.accuracy >= 55
                         ? 'bg-primary-500'
                         : subject.accuracy >= 40
                           ? 'bg-primary-500'
-                          : 'bg-danger-500'
+                          : 'bg-danger-800'
                   )}
                   style={{ width: `${subject.accuracy}%` }}
                 />
@@ -410,7 +410,7 @@ function MetricCard({
 
 function StrengthsCard({ topics }: { topics: TopicScore[] }) {
   return (
-    <div className="rounded-xl border border-accent-200 bg-accent-50/30 p-5 dark:border-accent-800 dark:bg-accent-950/30">
+    <div className="rounded-xl border border-accent-200 bg-accent-50/30 p-5 dark:border-accent-800 dark:bg-accent-950/70">
       <div className="flex items-center gap-2">
         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent-100 dark:bg-accent-900">
           <TrendingUp
@@ -449,7 +449,7 @@ function StrengthsCard({ topics }: { topics: TopicScore[] }) {
 
 function WeaknessCard({ topics }: { topics: TopicScore[] }) {
   return (
-    <div className="rounded-xl border border-danger-200 bg-danger-50/30 p-5 dark:border-danger-800 dark:bg-danger-950/30">
+    <div className="rounded-xl border border-danger-200 bg-danger-50/30 p-5 dark:border-danger-800 dark:bg-danger-950/80">
       <div className="flex items-center gap-2">
         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-danger-100 dark:bg-danger-900">
           <AlertTriangle

@@ -1,6 +1,6 @@
 ﻿import { useState, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, type Variants } from 'framer-motion';
 import {
   ChevronRight,
   BookOpen,
@@ -113,7 +113,7 @@ const CORE_SUBJECTS: Subject[] = [
 
 const DIFFICULTIES = ['Easy', 'Medium', 'Hard'] as const;
 
-const cardVariants = {
+const cardVariants: Variants = {
   hidden: { opacity: 0, y: 20 },
   show: (i: number) => ({
     opacity: 1,
@@ -122,7 +122,7 @@ const cardVariants = {
   }),
 };
 
-const chipVariants = {
+const chipVariants: Variants = {
   hidden: { opacity: 0, scale: 0.9 },
   show: (i: number) => ({
     opacity: 1,

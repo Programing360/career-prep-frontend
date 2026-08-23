@@ -44,7 +44,7 @@ function MetricCardComponent({ metric }: { metric: MetricCard }) {
   const Icon = metric.icon;
 
   return (
-    <div className="rounded-xl shadow-lg border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] p-6 transition-colors hover:border-primary-200 dark:hover:border-primary-800">
+    <div className="rounded-xl shadow-lg  bg-[#221f4a] p-6 transition-colors hover:border-primary-200 dark:hover:border-primary-800">
       <div className="flex items-start justify-between">
         <div
           className={`flex h-10 w-10 items-center justify-center rounded-lg ${metric.iconBg}`}
@@ -68,9 +68,7 @@ function MetricCardComponent({ metric }: { metric: MetricCard }) {
         <p className="text-2xl font-bold font-heading text-[rgb(var(--color-text-primary))]">
           {metric.value}
         </p>
-        <p className="mt-1 text-sm text-[rgb(var(--color-text-secondary))]">
-          {metric.label}
-        </p>
+        <p className="mt-1 text-sm text-white font-semibold">{metric.label}</p>
       </div>
     </div>
   );
@@ -397,10 +395,10 @@ export default function AdminOverviewPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold font-heading text-[rgb(var(--color-text-primary))]">
+          <h1 className="text-2xl font-bold font-heading text-white">
             Admin Dashboard
           </h1>
-          <p className="mt-1 text-sm text-[rgb(var(--color-text-secondary))]">
+          <p className="mt-1 text-sm text-gray-300">
             {welcome ||
               'Overview of platform performance and student activity.'}
           </p>
@@ -409,7 +407,7 @@ export default function AdminOverviewPage() {
           <Link to={ROUTES.ADMIN_EXAMS_NEW}>
             <Button
               variant="primary"
-              className="bg-gray-400 dark:bg-primary-600 "
+              className="bg-[#18153a] dark:bg-primary-600 dark:hover:bg-[#16133a]"
               leftIcon={<Plus size={16} />}
             >
               Add New Exam
@@ -419,6 +417,7 @@ export default function AdminOverviewPage() {
             variant="outline"
             leftIcon={<Gift size={16} />}
             onClick={() => setGrantModalOpen(true)}
+            className="bg-white dark:hover:text-white"
             disabled={studentOptions.length === 0}
             title={
               studentOptions.length === 0

@@ -371,6 +371,8 @@ function SubjectsTab({ onRequestModal, onRequestDelete }: SubjectsTabProps) {
   const [pages, setPages] = useState(1);
   const [total, setTotal] = useState(0);
 
+  // console.log(subjects);
+
   const load = useCallback(async () => {
     setLoading(true);
     try {
@@ -674,6 +676,13 @@ function ChaptersTab({
   const [pages, setPages] = useState(1);
   const [total, setTotal] = useState(0);
 
+  // console.log(subjectFilter);
+
+  // if(chapters){
+  //   const cap = chapters.filter(sub => sub.subjectId === subjectFilter)
+  //   console.log(cap);
+  // }
+
   const subjectName = (chapter: TaxonomyChapter) =>
     typeof chapter.subjectId === 'object' ? chapter.subjectId.title : '—';
 
@@ -686,6 +695,7 @@ function ChaptersTab({
         page,
         limit: 50,
       });
+      // console.log(res.data.chapters);
       setChapters(res.data.chapters ?? []);
       setTotal(res.data.total);
       setPages(res.data.pages);
@@ -1054,7 +1064,6 @@ function TopicsTab({
   const [pages, setPages] = useState(1);
   const [total, setTotal] = useState(0);
 
-  console.log(chapterOptions);
   const subjectName = (topic: TaxonomyTopic) =>
     typeof topic.subjectId === 'object' ? topic.subjectId.title : '—';
   const chapterName = (topic: TaxonomyTopic) =>
@@ -1098,6 +1107,7 @@ function TopicsTab({
       .then((res) => {
         if (cancelled) return;
         const list = res.data.chapters ?? [];
+        // console.log(res);
         setChapterOptions(list);
         setChapterFilter((prev) =>
           prev && list.some((c) => c._id === prev) ? prev : ''
@@ -1281,6 +1291,8 @@ export default function AdminTaxonomyPage() {
   const [subjects, setSubjects] = useState<TaxonomySubject[]>([]);
   const [subjectsLoading, setSubjectsLoading] = useState(true);
 
+  // console.log();
+
   const [subjectModal, setSubjectModal] = useState<{
     open: boolean;
     subject: TaxonomySubject | null;
@@ -1353,10 +1365,10 @@ export default function AdminTaxonomyPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold font-heading text-[rgb(var(--color-text-primary))]">
+          <h1 className="text-2xl font-bold font-heading text-white">
             Syllabus Taxonomy
           </h1>
-          <p className="mt-1 text-sm text-[rgb(var(--color-text-muted))]">
+          <p className="mt-1 text-sm text-gray-400">
             Manage subjects, chapters, and topics that power exam syllabi and
             the question bank.
           </p>
@@ -1364,6 +1376,7 @@ export default function AdminTaxonomyPage() {
         <Button
           variant="outline"
           leftIcon={<RefreshCw size={16} />}
+          className="bg-white"
           onClick={refresh}
         >
           Refresh
@@ -1378,8 +1391,8 @@ export default function AdminTaxonomyPage() {
             className={cn(
               'flex flex-1 items-center justify-center md:gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors ',
               tab === key
-                ? 'bg-primary-50 text-primary-700 dark:bg-primary-950 dark:text-primary-300'
-                : 'text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-surface-elevated))]'
+                ? 'bg-[#7253aa] text-white dark:bg-primary-950 dark:text-primary-300'
+                : 'text-[rgb(var(--color-text-secondary))] hover:bg-[#885cda] hover:text-white  '
             )}
           >
             <Icon size={16} />

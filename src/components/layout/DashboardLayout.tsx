@@ -60,7 +60,7 @@ function SidebarInner({ collapsed, onNavigate }: SidebarInnerProps) {
         >
           <GraduationCap size={24} className="shrink-0 text-primary-500" />
           {!collapsed && (
-            <span className="text-lg font-bold font-heading text-[rgb(var(--color-text-primary))]">
+            <span className="text-lg font-bold font-heading text-white">
               MeritPrep
             </span>
           )}
@@ -77,10 +77,10 @@ function SidebarInner({ collapsed, onNavigate }: SidebarInnerProps) {
               to={link.to}
               onClick={onNavigate}
               className={cn(
-                'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+                'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors',
                 active
-                  ? 'bg-primary-50 text-primary-600 dark:bg-primary-950 dark:text-primary-400'
-                  : 'text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-surface-elevated))] hover:text-[rgb(var(--color-text-primary))]'
+                  ? 'bg-primary-50 text-primary-600 dark:bg-white dark:text-primary-700'
+                  : 'text-white hover:bg-[#ffffff] hover:text-black'
               )}
               title={collapsed ? link.label : undefined}
             >
@@ -91,13 +91,13 @@ function SidebarInner({ collapsed, onNavigate }: SidebarInnerProps) {
         })}
       </nav>
 
-      <div className="border-t border-[rgb(var(--color-border))] p-3">
+      <div className="border-t border- p-3">
         <button
           onClick={() => {
             logout();
             onNavigate();
           }}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-[rgb(var(--color-text-secondary))] transition-colors hover:bg-danger-50 hover:text-danger-600 dark:hover:bg-danger-950"
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-white transition-colors hover:bg-danger-50 hover:text-danger-600"
           title={collapsed ? 'Logout' : undefined}
         >
           <LogOut size={20} className="shrink-0" />
@@ -122,7 +122,7 @@ function SidebarWrapper({
   return (
     <aside
       className={cn(
-        'flex flex-col border-r border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] transition-all duration-300',
+        'flex flex-col border-r border-[#221f4a] bg-[#221f4a] transition-all duration-300',
         collapsed ? 'w-[68px]' : 'w-64',
         className
       )}
@@ -194,7 +194,7 @@ export function DashboardLayout({ children }: { children?: ReactNode }) {
       )}
 
       <div className="flex flex-1 flex-col overflow-hidden">
-        <header className="flex h-16 items-center justify-between border-b border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] px-4 sm:px-6">
+        <header className="flex h-16 items-center justify-between border-b border-[rgb(var(--color-border))] bg-[#221f4a] px-4 sm:px-6">
           <button
             onClick={() => setMobileOpen(true)}
             className="rounded-md p-2 text-[rgb(var(--color-text-secondary))] lg:hidden"
@@ -210,7 +210,7 @@ export function DashboardLayout({ children }: { children?: ReactNode }) {
               {admin && (
                 <button
                   onClick={() => navigate(ROUTES.ADMIN_DASHBOARD)}
-                  className="hidden items-center gap-2 rounded-lg border border-[rgb(var(--color-border))] px-3 py-1.5 text-sm font-medium text-[rgb(var(--color-text-secondary))] transition-colors hover:bg-[rgb(var(--color-surface-elevated))] hover:text-[rgb(var(--color-text-primary))] sm:flex"
+                  className="hidden items-center gap-2 rounded-lg shadow-lg bg-[#5c66ab] text-white px-3 py-1.5 text-sm font-medium text-[rgb(var(--color-text-secondary))] transition-colors hover:bg-[rgb(var(--color-surface-elevated))] hover:text-[rgb(var(--color-text-primary))] sm:flex"
                 >
                   <Eye size={16} />
                   Switch to Admin Dashboard
@@ -233,10 +233,10 @@ export function DashboardLayout({ children }: { children?: ReactNode }) {
                 {user?.name?.charAt(0)?.toUpperCase() || 'U'}
               </div>
               <div className="hidden text-left sm:block">
-                <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
+                <p className="text-sm font-medium text-white">
                   {user?.name || 'User'}
                 </p>
-                <p className="text-xs text-[rgb(var(--color-text-muted))]">
+                <p className="text-xs text-white">
                   {user?.email || 'user@example.com'}
                 </p>
               </div>
@@ -244,7 +244,7 @@ export function DashboardLayout({ children }: { children?: ReactNode }) {
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 dark:bg-[#141131]">
           {children ?? <Outlet />}
         </main>
       </div>

@@ -41,7 +41,7 @@ export function MissedStudyRecovery() {
   const plan = mockRecoveryPlan;
 
   return (
-    <div className="relative overflow-hidden rounded-xl border-2 border-dashed border-primary-300 bg-gradient-to-br from-primary-50/80 to-primary-50/50 p-5 dark:border-primary-700 dark:from-primary-950/50 dark:to-primary-950/30 shadow-lg">
+    <div className="relative overflow-hidden rounded-xl border-2 border-solid border-primary-300 bg-gradient-to-br from-primary-50/80 to-primary-50/50 p-5 dark:border-primary-400 dark:from-[#1c1a41] dark:to-primary-950/30 shadow-lg">
       <button
         onClick={() => setDismissed(true)}
         className="absolute right-3 top-3 rounded-md p-1 text-[rgb(var(--color-text-muted))] hover:bg-[rgb(var(--color-surface-elevated))] hover:text-[rgb(var(--color-text-primary))]"
