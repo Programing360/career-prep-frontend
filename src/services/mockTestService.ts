@@ -1,3 +1,4 @@
+import { API_ENDPOINTS } from '@/constants/apiEndpoints';
 import api from '@/lib/axios';
 import type {
   ApiResponse,
@@ -103,11 +104,12 @@ export async function startMockTest(
   testType: TestType
 ): Promise<MockTestStartResponse> {
   const payload: MockTestStartRequest = { testType };
+  // console.log(payload, testType);
   const { data } = await api.post<ApiResponse<MockTestStartResponse>>(
-    `/mock-tests/${examSlug}/start`,
+    API_ENDPOINTS.MOCK_TEST.START(examSlug),
     payload
   );
-
+  // console.log(data);
   writePersisted({
     session: data.data.session,
     questions: data.data.questions,
@@ -139,6 +141,7 @@ export async function submitMockTest(
   answers: UserAnswer[]
 ): Promise<MockTestResult> {
   const payload: MockTestSubmitRequest = { answers };
+  console.log(payload, answers);
   const { data } = await api.post<ApiResponse<MockTestResult>>(
     `/mock-tests/session/${sessionId}/submit`,
     payload
@@ -159,5 +162,6 @@ export async function getMockTestSession(
   const { data } = await api.get<ApiResponse<MockTestSessionDetail>>(
     `/mock-tests/session/${sessionId}`
   );
+  console.log(data);
   return data.data;
 }

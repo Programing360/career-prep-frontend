@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -13,6 +13,8 @@ import {
   Trash2,
   Building2,
   ListChecks,
+  ImagePlus,
+  UploadCloud,
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -23,8 +25,14 @@ import { cn } from '@/lib/utils';
 import { ROUTES } from '@/constants/routes';
 import { useToast } from '@/hooks/useToast';
 import { createExam, type CreateExamPayload } from '@/services/adminService';
-import { getSubjects } from '@/services/taxonomyService';
+import { getSubjects, type TaxonomySubject } from '@/services/taxonomyService';
 import { isApiError, type ApiError } from '@/lib/axios';
+import { ProgressBar } from '@/components/ui/ProgressBar';
+import { useCloudinaryUpload } from '@/hooks/useCloudinaryUpload';
+import {
+  ACCEPTED_IMAGE_TYPES,
+  MAX_IMAGE_SIZE_BYTES,
+} from '@/services/cloudinaryService';
 
 interface SelectionStageDraft {
   stageNumber: number;
@@ -63,6 +71,7 @@ interface ExamDetails {
   targetSubjects: string[];
   sourceUrl: string;
   officialNotificationUrl: string;
+  imageUrl: string;
 }
 
 type StepId = 1 | 2;
@@ -128,6 +137,50 @@ const negativeMarkingOptions = [
   { label: 'Yes', value: 'yes' },
 ];
 
+const DOMICILE_ALIAS_MAP: Record<string, string> = {
+  federal: 'Federal',
+  punjab: 'Punjab',
+  kpk: 'KPK',
+  kp: 'KPK',
+  'khyber pakhtunkhwa': 'KPK',
+  'khyber pakhtunkhwa (kpk)': 'KPK',
+  sindh: 'Sindh',
+  balochistan: 'Balochistan',
+  baluchistan: 'Balochistan',
+  ajk: 'AJK',
+  'azad jammu and kashmir': 'AJK',
+  'azad kashmir': 'AJK',
+  'gilgit-baltistan': 'Gilgit-Baltistan',
+  'gilgit baltistan': 'Gilgit-Baltistan',
+  gb: 'Gilgit-Baltistan',
+  nationwide: 'Nationwide',
+  all: 'Nationwide',
+  pakistan: 'Nationwide',
+};
+
+function normalizeDomicile(raw: string): string {
+  const clean = raw.trim();
+  const lower = clean.toLowerCase();
+  if (DOMICILE_ALIAS_MAP[lower]) {
+    return DOMICILE_ALIAS_MAP[lower];
+  }
+  return clean.charAt(0).toUpperCase() + clean.slice(1);
+}
+
+function extractFieldName(path: (string | number)[]): string {
+  if (!path || path.length === 0) return '';
+  const cleanPath = path.filter(
+    (p) => p !== 'body' && p !== 'params' && p !== 'query'
+  );
+  for (let i = cleanPath.length - 1; i >= 0; i--) {
+    const seg = cleanPath[i];
+    if (typeof seg === 'string' && isNaN(Number(seg))) {
+      return seg;
+    }
+  }
+  return String(path[path.length - 1] ?? '');
+}
+
 const defaultDetails: ExamDetails = {
   title: '',
   slug: '',
@@ -158,6 +211,7 @@ const defaultDetails: ExamDetails = {
   targetSubjects: [],
   sourceUrl: '',
   officialNotificationUrl: '',
+  imageUrl: '',
 };
 
 function slugify(value: string): string {
@@ -263,6 +317,132 @@ function SectionHeading({
   );
 }
 
+function ExamImageUpload({
+  imageUrl,
+  uploadProgress,
+  isUploading,
+  uploadError,
+  onFileChange,
+  onRemove,
+}: {
+  imageUrl: string;
+  uploadProgress: number;
+  isUploading: boolean;
+  uploadError: string | null;
+  onFileChange: (file: File) => void;
+  onRemove: () => void;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const openPicker = () => inputRef.current?.click();
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) onFileChange(file);
+    e.target.value = '';
+  };
+
+  return (
+    <div className="space-y-3">
+      <input
+        ref={inputRef}
+        type="file"
+        accept={ACCEPTED_IMAGE_TYPES.join(',')}
+        className="hidden"
+        onChange={handleInputChange}
+      />
+
+      {imageUrl ? (
+        <>
+          <div className="relative overflow-hidden rounded-xl border">
+            <img
+              src={imageUrl}
+              alt="Exam cover preview"
+              className="h-48  rounded-2xl object-cover"
+            />
+            <button
+              type="button"
+              onClick={onRemove}
+              className="absolute md:left-36 top-2 flex h-8 w-8 items-center justify-center rounded-md bg-black/50 text-white transition-colors hover:bg-danger-600"
+              aria-label="Remove image"
+            >
+              <Trash2 size={14} />
+            </button>
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            className="bg-[#20112b] text-white hover:bg-[#3b1f4e] dark:bg-[#3b1f4e] dark:hover:bg-[#20112b]"
+            size="sm"
+            leftIcon={<ImagePlus size={14} />}
+            onClick={openPicker}
+          >
+            Change Image
+          </Button>
+        </>
+      ) : isUploading ? (
+        <ProgressBar
+          value={uploadProgress}
+          showLabel
+          label={
+            <span className="flex items-center gap-2 font-medium text-[rgb(var(--color-text-secondary))]">
+              <UploadCloud size={16} className="text-primary-500" />
+              Uploading...
+            </span>
+          }
+        />
+      ) : uploadError ? (
+        <div
+          className="flex items-center gap-2 rounded-lg border border-danger-300 bg-danger-50 px-3 py-2 text-sm text-danger-700 dark:bg-danger-950/40 dark:text-danger-300"
+          role="alert"
+        >
+          <span className="flex-1">{uploadError}</span>
+          <button
+            type="button"
+            onClick={onRemove}
+            className="text-danger-600 underline-offset-2 hover:underline"
+          >
+            Dismiss
+          </button>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={openPicker}
+          onDragOver={(e) => {
+            e.preventDefault();
+            setIsDragging(true);
+          }}
+          onDragLeave={() => setIsDragging(false)}
+          onDrop={(e) => {
+            e.preventDefault();
+            setIsDragging(false);
+            const file = e.dataTransfer.files?.[0];
+            if (file) onFileChange(file);
+          }}
+          className={cn(
+            'flex w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed px-6 py-10 text-center transition-colors',
+            isDragging
+              ? 'border-primary-500 bg-primary-50 dark:bg-primary-950/40'
+              : 'border-[rgb(var(--color-border))] hover:border-primary-400 hover:bg-[rgb(var(--color-surface-elevated))]'
+          )}
+        >
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary-50 dark:bg-primary-950">
+            <ImagePlus size={20} className="text-primary-500" />
+          </div>
+          <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
+            Click to upload or drag &amp; drop
+          </p>
+          <p className="text-xs text-[rgb(var(--color-text-muted))]">
+            JPG, PNG or WEBP · Max {MAX_IMAGE_SIZE_BYTES / (1024 * 1024)}MB
+          </p>
+        </button>
+      )}
+    </div>
+  );
+}
+
 function BasicDetailsStep({
   details,
   onChange,
@@ -272,6 +452,12 @@ function BasicDetailsStep({
   onAddStage,
   onRemoveStage,
   onStageChange,
+  imageUrl,
+  uploadProgress,
+  isUploading,
+  uploadError,
+  onFileChange,
+  onRemoveImage,
 }: {
   details: ExamDetails;
   onChange: (field: keyof ExamDetails, value: string) => void;
@@ -285,6 +471,12 @@ function BasicDetailsStep({
     field: keyof SelectionStageDraft,
     value: string | boolean
   ) => void;
+  imageUrl: string;
+  uploadProgress: number;
+  isUploading: boolean;
+  uploadError: string | null;
+  onFileChange: (file: File) => void;
+  onRemoveImage: () => void;
 }) {
   return (
     <div className="space-y-8">
@@ -294,6 +486,23 @@ function BasicDetailsStep({
           title="Core Profile"
           description="Identity, authority, and classification of the exam."
         />
+        <div className="space-y-4">
+          <div className="flex items-center gap-3">
+            <SectionHeading
+              icon={ImagePlus}
+              title="Exam Cover Image"
+              description="Optional cover image shown on the exam card in the directory."
+            />
+          </div>
+          <ExamImageUpload
+            imageUrl={imageUrl}
+            uploadProgress={uploadProgress}
+            isUploading={isUploading}
+            uploadError={uploadError}
+            onFileChange={onFileChange}
+            onRemove={onRemoveImage}
+          />
+        </div>
         <Input
           label="Exam Title"
           required
@@ -725,9 +934,11 @@ function ReviewRow({ label, value }: { label: string; value: string }) {
 function ReviewPublishStep({
   details,
   subjectOptions,
+  imageUrl,
 }: {
   details: ExamDetails;
   subjectOptions: { label: string; value: string }[];
+  imageUrl: string;
 }) {
   const categoryLabel =
     categoryOptions.find((o) => o.value === details.category)?.label ??
@@ -746,9 +957,9 @@ function ReviewPublishStep({
     .filter(Boolean);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 fontStyle">
       <div>
-        <h3 className="text-lg font-semibold font-heading text-[rgb(var(--color-text-primary))]">
+        <h3 className="text-lg  font-heading text-[rgb(var(--color-text-primary))]">
           Review & Publish
         </h3>
         <p className="mt-1 text-sm text-[rgb(var(--color-text-muted))]">
@@ -762,6 +973,15 @@ function ReviewPublishStep({
           <Building2 size={16} className="text-primary-500" />
           Core Profile
         </h4>
+        {imageUrl && (
+          <div className="mb-4">
+            <img
+              src={imageUrl}
+              alt="Exam cover preview"
+              className="h-40 rounded-lg object-cover"
+            />
+          </div>
+        )}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <ReviewRow label="Title" value={details.title} />
           <ReviewRow label="Slug" value={details.slug} />
@@ -983,6 +1203,13 @@ export default function CreateExamPage() {
   const [details, setDetails] = useState<ExamDetails>(defaultDetails);
   const [detailErrors, setDetailErrors] = useState<Record<string, string>>({});
   const [publishing, setPublishing] = useState(false);
+  const {
+    uploadProgress,
+    isUploading,
+    error: uploadError,
+    uploadImage,
+    reset: resetUpload,
+  } = useCloudinaryUpload();
   const [subjectOptions, setSubjectOptions] = useState<
     { label: string; value: string }[]
   >([]);
@@ -991,10 +1218,15 @@ export default function CreateExamPage() {
     const loadSubjects = async () => {
       try {
         const res = await getSubjects({ limit: 100 });
-        const subjects = res.data.subjects ?? [];
-        setSubjectOptions(
-          subjects.map((s) => ({ label: s.title, value: s._id }))
-        );
+        if (res.data) {
+          const subjects = res.data ?? [];
+          setSubjectOptions(
+            subjects.map((s: TaxonomySubject) => ({
+              label: s.title,
+              value: s._id,
+            }))
+          );
+        }
       } catch {
         // Subjects are optional for manual exam creation; ignore failures.
       }
@@ -1066,6 +1298,23 @@ export default function CreateExamPage() {
     []
   );
 
+  const handleImageFile = useCallback(
+    async (file: File) => {
+      setDetailErrors((prev) => ({ ...prev, imageUrl: '' }));
+      const secureUrl = await uploadImage(file);
+      if (secureUrl) {
+        setDetails((prev) => ({ ...prev, imageUrl: secureUrl }));
+      }
+    },
+    [uploadImage]
+  );
+
+  const handleRemoveImage = useCallback(() => {
+    setDetails((prev) => ({ ...prev, imageUrl: '' }));
+    resetUpload();
+    setDetailErrors((prev) => ({ ...prev, imageUrl: '' }));
+  }, [resetUpload]);
+
   const validateStep1 = (): boolean => {
     const errs: Record<string, string> = {};
 
@@ -1099,8 +1348,32 @@ export default function CreateExamPage() {
     if (!details.qualificationRequired.trim())
       errs.qualificationRequired = 'Enter the required qualification.';
     if (!details.allowedGender) errs.allowedGender = 'Select allowed gender.';
-    if (!details.eligibleDomiciles.trim())
+    if (!details.eligibleDomiciles.trim()) {
       errs.eligibleDomiciles = 'Enter at least one eligible domicile.';
+    } else {
+      const parsed = details.eligibleDomiciles
+        .split(',')
+        .map((d) => normalizeDomicile(d))
+        .filter(Boolean);
+      const validOptions = [
+        'Federal',
+        'Punjab',
+        'KPK',
+        'Sindh',
+        'Balochistan',
+        'AJK',
+        'Gilgit-Baltistan',
+        'Nationwide',
+      ];
+      const invalidItems = parsed.filter(
+        (item) => !validOptions.includes(item)
+      );
+      if (invalidItems.length > 0) {
+        errs.eligibleDomiciles = `Invalid domicile "${invalidItems.join(
+          ', '
+        )}". Allowed: ${validOptions.join(', ')}`;
+      }
+    }
 
     const totalMarks = Number(details.totalMarks);
     if (!details.totalMarks || !Number.isInteger(totalMarks) || totalMarks <= 0)
@@ -1195,7 +1468,7 @@ export default function CreateExamPage() {
           details.allowedGender as CreateExamPayload['eligibility']['allowedGender'],
         eligibleDomiciles: details.eligibleDomiciles
           .split(',')
-          .map((d) => d.trim())
+          .map((d) => normalizeDomicile(d))
           .filter(Boolean),
       },
       examPattern: {
@@ -1248,12 +1521,16 @@ export default function CreateExamPage() {
     if (details.sourceUrl.trim()) payload.sourceUrl = details.sourceUrl.trim();
     if (details.officialNotificationUrl.trim())
       payload.officialNotificationUrl = details.officialNotificationUrl.trim();
+    if (details.imageUrl.trim()) payload.imageUrl = details.imageUrl.trim();
 
     setPublishing(true);
     try {
       const res = await createExam(payload);
-      console.log(res);
-      showToast('Exam created and published to catalog.', 'success');
+      if (res) {
+        showToast('Exam created successfully. Now add MCQs.', 'success');
+        navigate(`/admin/exams/${details.slug}/mcq`);
+        return;
+      }
       navigate(ROUTES.ADMIN_EXAMS);
     } catch (err) {
       const apiErr = err as ApiError;
@@ -1261,16 +1538,16 @@ export default function CreateExamPage() {
         const fieldErrors: Record<string, string> = {};
         const messages: string[] = [];
         for (const fe of apiErr.errors) {
-          const fieldName = String(fe.path[fe.path.length - 1] ?? fe.field);
+          const fieldName = extractFieldName(fe.path) || fe.field || 'title';
           fieldErrors[fieldName] = fe.message;
-          messages.push(fe.message);
+          messages.push(`${fieldName}: ${fe.message}`);
         }
         setDetailErrors(fieldErrors);
         setCurrentStep(1);
         showToast(
-          `Submission rejected (${messages.length} field${
+          `Validation error: Please check the highlighted field${
             messages.length === 1 ? '' : 's'
-          }): ${messages.join(' • ')}`,
+          }.`,
           'error'
         );
       } else {
@@ -1294,7 +1571,7 @@ export default function CreateExamPage() {
           <ArrowLeft size={16} />
         </button>
         <div className="flex-1">
-          <h1 className="text-2xl font-bold font-heading text-white">
+          <h1 className="text-2xl font-bold font-heading dark:text-white">
             Create New Exam
           </h1>
           <p className="mt-1 text-sm text-gray-400">
@@ -1321,12 +1598,19 @@ export default function CreateExamPage() {
             onAddStage={handleAddStage}
             onRemoveStage={handleRemoveStage}
             onStageChange={handleStageChange}
+            imageUrl={details.imageUrl}
+            uploadProgress={uploadProgress}
+            isUploading={isUploading}
+            uploadError={uploadError}
+            onFileChange={(file) => void handleImageFile(file)}
+            onRemoveImage={handleRemoveImage}
           />
         )}
         {currentStep === 2 && (
           <ReviewPublishStep
             details={details}
             subjectOptions={subjectOptions}
+            imageUrl={details.imageUrl}
           />
         )}
       </div>

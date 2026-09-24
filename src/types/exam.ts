@@ -1,3 +1,12 @@
+import type { MCQQuestion } from './mcq';
+
+/**
+ * Canonical MCQ schema. Previously this file declared a conflicting local
+ * `MCQ` interface; it now reuses the shared type from `./mcq` so every module
+ * (practice, exam-attempt, mock-test) speaks the same vocabulary.
+ */
+export type MCQ = MCQQuestion;
+
 export interface Exam {
   id: string;
   title: string;
@@ -56,17 +65,6 @@ export interface ExamAttempt {
   status: 'in_progress' | 'completed' | 'abandoned';
 }
 
-export interface MCQ {
-  id: string;
-  examId: string;
-  subjectId: string;
-  question: string;
-  options: string[];
-  correctAnswer: number;
-  explanation?: string;
-  difficulty: 'easy' | 'medium' | 'hard';
-}
-
 // ==========================================
 // EXAM DIRECTORY CONTRACT
 // Mirrors the backend IExam schema (careerprep-backend/src/modules/exam/exam.interface.ts)
@@ -92,7 +90,13 @@ export type ConductingAuthority =
   | 'OTHER';
 
 export type JurisdictionCategory =
-  'federal' | 'provincial' | 'armed_forces' | 'testing_service';
+  | 'federal'
+  | 'provincial'
+  | 'armed_forces'
+  | 'armed-forces'
+  | 'banking'
+  | 'testing_service'
+  | 'others';
 
 export type Province =
   | 'Federal'
@@ -149,11 +153,72 @@ export interface DirectorySubjectRef {
   icon?: string;
 }
 
+// ==========================================
+// ADMIN EXAM CREATION & MCQ MANAGEMENT
+// ==========================================
+
+export interface AdminMCQOption {
+  optionId: string; // e.g., "A", "B", "C", "D"
+  optionText: string;
+  isCorrect: boolean;
+}
+
+export interface AdminQuestion {
+  questionId: string;
+  questionText: string;
+  explanation?: string;
+  marks: number;
+  subjectTag?: string;
+  options: AdminMCQOption[];
+}
+
+export interface AdminSelectionStageDraft {
+  stageNumber: number;
+  title: string;
+  description: string;
+  isEliminationStage: boolean;
+}
+
+export interface AdminExamDetails {
+  title: string;
+  slug: string;
+  conductingAuthority: string;
+  category: string;
+  province: string;
+  bpsScale: string;
+  departmentName: string;
+  advertisementNumber: string;
+  applicationStartDate: string;
+  applicationDeadline: string;
+  expectedExamDate: string;
+  minAge: string;
+  maxAge: string;
+  ageRelaxationYears: string;
+  qualificationRequired: string;
+  minimumGradeOrCgpa: string;
+  allowedGender: string;
+  eligibleDomiciles: string;
+  totalMarks: string;
+  durationMinutes: string;
+  negativeMarking: string;
+  negativeMarkingValue: string;
+  passingPercentage: string;
+  format: string;
+  selectionProcess: AdminSelectionStageDraft[];
+  categoryRef: string;
+  targetSubjects: string[];
+  sourceUrl: string;
+  officialNotificationUrl: string;
+  imageUrl: string;
+  questions?: AdminQuestion[];
+}
+
 /** Single exam profile as returned by the Exam Directory API (mirror of IExam) */
 export interface DirectoryExam {
   _id: string;
   title: string;
   slug: string;
+  imageUrl: string;
   conductingAuthority: ConductingAuthority;
   category: JurisdictionCategory;
   province: Province;

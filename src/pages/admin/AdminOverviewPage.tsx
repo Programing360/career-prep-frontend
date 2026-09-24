@@ -44,7 +44,7 @@ function MetricCardComponent({ metric }: { metric: MetricCard }) {
   const Icon = metric.icon;
 
   return (
-    <div className="rounded-xl shadow-lg  bg-[#221f4a] p-6 transition-colors hover:border-primary-200 dark:hover:border-primary-800">
+    <div className="rounded-xl shadow-lg  dark:bg-[#221f4a] p-6  hover:border-primary-200 dark:hover:border-primary-800 border-t-4 border-indigo-400 transition-all duration-500">
       <div className="flex items-start justify-between">
         <div
           className={`flex h-10 w-10 items-center justify-center rounded-lg ${metric.iconBg}`}
@@ -65,10 +65,12 @@ function MetricCardComponent({ metric }: { metric: MetricCard }) {
       </div>
 
       <div className="mt-4">
-        <p className="text-2xl font-bold font-heading text-[rgb(var(--color-text-primary))]">
+        <p className="text-2xl font-bold font-heading dark:text-white">
           {metric.value}
         </p>
-        <p className="mt-1 text-sm text-white font-semibold">{metric.label}</p>
+        <p className="mt-1 text-sm dark:text-white font-semibold">
+          {metric.label}
+        </p>
       </div>
     </div>
   );
@@ -243,8 +245,8 @@ function GrantBonusModal({
 export default function AdminOverviewPage() {
   const { showToast } = useToast();
 
-  const [welcome, setWelcome] = useState('');
   const [users, setUsers] = useState<AdminUser[]>([]);
+  const [welcome, setWelcome] = useState('');
   const [totalUsers, setTotalUsers] = useState(0);
   const [pendingVerifications, setPendingVerifications] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -395,10 +397,10 @@ export default function AdminOverviewPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold font-heading text-white">
+          <h1 className="text-2xl font-bold font-heading dark:text-white">
             Admin Dashboard
           </h1>
-          <p className="mt-1 text-sm text-gray-300">
+          <p className="mt-1 text-sm dark:text-gray-300 text-gray-600">
             {welcome ||
               'Overview of platform performance and student activity.'}
           </p>
@@ -456,7 +458,7 @@ export default function AdminOverviewPage() {
         </div>
       )}
 
-      <div className="rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))]">
+      <div className="rounded-xl shadow-xl bg-white dark:bg-[#221f4a]">
         <div className="flex items-center justify-between border-b border-[rgb(var(--color-border))] px-6 py-4">
           <div className="flex items-center gap-2">
             <Clock size={18} className="text-primary-500" />

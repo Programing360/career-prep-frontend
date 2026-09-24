@@ -1,7 +1,6 @@
 import { motion, type Variants } from 'framer-motion';
 import { Map, Clock, CheckCircle2, Circle, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { roadmapPhases } from '@/components/exams/examDetailData';
 import type { ExamData, RoadmapPhase } from '@/components/exams/examDetailData';
 
 const fadeInUp: Variants = {
@@ -49,7 +48,7 @@ export function RoadmapTab({
   title?: string;
   strategySummary?: string;
 }) {
-  const resolvedPhases = phases && phases.length > 0 ? phases : roadmapPhases;
+  const resolvedPhases = phases ?? [];
 
   return (
     <motion.div variants={stagger} initial="hidden" animate="show">
@@ -76,73 +75,89 @@ export function RoadmapTab({
         </motion.p>
       )}
 
-      <div className="space-y-4">
-        {resolvedPhases.map((phase) => {
-          const config = statusConfig[phase.status];
-          const StatusIcon = config.icon;
+      {resolvedPhases.length === 0 ? (
+        <motion.div
+          variants={fadeInUp}
+          className="mb-6 rounded-xl border border-dashed border-gray-300 bg-white/50 p-8 text-center dark:border-gray-700 dark:bg-gray-900/50"
+        >
+          <Map size={28} className="mx-auto text-gray-300 dark:text-gray-600" />
+          <h4 className="mt-3 text-sm font-semibold text-gray-900 dark:text-white">
+            No roadmap published yet
+          </h4>
+          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            We're still preparing the study plan for {exam.title}. Check back
+            soon.
+          </p>
+        </motion.div>
+      ) : (
+        <div className="space-y-4">
+          {resolvedPhases.map((phase) => {
+            const config = statusConfig[phase.status];
+            const StatusIcon = config.icon;
 
-          return (
-            <motion.div
-              key={phase.id}
-              variants={fadeInUp}
-              className={cn(
-                'rounded-xl border bg-white/70 p-5 backdrop-blur-md transition-all hover:shadow-md dark:bg-gray-900/70',
-                config.border
-              )}
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                  <div
+            return (
+              <motion.div
+                key={phase.id}
+                variants={fadeInUp}
+                className={cn(
+                  'rounded-xl border bg-white/70 p-5 backdrop-blur-md transition-all hover:shadow-md dark:bg-gray-900/70',
+                  config.border
+                )}
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={cn(
+                        'flex h-10 w-10 shrink-0 items-center justify-center rounded-lg',
+                        config.bg
+                      )}
+                    >
+                      <StatusIcon size={18} className={config.color} />
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                        {phase.phase}
+                      </p>
+                      <h4 className="text-sm font-bold text-gray-900 dark:text-white">
+                        {phase.title}
+                      </h4>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
+                    <Clock size={12} />
+                    {phase.duration}
+                  </div>
+                </div>
+
+                {phase.topics.length > 0 && (
+                  <div className="mt-3 flex flex-wrap gap-1.5">
+                    {phase.topics.map((topic) => (
+                      <span
+                        key={topic}
+                        className="rounded-md bg-gray-100 px-2 py-0.5 text-[11px] font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-400"
+                      >
+                        {topic}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                <div className="mt-3 flex items-center gap-1.5">
+                  <span
                     className={cn(
-                      'flex h-10 w-10 shrink-0 items-center justify-center rounded-lg',
-                      config.bg
+                      'rounded-full px-2 py-0.5 text-[10px] font-semibold',
+                      config.bg,
+                      config.color
                     )}
                   >
-                    <StatusIcon size={18} className={config.color} />
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
-                      {phase.phase}
-                    </p>
-                    <h4 className="text-sm font-bold text-gray-900 dark:text-white">
-                      {phase.title}
-                    </h4>
-                  </div>
+                    {config.label}
+                  </span>
                 </div>
-                <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
-                  <Clock size={12} />
-                  {phase.duration}
-                </div>
-              </div>
-
-              {phase.topics.length > 0 && (
-                <div className="mt-3 flex flex-wrap gap-1.5">
-                  {phase.topics.map((topic) => (
-                    <span
-                      key={topic}
-                      className="rounded-md bg-gray-100 px-2 py-0.5 text-[11px] font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-400"
-                    >
-                      {topic}
-                    </span>
-                  ))}
-                </div>
-              )}
-
-              <div className="mt-3 flex items-center gap-1.5">
-                <span
-                  className={cn(
-                    'rounded-full px-2 py-0.5 text-[10px] font-semibold',
-                    config.bg,
-                    config.color
-                  )}
-                >
-                  {config.label}
-                </span>
-              </div>
-            </motion.div>
-          );
-        })}
-      </div>
+              </motion.div>
+            );
+          })}
+        </div>
+      )}
 
       <motion.div
         variants={fadeInUp}

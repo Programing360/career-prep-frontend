@@ -28,27 +28,27 @@ export function QuestionCard({
 }: QuestionCardProps) {
   const isFlagged = Boolean(answer?.isFlagged);
   const hasImageOptions = question.options.some((option) => option.imageUrl);
-
+  console.log(question);
   return (
     <div className="rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] p-5 sm:p-6">
-      <div className="mb-4 flex items-center justify-between gap-3">
+      <div className="mb-4">
         <span className="text-sm font-medium text-[rgb(var(--color-text-muted))]">
           Question {questionNumber} of {totalQuestions}
         </span>
-        <span className="rounded-full bg-primary-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary-700 dark:bg-primary-900 dark:text-primary-300">
-          {question.subjectCategory}
-        </span>
+        <h1 className="rounded-lg mt-2 bg-primary-100 px-2 p-2 font-semibold tracking-wide text-primary-700 dark:bg-primary-900 dark:text-primary-300">
+          {question.text}
+        </h1>
       </div>
 
       <p className="text-[15px] font-medium leading-relaxed text-[rgb(var(--color-text-primary))]">
-        {question.text}
+        {/* {question.question} */}
       </p>
 
       {question.questionImageUrl && (
         <div className="mt-4">
           <NonVerbalImageRenderer
             src={question.questionImageUrl}
-            alt={question.text}
+            alt={question.question}
             caption="Tap to view this diagram full-screen"
           />
         </div>
@@ -58,6 +58,7 @@ export function QuestionCard({
         <div className="mt-5 grid grid-cols-2 gap-3">
           {question.options.map((option, optionIndex) => {
             const isSelected = answer?.selectedOptionId === option.id;
+            console.log(isSelected);
             return (
               <button
                 key={option.id}
@@ -103,7 +104,7 @@ export function QuestionCard({
             const isSelected = answer?.selectedOptionId === option.id;
             return (
               <button
-                key={option.id}
+                key={optionIndex}
                 type="button"
                 disabled={!isActive}
                 onClick={() => onSelect(option.id)}

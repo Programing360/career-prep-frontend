@@ -399,6 +399,7 @@ export default function AdminExamsPage() {
     if (!examToDelete) return;
     const examId = examToDelete._id;
     setDeletingId(examId);
+
     try {
       await deleteExam(examId);
       setQueue((prev) => prev.filter((e) => e._id !== examId));
@@ -589,7 +590,7 @@ export default function AdminExamsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold font-heading text-white">
+        <h1 className="text-2xl font-bold font-heading dark:text-white">
           Exam Management
         </h1>
         <p className="mt-1 text-sm text-gray-400">
@@ -597,7 +598,7 @@ export default function AdminExamsPage() {
         </p>
       </div>
 
-      <div className="inline-flex rounded-lg border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] p-1">
+      <div className="inline-flex rounded-lg shadow-sm border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] p-1">
         <button
           type="button"
           onClick={() => setActiveTab('all')}
@@ -615,7 +616,7 @@ export default function AdminExamsPage() {
               'rounded-full px-1.5 py-0.5 text-xs font-semibold',
               activeTab === 'all'
                 ? 'bg-white/20 text-white'
-                : 'bg-[rgb(var(--color-surface-elevated))] text-[rgb(var(--color-text-muted))]'
+                : 'bg-[rgb(var(--color-surface-elevated))] '
             )}
           >
             {totalExams}
@@ -638,7 +639,7 @@ export default function AdminExamsPage() {
               'rounded-full px-1.5 py-0.5 text-xs font-semibold',
               activeTab === 'pending'
                 ? 'bg-white/20 text-white'
-                : 'bg-[rgb(var(--color-surface-elevated))] text-[rgb(var(--color-text-muted))]'
+                : 'bg-[rgb(var(--color-surface-elevated))] '
             )}
           >
             {totalQueue}
@@ -676,7 +677,7 @@ export default function AdminExamsPage() {
             }
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="h-10 w-full rounded-md border border-[rgb(var(--color-border))] bg-transparent pl-9 pr-3 text-sm text-[rgb(var(--color-text-primary))] placeholder:text-secondary-400 transition-colors hover:border-[rgb(var(--color-border-hover))] focus-ring"
+            className="h-10 w-full rounded-md border  bg-transparent pl-9 pr-3 text-sm text-[rgb(var(--color-text-primary))] placeholder:text-secondary-400 transition-colors hover:border-[rgb(var(--color-border-hover))] focus-ring shadow-lg"
           />
         </div>
         <Button
@@ -689,7 +690,7 @@ export default function AdminExamsPage() {
         </Button>
       </div>
 
-      <div className="rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))]">
+      <div className="rounded-xl shadow-xl dark:bg-[#101c44]">
         {(activeTab === 'all' ? allLoading : loading) ? (
           <div className="space-y-3 p-6">
             {Array.from({ length: 5 }).map((_, i) => (
@@ -700,41 +701,38 @@ export default function AdminExamsPage() {
             ))}
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto h-[600px]">
             <table className="w-full">
-              <thead>
-                <tr className="border-b border-[rgb(var(--color-border))]">
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[rgb(var(--color-text-muted))]">
+              <thead className="sticky top-0">
+                <tr className="border-b border-[rgb(var(--color-border))] bg-purple-400 text-white">
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider ">
                     Exam Title
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[rgb(var(--color-text-muted))]">
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider ">
                     Department
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[rgb(var(--color-text-muted))]">
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider ">
                     Authority
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[rgb(var(--color-text-muted))]">
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider ">
                     Category
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[rgb(var(--color-text-muted))]">
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider ">
                     Updated
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[rgb(var(--color-text-muted))]">
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider ">
                     Status
                   </th>
-                  <th className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-[rgb(var(--color-text-muted))]">
+                  <th className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider ">
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[rgb(var(--color-border))]">
+              <tbody className="divide-y divide-[rgb(var(--color-border))] ">
                 {(activeTab === 'all' ? filteredExams : filteredQueue)
                   .length === 0 ? (
                   <tr>
-                    <td
-                      colSpan={7}
-                      className="px-6 py-12 text-center text-sm text-[rgb(var(--color-text-muted))]"
-                    >
+                    <td colSpan={7} className="px-6 py-12 text-center text-sm ">
                       {search.trim()
                         ? 'No exams found matching your search.'
                         : activeTab === 'all'
@@ -758,7 +756,7 @@ export default function AdminExamsPage() {
                               <p className="truncate text-sm font-medium text-[rgb(var(--color-text-primary))]">
                                 {exam.title}
                               </p>
-                              <p className="truncate text-xs text-[rgb(var(--color-text-muted))]">
+                              <p className="truncate text-xs ">
                                 BPS-{exam.bpsScale ?? '—'} · {exam.province}
                               </p>
                             </div>
@@ -769,17 +767,14 @@ export default function AdminExamsPage() {
                         </td>
                         <td className="whitespace-nowrap px-6 py-4">
                           <span className="inline-flex items-center gap-1 text-sm text-[rgb(var(--color-text-secondary))]">
-                            <Building2
-                              size={14}
-                              className="text-[rgb(var(--color-text-muted))]"
-                            />
+                            <Building2 size={14} className="" />
                             {exam.conductingAuthority}
                           </span>
                         </td>
                         <td className="whitespace-nowrap px-6 py-4 text-sm text-[rgb(var(--color-text-secondary))]">
                           {CATEGORY_LABELS[exam.category] ?? exam.category}
                         </td>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm text-[rgb(var(--color-text-muted))]">
+                        <td className="whitespace-nowrap px-6 py-4 text-sm ">
                           {exam.updatedAt
                             ? new Date(exam.updatedAt).toLocaleDateString(
                                 'en-US',
@@ -853,7 +848,7 @@ export default function AdminExamsPage() {
         )}
 
         <div className="flex items-center justify-between border-t border-[rgb(var(--color-border))] px-6 py-3">
-          <p className="text-xs text-[rgb(var(--color-text-muted))]">
+          <p className="text-xs ">
             Showing{' '}
             {activeTab === 'all'
               ? `${filteredExams.length} of ${totalExams} exams`
@@ -876,9 +871,7 @@ export default function AdminExamsPage() {
                 <h2 className="text-lg font-bold font-heading text-[rgb(var(--color-text-primary))]">
                   Edit Exam
                 </h2>
-                <p className="mt-0.5 text-xs text-[rgb(var(--color-text-muted))]">
-                  {editingExam.title}
-                </p>
+                <p className="mt-0.5 text-xs ">{editingExam.title}</p>
               </div>
               <button
                 onClick={closeEdit}
@@ -1155,9 +1148,7 @@ export default function AdminExamsPage() {
                 </div>
                 <div className="mt-3 space-y-3">
                   {editForm.selectionProcess.length === 0 ? (
-                    <p className="text-sm text-[rgb(var(--color-text-muted))]">
-                      No stages added yet.
-                    </p>
+                    <p className="text-sm ">No stages added yet.</p>
                   ) : (
                     editForm.selectionProcess.map((stage, index) => (
                       <div
@@ -1165,7 +1156,7 @@ export default function AdminExamsPage() {
                         className="rounded-xl border border-[rgb(var(--color-border))] p-4"
                       >
                         <div className="flex items-center justify-between gap-2">
-                          <p className="text-xs font-semibold uppercase tracking-wider text-[rgb(var(--color-text-muted))]">
+                          <p className="text-xs font-semibold uppercase tracking-wider ">
                             Stage {stage.stageNumber}
                           </p>
                           <button
@@ -1286,7 +1277,7 @@ export default function AdminExamsPage() {
                   <h2 className="text-lg font-bold font-heading text-[rgb(var(--color-text-primary))]">
                     Delete Exam
                   </h2>
-                  <p className="mt-0.5 text-xs text-[rgb(var(--color-text-muted))]">
+                  <p className="mt-0.5 text-xs ">
                     This action cannot be undone.
                   </p>
                 </div>

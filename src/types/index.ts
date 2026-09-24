@@ -12,6 +12,7 @@ export type {
   ResendOtpInput,
   ForgotPasswordInput,
   ResetPasswordInput,
+  UpdateProfileInput,
   AuthMeResponse,
   AuthResponse,
   LoginPayload,
@@ -53,6 +54,9 @@ export type {
   MCQQuestion,
   MCQFilterState,
   MCQUserProgress,
+  DifficultyLevel,
+  MCQSubmissionAnswer,
+  MCQSubmissionPayload,
 } from './mcq';
 
 export type { SourceType, PastPaper, PastPaperFilterState } from './pastPaper';

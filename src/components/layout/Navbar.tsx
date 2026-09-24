@@ -262,12 +262,12 @@ export default function Navbar() {
                 {user.avatar ? (
                   <img
                     src={user.avatar}
-                    alt={user.name}
-                    className="h-8 w-8 rounded-full object-cover ring-2 ring-[#8B3DFF]/30 dark:ring-purple-400/40"
+                    alt={user.name || 'User'}
+                    className="h-8 w-8 rounded-full border border-accent-200 object-cover dark:border-accent-700"
                   />
                 ) : (
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#8B3DFF] text-sm font-semibold text-white shadow-sm">
-                    {user.name.charAt(0).toUpperCase()}
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#8B3DFF] text-sm font-bold text-white shadow">
+                    {(user.name || 'U').charAt(0).toUpperCase()}
                   </div>
                 )}
                 <ChevronDown
@@ -297,17 +297,17 @@ export default function Navbar() {
                       {user.avatar ? (
                         <img
                           src={user.avatar}
-                          alt={user.name}
+                          alt={user.name || 'User'}
                           className="h-10 w-10 rounded-full object-cover"
                         />
                       ) : (
                         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#8B3DFF] text-sm font-bold text-white shadow">
-                          {user.name.charAt(0).toUpperCase()}
+                          {(user.name || 'U').charAt(0).toUpperCase()}
                         </div>
                       )}
                       <div className="min-w-0">
                         <p className="truncate text-sm font-semibold text-gray-900 dark:text-white">
-                          {user.name}
+                          {user.name || 'User'}
                         </p>
                         <p className="truncate text-xs text-purple-600/70 dark:text-purple-300/70">
                           {user.email}
@@ -441,17 +441,17 @@ export default function Navbar() {
                     {user.avatar ? (
                       <img
                         src={user.avatar}
-                        alt={user.name}
+                        alt={user.name || 'User'}
                         className="h-10 w-10 rounded-full object-cover"
                       />
                     ) : (
                       <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#8B3DFF] text-sm font-bold text-white">
-                        {user.name.charAt(0).toUpperCase()}
+                        {(user.name || 'U').charAt(0).toUpperCase()}
                       </div>
                     )}
                     <div className="min-w-0">
                       <p className="truncate text-sm font-semibold text-gray-900 dark:text-white">
-                        {user.name}
+                        {user.name || 'User'}
                       </p>
                       <p className="truncate text-xs text-purple-600/70 dark:text-purple-300/70">
                         {user.email}

@@ -1,3 +1,5 @@
+import type { MCQOption, MCQQuestion } from './mcq';
+
 export type TestType = 'mock_demo' | 'verbal_nonverbal';
 
 export type QuestionType = 'text' | 'image' | 'diagram';
@@ -10,21 +12,27 @@ export interface ApiResponse<T> {
   data: T;
 }
 
-export interface MockOption {
-  id: string;
-  text: string;
+/**
+ * Mock-test option. Reuses the canonical `MCQOption` from `./mcq` so the mock
+ * test and the rest of the platform share the same option vocabulary, extended
+ * only for image-based options used by non-verbal reasoning questions.
+ */
+export interface MockOption extends MCQOption {
   imageUrl?: string;
 }
 
-export interface MockQuestion {
-  id: string;
-  text: string;
-  questionType: QuestionType;
-  questionImageUrl?: string;
+/**
+ * Mock-test question. Reuses the canonical `MCQQuestion` shape (`_id`,
+ * `question`, `options`, `difficulty`, ...) and extends it with the few
+ * mock-test-specific fields (question type / subject category). The correct
+ * answer is expressed via `isCorrect` on the option (`correctAnswerId` was
+ * removed in favour of the canonical representation).
+ */
+export interface MockQuestion extends Omit<MCQQuestion, 'options'> {
   options: MockOption[];
-  correctAnswerId: string;
-  subjectCategory: string;
-  explanation: string;
+  questionType?: QuestionType;
+  questionImageUrl?: string;
+  text: string;
 }
 
 export interface UserAnswer {

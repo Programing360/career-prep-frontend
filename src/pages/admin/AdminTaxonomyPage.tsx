@@ -101,11 +101,7 @@ function ModalShell({
             <h2 className="font-semibold font-heading text-[rgb(var(--color-text-primary))]">
               {title}
             </h2>
-            {subtitle && (
-              <p className="text-xs text-[rgb(var(--color-text-muted))]">
-                {subtitle}
-              </p>
-            )}
+            {subtitle && <p className="text-xs ">{subtitle}</p>}
           </div>
           <button
             onClick={onClose}
@@ -152,9 +148,7 @@ function DeleteConfirmModal({
               <h2 className="text-lg font-bold font-heading text-[rgb(var(--color-text-primary))]">
                 Delete {target.kind}
               </h2>
-              <p className="mt-0.5 text-xs text-[rgb(var(--color-text-muted))]">
-                This action cannot be undone.
-              </p>
+              <p className="mt-0.5 text-xs ">This action cannot be undone.</p>
             </div>
           </div>
           <button
@@ -205,7 +199,7 @@ function PaginationBar({
   if (pages <= 1) return null;
   return (
     <div className="flex items-center justify-between border-t border-[rgb(var(--color-border))] px-4 py-3">
-      <p className="text-xs text-[rgb(var(--color-text-muted))]">
+      <p className="text-xs ">
         {total} item{total === 1 ? '' : 's'} · Page {page} of {pages}
       </p>
       <div className="flex gap-2">
@@ -371,8 +365,6 @@ function SubjectsTab({ onRequestModal, onRequestDelete }: SubjectsTabProps) {
   const [pages, setPages] = useState(1);
   const [total, setTotal] = useState(0);
 
-  // console.log(subjects);
-
   const load = useCallback(async () => {
     setLoading(true);
     try {
@@ -382,9 +374,15 @@ function SubjectsTab({ onRequestModal, onRequestDelete }: SubjectsTabProps) {
         page,
         limit: 50,
       });
-      setSubjects(res.data.subjects ?? []);
-      setTotal(res.data.total);
-      setPages(res.data.pages);
+
+      const responseData = Array.isArray(res.data)
+        ? res.data
+        : ((res.data as { subjects?: TaxonomySubject[] }).subjects ?? []);
+
+      // console.log(res.data);
+      setSubjects(responseData);
+      setTotal(res.meta.total);
+      setPages(res.meta.totalPages);
     } catch (err) {
       showToast(
         err instanceof Error ? err.message : 'Failed to load subjects.',
@@ -405,13 +403,13 @@ function SubjectsTab({ onRequestModal, onRequestDelete }: SubjectsTabProps) {
   return (
     <div className="rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))]">
       <div className="flex flex-col  gap-3 border-b border-[rgb(var(--color-border))] p-4 sm:flex-row sm:items-center">
-        <div className="relative flex-1 ">
+        <div className="relative flex-1 outline-0 ">
           <Search
             size={16}
-            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-secondary-400"
+            className="pointer-events-none  absolute left-3 top-1/2 -translate-y-1/2 text-secondary-400"
           />
           <Input
-            className="pl-9 md:w-56 "
+            className="pl-9 md:w-56 outline-0"
             placeholder="Search by title or code..."
             value={search}
             onChange={(e) => {
@@ -421,7 +419,7 @@ function SubjectsTab({ onRequestModal, onRequestDelete }: SubjectsTabProps) {
           />
         </div>
         <Select
-          className=""
+          className="bg-white text-black dark:bg-gray-800 dark:text-white outline-0"
           value={category}
           onChange={(e) => {
             setCategory(e.target.value);
@@ -445,15 +443,13 @@ function SubjectsTab({ onRequestModal, onRequestDelete }: SubjectsTabProps) {
       ) : subjects.length === 0 ? (
         <div className="flex h-40 flex-col items-center justify-center gap-2 text-center">
           <FolderTree size={28} className="text-secondary-400" />
-          <p className="text-sm text-[rgb(var(--color-text-muted))]">
-            No subjects found.
-          </p>
+          <p className="text-sm ">No subjects found.</p>
         </div>
       ) : (
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto h-[600px]">
           <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="border-b border-[rgb(var(--color-border))] text-xs uppercase tracking-wide text-[rgb(var(--color-text-muted))]">
+            <thead className="sticky top-0">
+              <tr className="border-b border-[rgb(var(--color-border))] text-xs uppercase tracking-wide bg-purple-400 text-white">
                 <th className="px-4 py-3 font-medium">Title</th>
                 <th className="px-4 py-3 font-medium">Code</th>
                 <th className="px-4 py-3 font-medium">Category</th>
@@ -462,7 +458,7 @@ function SubjectsTab({ onRequestModal, onRequestDelete }: SubjectsTabProps) {
               </tr>
             </thead>
             <tbody>
-              {subjects.map((subject) => (
+              {subjects?.map((subject) => (
                 <tr
                   key={subject._id}
                   className="border-b border-[rgb(var(--color-border))] last:border-0 hover:bg-[rgb(var(--color-surface-elevated))]"
@@ -500,7 +496,7 @@ function SubjectsTab({ onRequestModal, onRequestDelete }: SubjectsTabProps) {
                           onRequestDelete({
                             kind: 'subject',
                             id: subject._id,
-                            label: subject.title,
+                            label: subject.title as string,
                           })
                         }
                       >
@@ -546,7 +542,7 @@ function ChapterModal({
   const subjectId = chapter
     ? typeof chapter.subjectId === 'string'
       ? chapter.subjectId
-      : chapter.subjectId._id
+      : (chapter.subjectId?._id ?? '')
     : '';
   const [selectedSubjectId, setSelectedSubjectId] = useState(subjectId);
   const [title, setTitle] = useState(chapter?.title ?? '');
@@ -626,7 +622,10 @@ function ChapterModal({
             setError('');
           }}
           placeholder="Select a subject"
-          options={subjects.map((s) => ({ label: s.title, value: s._id }))}
+          options={subjects.map((s) => ({
+            label: s.title || '',
+            value: s._id,
+          }))}
         />
         <Input
           label="Title"
@@ -683,8 +682,9 @@ function ChaptersTab({
   //   console.log(cap);
   // }
 
-  const subjectName = (chapter: TaxonomyChapter) =>
-    typeof chapter.subjectId === 'object' ? chapter.subjectId.title : '—';
+  // const subjectName = (chapter: TaxonomyChapter) =>
+  //   typeof chapter.subjectId === 'object' ? chapter.subjectId.title : '—';
+  // console.log(chapters, subjects);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -695,10 +695,13 @@ function ChaptersTab({
         page,
         limit: 50,
       });
-      // console.log(res.data.chapters);
-      setChapters(res.data.chapters ?? []);
-      setTotal(res.data.total);
-      setPages(res.data.pages);
+      // console.log(res.data);
+      const responseData = Array.isArray(res.data)
+        ? res.data
+        : ((res.data as { chapters?: TaxonomyChapter[] }).chapters ?? []);
+      setChapters(responseData ?? []);
+      setTotal(res.meta.total);
+      setPages(res.meta.totalPages);
     } catch (err) {
       showToast(
         err instanceof Error ? err.message : 'Failed to load chapters.',
@@ -743,7 +746,7 @@ function ChaptersTab({
           }}
           options={[
             { label: 'All subjects', value: '' },
-            ...subjects.map((s) => ({ label: s.title, value: s._id })),
+            ...(subjects?.map((s) => ({ label: s.title, value: s._id })) ?? []),
           ]}
         />
         <Button
@@ -762,18 +765,16 @@ function ChaptersTab({
       ) : chapters.length === 0 ? (
         <div className="flex h-40 flex-col items-center justify-center gap-2 text-center">
           <Layers size={28} className="text-secondary-400" />
-          <p className="text-sm text-[rgb(var(--color-text-muted))]">
-            No chapters found.
-          </p>
+          <p className="text-sm ">No chapters found.</p>
         </div>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="border-b border-[rgb(var(--color-border))] text-xs uppercase tracking-wide text-[rgb(var(--color-text-muted))]">
+              <tr className="border-b border-[rgb(var(--color-border))] text-xs uppercase tracking-wide ">
                 <th className="px-4 py-3 font-medium">Title</th>
                 <th className="px-4 py-3 font-medium">Subject</th>
-                <th className="px-4 py-3 font-medium">Order</th>
+                <th className="px-4 py-3 font-medium">chapterNo</th>
                 <th className="px-4 py-3 text-right font-medium">Actions</th>
               </tr>
             </thead>
@@ -787,7 +788,14 @@ function ChaptersTab({
                     {chapter.title}
                   </td>
                   <td className="px-4 py-3 text-[rgb(var(--color-text-secondary))]">
-                    {subjectName(chapter)}
+                    {/* {subjectName(chapter)} */}
+                    {subjects.find(
+                      (s) =>
+                        s._id ===
+                        (typeof chapter.subjectId === 'object'
+                          ? chapter.subjectId._id
+                          : chapter.subjectId)
+                    )?.title || '—'}
                   </td>
                   <td className="px-4 py-3 text-[rgb(var(--color-text-secondary))]">
                     {chapter.order}
@@ -860,12 +868,12 @@ function TopicModal({
   const [chaptersLoading, setChaptersLoading] = useState(false);
   const initialSubjectId = topic
     ? typeof topic.subjectId === 'object'
-      ? topic.subjectId._id
+      ? topic.subjectId?._id
       : ''
     : '';
   const initialChapterId = topic
     ? typeof topic.chapterId === 'object'
-      ? topic.chapterId._id
+      ? topic.chapterId?._id
       : ''
     : (defaultChapterId ?? '');
   const [subjectId, setSubjectId] = useState(initialSubjectId);
@@ -886,10 +894,14 @@ function TopicModal({
       setChaptersLoading(true);
       try {
         const res = await getChapters({ subjectId: sid, limit: 100 });
-        const list = res.data.chapters ?? [];
+        const responseData = Array.isArray(res.data)
+          ? res.data
+          : ((res.data as { chapters?: TaxonomyChapter[] }).chapters ?? []);
+        const list = responseData ?? [];
         setChapters(list);
-        setChapterId((prev) =>
-          preferredChapterId && list.some((c) => c._id === preferredChapterId)
+        setChapterId((prev: string) =>
+          preferredChapterId &&
+          list.some((c: TaxonomyChapter) => c._id === preferredChapterId)
             ? preferredChapterId
             : prev
         );
@@ -1023,6 +1035,7 @@ function TopicModal({
         />
         <Select
           label="Verbal / Non-Verbal Type"
+          className="bg-white text-black dark:bg-gray-800 dark:text-white"
           value={isVerbalOrNonVerbal}
           onChange={(e) =>
             setIsVerbalOrNonVerbal(e.target.value as TopicVerbalType)
@@ -1064,11 +1077,7 @@ function TopicsTab({
   const [pages, setPages] = useState(1);
   const [total, setTotal] = useState(0);
 
-  const subjectName = (topic: TaxonomyTopic) =>
-    typeof topic.subjectId === 'object' ? topic.subjectId.title : '—';
-  const chapterName = (topic: TaxonomyTopic) =>
-    typeof topic.chapterId === 'object' ? topic.chapterId.title : '—';
-
+  console.log(subjects, topics);
   const load = useCallback(async () => {
     setLoading(true);
     try {
@@ -1080,9 +1089,14 @@ function TopicsTab({
         page,
         limit: 50,
       });
-      setTopics(res.data.topics ?? []);
-      setTotal(res.data.total);
-      setPages(res.data.pages);
+
+      const responseData = Array.isArray(res.data)
+        ? res.data
+        : ((res.data as { topics?: TaxonomyTopic[] }).topics ?? []);
+
+      setTopics(responseData ?? []);
+      setTotal(res.meta.total);
+      setPages(res.meta.totalPages);
     } catch (err) {
       showToast(
         err instanceof Error ? err.message : 'Failed to load topics.',
@@ -1106,11 +1120,14 @@ function TopicsTab({
     void getChapters({ subjectId: subjectFilter, limit: 100 })
       .then((res) => {
         if (cancelled) return;
-        const list = res.data.chapters ?? [];
+        const responseData = Array.isArray(res.data)
+          ? res.data
+          : ((res.data as { chapters?: TaxonomyChapter[] }).chapters ?? []);
+        const list = responseData ?? [];
         // console.log(res);
         setChapterOptions(list);
         setChapterFilter((prev) =>
-          prev && list.some((c) => c._id === prev) ? prev : ''
+          prev && list.some((c: TaxonomyChapter) => c._id === prev) ? prev : ''
         );
       })
       .catch(() => {
@@ -1194,15 +1211,13 @@ function TopicsTab({
       ) : topics.length === 0 ? (
         <div className="flex h-40 flex-col items-center justify-center gap-2 text-center">
           <Tag size={28} className="text-secondary-400" />
-          <p className="text-sm text-[rgb(var(--color-text-muted))]">
-            No topics found.
-          </p>
+          <p className="text-sm ">No topics found.</p>
         </div>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="border-b border-[rgb(var(--color-border))] text-xs uppercase tracking-wide text-[rgb(var(--color-text-muted))]">
+              <tr className="border-b border-[rgb(var(--color-border))] text-xs uppercase tracking-wide ">
                 <th className="px-4 py-3 font-medium">Title</th>
                 <th className="px-4 py-3 font-medium">Chapter</th>
                 <th className="px-4 py-3 font-medium">Subject</th>
@@ -1220,10 +1235,14 @@ function TopicsTab({
                     {topic.title}
                   </td>
                   <td className="px-4 py-3 text-[rgb(var(--color-text-secondary))]">
-                    {chapterName(topic)}
+                    {topic.chapterId && typeof topic.chapterId === 'object'
+                      ? topic.chapterId.title
+                      : '—'}
                   </td>
                   <td className="px-4 py-3 text-[rgb(var(--color-text-secondary))]">
-                    {subjectName(topic)}
+                    {topic.subjectId && typeof topic.subjectId === 'object'
+                      ? topic.subjectId.title
+                      : '—'}
                   </td>
                   <td className="px-4 py-3">
                     <span
@@ -1313,7 +1332,12 @@ export default function AdminTaxonomyPage() {
     setSubjectsLoading(true);
     try {
       const res = await getSubjects({ limit: 100 });
-      setSubjects(res.data.subjects ?? []);
+
+      const responseData = Array.isArray(res.data)
+        ? res.data
+        : ((res.data as { subjects?: TaxonomySubject[] }).subjects ?? []);
+
+      setSubjects(responseData ?? []);
     } catch (err) {
       showToast(
         err instanceof Error ? err.message : 'Failed to load subjects.',
@@ -1365,7 +1389,7 @@ export default function AdminTaxonomyPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold font-heading text-white">
+          <h1 className="text-2xl font-bold font-heading dark:text-white">
             Syllabus Taxonomy
           </h1>
           <p className="mt-1 text-sm text-gray-400">

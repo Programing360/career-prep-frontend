@@ -120,12 +120,12 @@ export function QuestionNavigator({
 
           <div className="mt-3 flex flex-wrap gap-1.5 overflow-y-auto">
             {questions.map((question, index) => {
-              const answer = answers.find((a) => a.questionId === question.id);
+              const answer = answers.find((a) => a.questionId === question._id);
               const state = cellState(answer);
               const isCurrent = index === currentIndex;
               return (
                 <button
-                  key={question.id}
+                  key={question._id}
                   type="button"
                   onClick={() => onSelect(index)}
                   aria-label={`Go to question ${index + 1}`}

@@ -4,7 +4,7 @@ import { Brain, ChevronDown, ChevronUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface MCQExplanationPanelProps {
-  explanation: string;
+  explanation?: string;
   isRevealed: boolean;
 }
 
@@ -15,6 +15,7 @@ export function MCQExplanationPanel({
   const [isExpanded, setIsExpanded] = useState(false);
 
   if (!isRevealed) return null;
+  if (!explanation) return null;
 
   return (
     <div className="mt-4">

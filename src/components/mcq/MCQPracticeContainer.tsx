@@ -1,4 +1,5 @@
 ﻿import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   ChevronLeft,
@@ -6,6 +7,9 @@ import {
   RotateCcw,
   Filter,
   Timer,
+  LayoutDashboard,
+  CheckCircle2,
+  Zap,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/Button';
@@ -13,8 +17,23 @@ import { Spinner } from '@/components/ui/Spinner';
 import { MCQQuestionCard } from './MCQQuestionCard';
 import { MCQFilterChips } from './MCQFilterChips';
 import { MCQPaywallModal } from './MCQPaywallModal';
-import { getMcqPreview, getTopics } from '@/services/mcqService';
-import type { MCQQuestion, MCQFilterState, MCQUserProgress } from '@/types/mcq';
+import { ROUTES } from '@/constants/routes';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { updateUserProgress } from '@/store/slices/authSlice';
+import {
+  getMcqPreview,
+  getTopics,
+  submitMcqAnswers,
+  saveMcqProgressAnswer,
+  submitMcqExamProgress,
+} from '@/services/mcqService';
+import type {
+  MCQQuestion,
+  MCQFilterState,
+  MCQUserProgress,
+  DifficultyLevel,
+  MCQSubmissionAnswer,
+} from '@/types/mcq';
 import type { TopicOption } from '@/services/mcqService';
 
 const FREE_PREVIEW_LIMIT = 20;
@@ -56,10 +75,14 @@ export function MCQPracticeContainer({
   const [questions, setQuestions] = useState<MCQQuestion[]>([]);
   const [topics, setTopics] = useState<TopicOption[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<MCQFilterState>({
     page: 1,
   });
+
+  // console.log(filters);
   const [showFilters, setShowFilters] = useState(!isEmbedded);
+  const [retryKey, setRetryKey] = useState(0);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [progress, setProgress] = useState<MCQUserProgress>(
@@ -69,12 +92,15 @@ export function MCQPracticeContainer({
       history: {},
     }
   );
+  // console.log(progress);
 
   const [paywallOpen, setPaywallOpen] = useState(false);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const isGuest = true;
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
+  const dispatch = useAppDispatch();
+  const isGuest = !isAuthenticated;
 
   useEffect(() => {
     savePersistedProgress(progress);
@@ -121,6 +147,7 @@ export function MCQPracticeContainer({
     let cancelled = false;
     async function load() {
       setLoading(true);
+      setError(null);
       try {
         const [questionsRes, topicsRes] = await Promise.all([
           getMcqPreview(examSlug, filters),
@@ -130,8 +157,14 @@ export function MCQPracticeContainer({
           setQuestions(questionsRes.data);
           setTopics(topicsRes);
         }
-      } catch {
-        // silently handle
+      } catch (err) {
+        if (!cancelled) {
+          setError(
+            err instanceof Error
+              ? err.message
+              : 'Failed to load questions. Please try again.'
+          );
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -140,39 +173,76 @@ export function MCQPracticeContainer({
     return () => {
       cancelled = true;
     };
-  }, [examSlug, filters]);
+  }, [examSlug, filters, retryKey]);
 
   const handleSelectOption = useCallback(
-    (questionId: string, optionId: string) => {
+    async (questionId: string, optionId: string) => {
       if (progress.history[questionId]) return;
 
-      const question = questions.find((q) => q.id === questionId);
+      const question = questions.find((q) => q._id === questionId);
       if (!question) return;
 
       const selectedOption = question.options.find((o) => o.id === optionId);
       if (!selectedOption) return;
 
-      const isCorrect = selectedOption.isCorrect === true;
+      if (isAuthenticated) {
+        saveMcqProgressAnswer(examSlug, questionId, optionId, currentIndex);
+      }
 
-      const newProgress: MCQUserProgress = {
-        answeredCount: progress.answeredCount + 1,
-        correctCount: progress.correctCount + (isCorrect ? 1 : 0),
-        history: {
-          ...progress.history,
-          [questionId]: {
-            selectedOptionId: optionId,
-            isCorrect,
+      let graded = false;
+      try {
+        const res = await submitMcqAnswers([
+          { questionId, selectedOptionId: optionId },
+        ]);
+        const result = res.results.find((r) => r.questionId === questionId);
+        if (result) {
+          const isCorrect = result.correct;
+          const newProgress: MCQUserProgress = {
+            answeredCount: progress.answeredCount + 1,
+            correctCount: progress.correctCount + (isCorrect ? 1 : 0),
+            history: {
+              ...progress.history,
+              [questionId]: {
+                selectedOptionId: optionId,
+                isCorrect,
+                correctOptionId: result.correctOptionId,
+                explanation: result.explanation,
+              },
+            },
+          };
+          graded = true;
+          setProgress(newProgress);
+
+          if (isGuest && newProgress.answeredCount >= FREE_PREVIEW_LIMIT) {
+            setPaywallOpen(true);
+          }
+        }
+      } catch {
+        // Fall back to local grading when the server is unreachable
+      }
+
+      if (!graded) {
+        const isCorrect = selectedOption.isCorrect === true;
+        const newProgress: MCQUserProgress = {
+          answeredCount: progress.answeredCount + 1,
+          correctCount: progress.correctCount + (isCorrect ? 1 : 0),
+          history: {
+            ...progress.history,
+            [questionId]: {
+              selectedOptionId: optionId,
+              isCorrect,
+              correctOptionId: isCorrect ? optionId : null,
+            },
           },
-        },
-      };
+        };
+        setProgress(newProgress);
 
-      setProgress(newProgress);
-
-      if (isGuest && newProgress.answeredCount >= FREE_PREVIEW_LIMIT) {
-        setPaywallOpen(true);
+        if (isGuest && newProgress.answeredCount >= FREE_PREVIEW_LIMIT) {
+          setPaywallOpen(true);
+        }
       }
     },
-    [progress, questions, isGuest]
+    [progress, questions, isGuest, isAuthenticated, examSlug, currentIndex]
   );
 
   const handleTopicChange = useCallback((topicId: string | undefined) => {
@@ -194,7 +264,7 @@ export function MCQPracticeContainer({
     (difficulty: string | undefined) => {
       setFilters((prev) => ({
         ...prev,
-        difficulty,
+        difficulty: difficulty as DifficultyLevel | undefined,
         page: 1,
       }));
       setCurrentIndex(0);
@@ -218,6 +288,62 @@ export function MCQPracticeContainer({
     setElapsedSeconds(0);
     setPaywallOpen(false);
   }, []);
+
+  const handleSubmitAnswers = useCallback(async () => {
+    const payload: MCQSubmissionAnswer[] = Object.entries(progress.history).map(
+      ([questionId, entry]) => ({
+        questionId,
+        selectedOptionId: entry.selectedOptionId,
+      })
+    );
+    if (payload.length === 0) return;
+    try {
+      if (isAuthenticated) {
+        const res = await submitMcqExamProgress(examSlug, payload);
+        if (res) {
+          dispatch(
+            updateUserProgress({
+              xp: res.xpEarned ?? progress.correctCount * 10,
+              readinessScore:
+                res.scorePercentage ??
+                Math.round(
+                  (progress.correctCount /
+                    Math.max(1, progress.answeredCount)) *
+                    100
+                ),
+            })
+          );
+        }
+      } else {
+        await submitMcqAnswers(payload);
+      }
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Failed to submit answers. Please try again.'
+      );
+    }
+  }, [
+    progress.history,
+    isAuthenticated,
+    examSlug,
+    dispatch,
+    progress.correctCount,
+    progress.answeredCount,
+  ]);
+
+  const submitFired = useRef(false);
+
+  useEffect(() => {
+    if (allDone && !submitFired.current) {
+      submitFired.current = true;
+      handleSubmitAnswers();
+    }
+    if (!allDone && submitFired.current) {
+      submitFired.current = false;
+    }
+  }, [allDone, handleSubmitAnswers]);
 
   const goToPrev = useCallback(() => {
     setCurrentIndex((prev) => Math.max(0, prev - 1));
@@ -245,10 +371,10 @@ export function MCQPracticeContainer({
         goToNext();
       } else if (e.key >= '1' && e.key <= '4') {
         const q = visibleQuestions[currentIndex];
-        if (q && !progress.history[q.id]) {
+        if (q && !progress.history[q._id]) {
           const optIndex = parseInt(e.key, 10) - 1;
           if (q.options[optIndex]) {
-            handleSelectOption(q.id, q.options[optIndex].id);
+            handleSelectOption(q._id, q.options[optIndex].id);
           }
         }
       }
@@ -306,7 +432,7 @@ export function MCQPracticeContainer({
           <div className="mb-1.5 flex items-center justify-between text-xs">
             <span className="font-medium text-[rgb(var(--color-text-secondary))]">
               {isGuest
-                ? `Question ${Math.min(currentIndex + 1, totalForDisplay)} of ${totalForDisplay} â€” Free Preview`
+                ? `Question ${Math.min(currentIndex + 1, totalForDisplay)} of ${totalForDisplay} — Free Preview`
                 : `Question ${currentIndex + 1} of ${visibleQuestions.length}`}
             </span>
             <div className="flex items-center gap-3">
@@ -375,7 +501,24 @@ export function MCQPracticeContainer({
       )}
 
       {/* Content */}
-      {loading ? (
+      {error ? (
+        <div className="flex flex-col items-center justify-center rounded-xl border border-danger-200 bg-danger-50/40 py-20 text-center dark:border-danger-800">
+          <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+            {error}
+          </p>
+          <Button
+            variant="outline"
+            size="sm"
+            className="mt-4"
+            onClick={() => {
+              setError(null);
+              setRetryKey((k) => k + 1);
+            }}
+          >
+            Retry
+          </Button>
+        </div>
+      ) : loading ? (
         <div className="flex flex-col items-center justify-center py-20">
           <Spinner size={32} />
           <p className="mt-4 text-sm text-[rgb(var(--color-text-muted))]">
@@ -403,13 +546,18 @@ export function MCQPracticeContainer({
           <div aria-live="polite" aria-atomic="true">
             {currentQuestion && (
               <MCQQuestionCard
-                key={currentQuestion.id}
+                key={currentQuestion._id}
                 question={currentQuestion}
                 questionNumber={currentIndex + 1}
                 selectedOptionId={
-                  progress.history[currentQuestion.id]?.selectedOptionId ?? null
+                  progress.history[currentQuestion._id]?.selectedOptionId ??
+                  null
                 }
-                isRevealed={!!progress.history[currentQuestion.id]}
+                isRevealed={!!progress.history[currentQuestion._id]}
+                correctOptionId={
+                  progress.history[currentQuestion._id]?.correctOptionId
+                }
+                explanation={progress.history[currentQuestion._id]?.explanation}
                 onSelectOption={handleSelectOption}
               />
             )}
@@ -429,11 +577,11 @@ export function MCQPracticeContainer({
 
             <div className="flex items-center gap-1.5">
               {visibleQuestions.map((q, i) => {
-                const isAnswered = !!progress.history[q.id];
-                const isCorrect = progress.history[q.id]?.isCorrect;
+                const isAnswered = !!progress.history[q._id];
+                const isCorrect = progress.history[q._id]?.isCorrect;
                 return (
                   <button
-                    key={q.id}
+                    key={q._id}
                     type="button"
                     onClick={() => setCurrentIndex(i)}
                     className={cn(
@@ -473,10 +621,13 @@ export function MCQPracticeContainer({
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.2 }}
-            className="mt-8 rounded-xl border border-accent-200 bg-accent-50/50 p-6 text-center dark:border-accent-800 dark:bg-accent-950/50"
+            className="mt-8 rounded-xl border border-accent-200 bg-accent-50/50 p-6 text-center shadow-lg dark:border-accent-800 dark:bg-accent-950/50"
           >
-            <p className="text-lg font-bold font-heading text-[rgb(var(--color-text-primary))]">
-              All Done!
+            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-accent-100 text-accent-600 dark:bg-accent-900/50 dark:text-accent-300">
+              <CheckCircle2 size={24} />
+            </div>
+            <p className="text-xl font-bold font-heading text-[rgb(var(--color-text-primary))]">
+              Exam MCQs Submitted!
             </p>
             <p className="mt-1 text-sm text-[rgb(var(--color-text-secondary))]">
               You answered{' '}
@@ -487,10 +638,23 @@ export function MCQPracticeContainer({
               <span className="font-semibold">{progress.answeredCount}</span>{' '}
               questions correctly ({accuracy}% accuracy).
             </p>
-            <Button size="sm" className="mt-4" onClick={handleReset}>
-              <RotateCcw size={14} />
-              Practice Again
-            </Button>
+            <div className="mt-3 flex items-center justify-center gap-2 text-xs font-semibold text-violet-600 dark:text-violet-400">
+              <Zap size={14} />+{progress.correctCount * 10} XP Earned & Saved
+              to Database
+            </div>
+            <div className="mt-5 flex items-center justify-center gap-3">
+              <Button size="sm" variant="outline" onClick={handleReset}>
+                <RotateCcw size={14} />
+                Practice Again
+              </Button>
+              <Link
+                to={ROUTES.DASHBOARD}
+                className="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary-700 shadow-md"
+              >
+                <LayoutDashboard size={14} />
+                View User Dashboard
+              </Link>
+            </div>
           </motion.div>
         )}
 

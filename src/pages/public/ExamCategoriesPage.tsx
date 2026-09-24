@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   BookOpen,
@@ -34,12 +34,13 @@ const initialFilters: ExamFiltersState = {
 /** Map the filter UI jurisdiction values onto the backend `category` enum. */
 const jurisdictionToCategory: Record<
   Exclude<Jurisdiction, 'all'>,
-  'federal' | 'provincial' | 'armed_forces' | 'testing_service'
+  'federal' | 'provincial' | 'armed_forces' | 'testing_service' | 'army_test'
 > = {
   federal: 'federal',
   provincial: 'provincial',
   'testing-services': 'testing_service',
   'armed-forces': 'armed_forces',
+  'army-test': 'army_test',
 };
 
 const postGradeToBps: Record<Exclude<PostGrade, 'all'>, number> = {
@@ -60,6 +61,8 @@ const categoryToJurisdiction: Record<string, Jurisdiction> = {
   'testing-services': 'testing-services',
   armed_forces: 'armed-forces',
   'armed-forces': 'armed-forces',
+  army_test: 'army-test',
+  'army-test': 'army-test',
 };
 
 function useDebounce<T>(value: T, delay: number): T {
@@ -98,6 +101,7 @@ function SkeletonCard() {
 
 export default function ExamCategoriesPage() {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   const [filters, setFilters] = useState<ExamFiltersState>(() => ({
     search: searchParams.get('search') ?? '',
@@ -120,7 +124,6 @@ export default function ExamCategoriesPage() {
   const sentinelRef = useRef<HTMLDivElement>(null);
 
   const hasMore = exams.length < totalCount;
-
   const fetchPage = useCallback(
     async (page: number, replace: boolean) => {
       if (isFetchingRef.current && !replace) return;
@@ -192,10 +195,17 @@ export default function ExamCategoriesPage() {
     return () => observer.disconnect();
   }, [hasMore, fetchPage]);
 
-  const handleFilterChange = useCallback((next: ExamFiltersState) => {
-    setIsLoading(true);
-    setFilters(next);
-  }, []);
+  const handleFilterChange = useCallback(
+    (next: ExamFiltersState) => {
+      if (next.jurisdiction === 'army-test') {
+        navigate('/practice?category=army-test');
+        return;
+      }
+      setIsLoading(true);
+      setFilters(next);
+    },
+    [navigate]
+  );
 
   const handleRetry = useCallback(() => {
     setIsLoading(true);
@@ -333,7 +343,7 @@ export default function ExamCategoriesPage() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.3 }}
-                className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+                className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4"
               >
                 <AnimatePresence mode="popLayout">
                   {exams.map((exam) => (

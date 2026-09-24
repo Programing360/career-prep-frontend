@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
@@ -77,7 +77,7 @@ export default function MockTestRunnerPage() {
       (answer) => answer.answeredAt === latestAnsweredAt
     )?.questionId;
     const index = restored.questions.findIndex(
-      (question) => question.id === latestQuestionId
+      (question) => question._id === latestQuestionId
     );
     return index >= 0 ? index : 0;
   });
@@ -101,6 +101,7 @@ export default function MockTestRunnerPage() {
     startMockTest(type, type)
       .then((response) => {
         if (cancelled) return;
+        console.log(response);
         setSession(response.session);
         setQuestions(response.questions);
         setIsLoading(false);
@@ -140,13 +141,14 @@ export default function MockTestRunnerPage() {
 
   const currentQuestion = questions[currentIndex];
   const currentAnswer = currentQuestion
-    ? answers.find((answer) => answer.questionId === currentQuestion.id)
+    ? answers.find((answer) => answer.questionId === currentQuestion._id)
     : undefined;
-
+  // console.log(currentAnswer, answers);
   const stats = useMemo(() => {
     let answered = 0;
     let flagged = 0;
     for (const answer of answers) {
+      // console.log(answer);
       if (answer.selectedOptionId) answered += 1;
       if (answer.isFlagged) flagged += 1;
     }
@@ -192,21 +194,21 @@ export default function MockTestRunnerPage() {
   const handleSelectOption = useCallback(
     (optionId: string) => {
       if (!currentQuestion || !isActive) return;
-      updateAnswer(currentQuestion.id, { selectedOptionId: optionId });
+      updateAnswer(currentQuestion._id, { selectedOptionId: optionId });
     },
     [currentQuestion, isActive, updateAnswer]
   );
 
   const handleToggleFlag = useCallback(() => {
     if (!currentQuestion || !isActive) return;
-    updateAnswer(currentQuestion.id, {
+    updateAnswer(currentQuestion._id, {
       isFlagged: !(currentAnswer?.isFlagged ?? false),
     });
   }, [currentQuestion, currentAnswer, isActive, updateAnswer]);
 
   const handleClearSelection = useCallback(() => {
     if (!currentQuestion || !isActive) return;
-    updateAnswer(currentQuestion.id, { selectedOptionId: null });
+    updateAnswer(currentQuestion._id, { selectedOptionId: null });
   }, [currentQuestion, isActive, updateAnswer]);
 
   const handleNavigate = useCallback(
@@ -217,9 +219,9 @@ export default function MockTestRunnerPage() {
       setPaletteOpen(false);
       if (
         target &&
-        !answers.some((answer) => answer.questionId === target.id)
+        !answers.some((answer) => answer.questionId === target._id)
       ) {
-        updateAnswer(target.id, {});
+        updateAnswer(target._id, {});
       }
     },
     [questions, answers, updateAnswer]
@@ -233,7 +235,17 @@ export default function MockTestRunnerPage() {
       setShowSubmitModal(false);
       if (isAutoSubmitted) setExpiredByTimer(true);
       try {
+        const submitTime = Date.now();
         const submittedResult = await submitMockTest(session.id, answers);
+        console.log(session, answers);
+        // Ensure timeSpentSeconds is always populated — compute client-side as
+        // a reliable fallback in case the backend field is absent.
+        if (!submittedResult.timeSpentSeconds) {
+          (submittedResult as MockTestResult).timeSpentSeconds = Math.floor(
+            (submitTime - new Date(session.startTime).getTime()) / 1000
+          );
+        }
+        console.log(submittedResult);
         setResult(submittedResult);
         setSubmitError(false);
         clearActiveMockTest();
@@ -289,15 +301,30 @@ export default function MockTestRunnerPage() {
 
   if (isLoading || !session || questions.length === 0) {
     return (
-      <div className="flex h-screen items-center justify-center bg-[hsl(var(--background))]">
-        <div className="text-center">
-          <Loader2
-            size={32}
-            className="mx-auto animate-spin text-primary-500"
-          />
-          <p className="mt-4 text-sm text-[rgb(var(--color-text-secondary))]">
-            Preparing mock test...
-          </p>
+      <div
+        aria-live="polite"
+        aria-busy="true"
+        className="flex min-h-screen w-full items-center justify-center p-4 bg-background"
+      >
+        <div className="flex flex-col items-center justify-center space-y-4 text-center max-w-xs">
+          {/* Spinner Container with Subtle Glow */}
+          <div className="relative flex items-center justify-center">
+            <div className="absolute inset-0 rounded-full blur-sm bg-primary/20 animate-pulse" />
+            <Loader2
+              size={36}
+              className="relative animate-spin text-primary transition-colors duration-200"
+            />
+          </div>
+
+          {/* Text Section */}
+          <div className="space-y-1">
+            <h3 className="text-base font-semibold tracking-tight text-foreground">
+              Preparing Mock Test
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              Please wait a moment while we set up your session...
+            </p>
+          </div>
         </div>
       </div>
     );
@@ -330,7 +357,7 @@ export default function MockTestRunnerPage() {
 
   if (result) {
     return (
-      <div className="flex min-h-screen items-start justify-center bg-[hsl(var(--background))] p-4 py-8 sm:p-6 sm:py-12">
+      <div className="min-h-screen overflow-y-auto p-4 py-8 sm:p-6 sm:py-12">
         <MockTestResultsView
           result={result}
           testType={session.testType}
@@ -343,7 +370,7 @@ export default function MockTestRunnerPage() {
   }
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-[hsl(var(--background))]">
+    <div className="flex h-screen flex-col overflow-hidden bg-[#2c153b]">
       <MockTestHeader
         title={displayTitle}
         testType={session.testType}
@@ -368,7 +395,7 @@ export default function MockTestRunnerPage() {
           <div className="mx-auto flex w-full max-w-3xl flex-col">
             <AnimatePresence mode="wait">
               <motion.div
-                key={currentQuestion.id}
+                key={currentQuestion._id}
                 initial={{ opacity: 0, x: 24 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -24 }}
@@ -408,14 +435,26 @@ export default function MockTestRunnerPage() {
                   >
                     Prev
                   </Button>
-                  <Button
-                    size="sm"
-                    rightIcon={<ChevronRight size={14} />}
-                    disabled={currentIndex === questions.length - 1}
-                    onClick={() => handleNavigate(currentIndex + 1)}
-                  >
-                    Next
-                  </Button>
+
+                  {currentIndex === questions.length - 1 ? (
+                    <Button
+                      size="sm"
+                      rightIcon={<ChevronRight size={14} />}
+
+                      onClick={handleOpenSubmitModal}
+                    >
+                      Submit
+                    </Button>
+                  ) : (
+                    <Button
+                      size="sm"
+                      rightIcon={<ChevronRight size={14} />}
+                      disabled={currentIndex === questions.length - 1}
+                      onClick={() => handleNavigate(currentIndex + 1)}
+                    >
+                      Next
+                    </Button>
+                  )}
                 </div>
               </div>
             )}

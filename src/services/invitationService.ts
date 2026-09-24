@@ -1,4 +1,5 @@
 import api from '@/lib/axios';
+import { API_ENDPOINTS } from '@/constants/apiEndpoints';
 import type { UserRole } from '@/types/auth';
 
 // ==========================================
@@ -52,7 +53,7 @@ export async function sendInvitation(
   payload: SendInvitationPayload
 ): Promise<SendInvitationResponse> {
   const { data } = await api.post<SendInvitationResponse>(
-    '/invitations',
+    API_ENDPOINTS.INVITATIONS.BASE,
     payload
   );
   return data;
@@ -66,7 +67,7 @@ export async function verifyInvitationToken(
   token: string
 ): Promise<VerifyInvitationResponse> {
   const { data } = await api.get<VerifyInvitationResponse>(
-    `/invitations/verify/${encodeURIComponent(token)}`
+    API_ENDPOINTS.INVITATIONS.VERIFY(encodeURIComponent(token))
   );
   return data;
 }
@@ -79,7 +80,7 @@ export async function acceptInvitation(
   payload: AcceptInvitationPayload
 ): Promise<{ success: boolean; message?: string }> {
   const { data } = await api.post<{ success: boolean; message?: string }>(
-    '/invitations/accept',
+    API_ENDPOINTS.INVITATIONS.ACCEPT,
     payload
   );
   return data;

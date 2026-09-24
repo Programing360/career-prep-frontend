@@ -1,4 +1,4 @@
-﻿import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import {
@@ -15,15 +15,27 @@ import {
   BarChart3,
   Award,
   BookOpen,
+  Loader2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/Button';
 import { ROUTES } from '@/constants/routes';
+import { getResult, getExamById } from '@/services/examApi';
 import type { MCQ } from '@/types';
 import type { RootState } from '@/store/store';
 import type { ExamResult } from '@/store/slices/examAttemptSlice';
 
 type ReviewTab = 'all' | 'incorrect' | 'skipped';
+
+interface ResultViewData {
+  examTitle: string;
+  totalQuestions: number;
+  durationMinutes: number;
+  result: ExamResult;
+  timeTakenMinutes: number;
+  answers: Record<string, string>;
+  questions: MCQ[];
+}
 
 const subjectLabels: Record<string, string> = {
   english: 'English',
@@ -31,152 +43,6 @@ const subjectLabels: Record<string, string> = {
   reasoning: 'Verbal & Reasoning',
   urdu: 'Urdu',
   accounting: 'Accounting',
-};
-
-const mockExamResults: Record<
-  string,
-  {
-    examTitle: string;
-    totalQuestions: number;
-    durationMinutes: number;
-    result: ExamResult;
-    timeTakenMinutes: number;
-    answers: Record<string, number>;
-    questions: MCQ[];
-  }
-> = {
-  'css-preliminary': {
-    examTitle: 'CSS Preliminary Exam 2025',
-    totalQuestions: 10,
-    durationMinutes: 120,
-    timeTakenMinutes: 87,
-    result: {
-      totalQuestions: 10,
-      answered: 10,
-      correct: 7,
-      incorrect: 3,
-      unanswered: 0,
-      markedForReview: 1,
-      score: 7,
-      totalMarks: 10,
-      accuracy: 70,
-    },
-    answers: {
-      'eq-1': 1,
-      'eq-2': 1,
-      'eq-3': 0,
-      'eq-4': 2,
-      'eq-5': 2,
-      'eq-6': 2,
-      'eq-7': 1,
-      'eq-8': 2,
-      'eq-9': 2,
-      'eq-10': 0,
-    },
-    questions: [
-      {
-        id: 'eq-1',
-        examId: 'css-preliminary',
-        subjectId: 'gk',
-        question: 'Which of the following is the capital of Turkey?',
-        options: ['Istanbul', 'Ankara', 'Izmir', 'Antalya'],
-        correctAnswer: 1,
-        difficulty: 'easy',
-      },
-      {
-        id: 'eq-2',
-        examId: 'css-preliminary',
-        subjectId: 'english',
-        question: 'Choose the antonym of "Ephemeral":',
-        options: ['Fleeting', 'Permanent', 'Transient', 'Brief'],
-        correctAnswer: 1,
-        difficulty: 'medium',
-      },
-      {
-        id: 'eq-3',
-        examId: 'css-preliminary',
-        subjectId: 'reasoning',
-        question: 'If 5x + 3 = 28, what is the value of x?',
-        options: ['5', '6', '7', '8'],
-        correctAnswer: 1,
-        difficulty: 'easy',
-      },
-      {
-        id: 'eq-4',
-        examId: 'css-preliminary',
-        subjectId: 'gk',
-        question:
-          'The Great Wall of China was primarily built to protect against invasions from which direction?',
-        options: ['South', 'East', 'North', 'West'],
-        correctAnswer: 2,
-        difficulty: 'easy',
-      },
-      {
-        id: 'eq-5',
-        examId: 'css-preliminary',
-        subjectId: 'english',
-        question:
-          'Which figure of speech is used in: "The wind whispered through the trees"?',
-        options: ['Simile', 'Metaphor', 'Personification', 'Hyperbole'],
-        correctAnswer: 2,
-        difficulty: 'medium',
-      },
-      {
-        id: 'eq-6',
-        examId: 'css-preliminary',
-        subjectId: 'gk',
-        question: 'What is the smallest prime number?',
-        options: ['0', '1', '2', '3'],
-        correctAnswer: 2,
-        difficulty: 'easy',
-      },
-      {
-        id: 'eq-7',
-        examId: 'css-preliminary',
-        subjectId: 'reasoning',
-        question: 'Find the next number: 3, 7, 15, 31, 63, ?',
-        options: ['96', '127', '125', '128'],
-        correctAnswer: 1,
-        difficulty: 'medium',
-      },
-      {
-        id: 'eq-8',
-        examId: 'css-preliminary',
-        subjectId: 'gk',
-        question: 'Which organ produces insulin?',
-        options: ['Liver', 'Kidney', 'Pancreas', 'Heart'],
-        correctAnswer: 2,
-        difficulty: 'easy',
-      },
-      {
-        id: 'eq-9',
-        examId: 'css-preliminary',
-        subjectId: 'english',
-        question: '"Neither the teacher nor the students ___ present."',
-        options: ['was', 'is', 'were', 'has been'],
-        correctAnswer: 2,
-        difficulty: 'medium',
-      },
-      {
-        id: 'eq-10',
-        examId: 'css-preliminary',
-        subjectId: 'reasoning',
-        question: 'A clock shows 3:15. Angle between hour and minute hands?',
-        options: ['0 degrees', '7.5 degrees', '15 degrees', '22.5 degrees'],
-        correctAnswer: 1,
-        difficulty: 'hard',
-      },
-    ],
-  },
-};
-
-const mockAiExplanations: Record<string, string> = {
-  'eq-3':
-    'To solve 5x + 3 = 28: Subtract 3 from both sides: 5x = 25. Divide by 5: x = 5. Wait â€” 5(5)+3 = 28? 25+3 = 28. Yes! But the answer marked was 0 (x=5), which is option A. The correct answer is option B (x=5). Check: 5(5)+3=28. Correct!',
-  'eq-5':
-    '"The wind whispered through the trees" uses Personification â€” attributing human qualities (whispering) to a non-human entity (wind). Personification makes descriptions more vivid and relatable.',
-  'eq-10':
-    'At 3:15, the minute hand points at 3 (90 degrees from 12). The hour hand is at 3 + (15/60) of the way to 4 = 3.25 hours. Hour hand angle = 3.25 x 30 = 97.5 degrees. Angle between hands = 97.5 - 90 = 7.5 degrees.',
 };
 
 function getPredictedPercentile(accuracy: number): string {
@@ -203,31 +69,103 @@ export default function ExamResultPage() {
   const [reviewTab, setReviewTab] = useState<ReviewTab>('all');
   const [expandedAi, setExpandedAi] = useState<Record<string, boolean>>({});
 
-  const data = useMemo(() => {
-    if (examAttempt.result && examAttempt.questions.length > 0) {
+  const [apiLoading, setApiLoading] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
+  const [apiData, setApiData] = useState<ResultViewData | null>(null);
+  const [retryKey, setRetryKey] = useState(0);
+
+  const hasLiveResult =
+    !!examAttempt.result && examAttempt.questions.length > 0;
+
+  useEffect(() => {
+    if (hasLiveResult) return;
+    let cancelled = false;
+    async function load() {
+      setApiLoading(true);
+      setApiError(null);
+      try {
+        const attemptId = id || '';
+        const res = await getResult(attemptId);
+        const questions = res.questionReview.map((r) => r.mcq);
+        const answers: Record<string, string> = {};
+        for (const r of res.questionReview) {
+          if (r.selectedOptionId != null) {
+            answers[r.mcq._id] = r.selectedOptionId;
+          }
+        }
+        const totalQuestions = questions.length;
+        const correct = res.totalCorrect;
+        const incorrect = res.totalIncorrect;
+        const skipped = res.totalSkipped;
+        let examTitle = 'Exam Result';
+        let durationMinutes = 30;
+        try {
+          const exam = await getExamById(res.attempt.examId);
+          examTitle = exam.title;
+          durationMinutes = exam.duration;
+        } catch {
+          // title/duration are best-effort
+        }
+        const summary: ExamResult = {
+          totalQuestions,
+          answered: correct + incorrect,
+          correct,
+          incorrect,
+          unanswered: skipped,
+          markedForReview: 0,
+          score: res.score,
+          totalMarks: totalQuestions,
+          accuracy:
+            res.percentage ?? Math.round((res.score / totalQuestions) * 100),
+        };
+        if (!cancelled) {
+          setApiData({
+            examTitle,
+            totalQuestions,
+            durationMinutes,
+            result: summary,
+            timeTakenMinutes: 0,
+            answers,
+            questions,
+          });
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setApiError(
+            err instanceof Error
+              ? err.message
+              : 'Failed to load exam result. Please try again.'
+          );
+        }
+      } finally {
+        if (!cancelled) setApiLoading(false);
+      }
+    }
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [id, hasLiveResult, retryKey]);
+
+  const data = useMemo<ResultViewData>(() => {
+    if (hasLiveResult) {
       const timeUsed =
         examAttempt.durationMinutes * 60 - examAttempt.timeRemaining;
       return {
         examTitle: examAttempt.examTitle,
         totalQuestions: examAttempt.questions.length,
         durationMinutes: examAttempt.durationMinutes,
-        result: examAttempt.result,
+        result: examAttempt.result as ExamResult,
         timeTakenMinutes: Math.round(timeUsed / 60),
         answers: examAttempt.answers,
         questions: examAttempt.questions,
       };
     }
-    return mockExamResults[id || ''] || mockExamResults['css-preliminary'];
-  }, [examAttempt, id]);
+    return apiData as ResultViewData;
+  }, [examAttempt, apiData, hasLiveResult]);
 
-  const {
-    result,
-    questions,
-    answers,
-    examTitle,
-    timeTakenMinutes,
-    durationMinutes,
-  } = data;
+  const questions = useMemo(() => data?.questions ?? [], [data?.questions]);
+  const answers = useMemo(() => data?.answers ?? {}, [data?.answers]);
 
   const subjectBreakdown = useMemo(() => {
     const map: Record<
@@ -235,14 +173,15 @@ export default function ExamResultPage() {
       { total: number; correct: number; incorrect: number; skipped: number }
     > = {};
     for (const q of questions) {
-      const sid = q.subjectId;
+      const sid = q.subjectId ?? 'general';
       if (!map[sid])
         map[sid] = { total: 0, correct: 0, incorrect: 0, skipped: 0 };
       map[sid].total += 1;
-      const ans = answers[q.id];
+      const ans = answers[q._id];
+      const correctId = q.options.find((o) => o.isCorrect)?.id;
       if (ans === undefined) {
         map[sid].skipped += 1;
-      } else if (ans === q.correctAnswer) {
+      } else if (ans === correctId) {
         map[sid].correct += 1;
       } else {
         map[sid].incorrect += 1;
@@ -255,11 +194,53 @@ export default function ExamResultPage() {
     if (reviewTab === 'all') return questions;
     if (reviewTab === 'incorrect')
       return questions.filter((q) => {
-        const a = answers[q.id];
-        return a !== undefined && a !== q.correctAnswer;
+        const a = answers[q._id];
+        const correctId = q.options.find((o) => o.isCorrect)?.id;
+        return a !== undefined && a !== correctId;
       });
-    return questions.filter((q) => answers[q.id] === undefined);
+    return questions.filter((q) => answers[q._id] === undefined);
   }, [questions, answers, reviewTab]);
+
+  if (apiError) {
+    return (
+      <div className="flex min-h-[70vh] items-center justify-center px-4">
+        <div className="w-full max-w-md rounded-xl border border-danger-200 bg-danger-50/40 p-8 text-center dark:border-danger-800">
+          <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+            {apiError}
+          </p>
+          <Button
+            variant="outline"
+            size="sm"
+            className="mt-4"
+            onClick={() => {
+              setApiError(null);
+              setRetryKey((k) => k + 1);
+            }}
+          >
+            Retry
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (apiLoading || !data) {
+    return (
+      <div className="flex min-h-[70vh] items-center justify-center px-4">
+        <div className="text-center">
+          <Loader2
+            size={32}
+            className="mx-auto animate-spin text-primary-500"
+          />
+          <p className="mt-4 text-sm text-[rgb(var(--color-text-secondary))]">
+            Loading result...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const { result, examTitle, timeTakenMinutes, durationMinutes } = data;
 
   const grade = getGrade(result.accuracy);
 
@@ -470,12 +451,14 @@ export default function ExamResultPage() {
               </div>
             ) : (
               filteredQuestions.map((q, idx) => {
-                const studentAns = answers[q.id];
-                const isCorrect = studentAns === q.correctAnswer;
+                const studentAns = answers[q._id];
+                const correctOpt = q.options.find((o) => o.isCorrect);
+                const isCorrect = studentAns === correctOpt?.id;
                 const wasSkipped = studentAns === undefined;
+                const studentOpt = q.options.find((o) => o.id === studentAns);
 
                 return (
-                  <div key={q.id} className="px-5 py-4">
+                  <div key={q._id} className="px-5 py-4">
                     <div className="flex items-start gap-3">
                       <span
                         className={cn(
@@ -513,7 +496,9 @@ export default function ExamResultPage() {
                             {q.difficulty}
                           </span>
                           <span className="text-[10px] text-[rgb(var(--color-text-muted))]">
-                            {subjectLabels[q.subjectId] || q.subjectId}
+                            {q.subjectId
+                              ? subjectLabels[q.subjectId] || q.subjectId
+                              : ''}
                           </span>
                         </div>
                         <p className="mt-1 text-sm font-medium text-[rgb(var(--color-text-primary))]">
@@ -522,11 +507,11 @@ export default function ExamResultPage() {
 
                         <div className="mt-2 flex flex-wrap gap-2">
                           {q.options.map((opt, oi) => {
-                            const isStudentChoice = studentAns === oi;
-                            const isCorrectOpt = oi === q.correctAnswer;
+                            const isStudentChoice = studentAns === opt.id;
+                            const isCorrectOpt = !!opt.isCorrect;
                             return (
                               <span
-                                key={oi}
+                                key={opt.id}
                                 className={cn(
                                   'inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs',
                                   isCorrectOpt
@@ -540,57 +525,66 @@ export default function ExamResultPage() {
                                 {isStudentChoice && !isCorrectOpt && (
                                   <XIcon size={10} />
                                 )}
-                                {String.fromCharCode(65 + oi)}. {opt}
+                                {String.fromCharCode(65 + oi)}. {opt.text}
                               </span>
                             );
                           })}
                         </div>
 
-                        {wasSkipped && (
+                        {wasSkipped && correctOpt && (
                           <p className="mt-1.5 text-xs text-[rgb(var(--color-text-muted))]">
                             You skipped this question. Correct answer:{' '}
                             <span className="font-semibold text-accent-600">
-                              {String.fromCharCode(65 + q.correctAnswer)}.{' '}
-                              {q.options[q.correctAnswer]}
+                              {String.fromCharCode(
+                                65 + q.options.indexOf(correctOpt)
+                              )}
+                              . {correctOpt.text}
                             </span>
                           </p>
                         )}
 
-                        {!wasSkipped && !isCorrect && (
-                          <p className="mt-1.5 text-xs text-[rgb(var(--color-text-muted))]">
-                            Your answer:{' '}
-                            <span className="font-semibold text-danger-600">
-                              {String.fromCharCode(65 + studentAns)}.{' '}
-                              {q.options[studentAns]}
-                            </span>{' '}
-                            &middot; Correct:{' '}
-                            <span className="font-semibold text-accent-600">
-                              {String.fromCharCode(65 + q.correctAnswer)}.{' '}
-                              {q.options[q.correctAnswer]}
-                            </span>
-                          </p>
-                        )}
+                        {!wasSkipped &&
+                          !isCorrect &&
+                          studentOpt &&
+                          correctOpt && (
+                            <p className="mt-1.5 text-xs text-[rgb(var(--color-text-muted))]">
+                              Your answer:{' '}
+                              <span className="font-semibold text-danger-600">
+                                {String.fromCharCode(
+                                  65 + q.options.indexOf(studentOpt)
+                                )}
+                                . {studentOpt.text}
+                              </span>{' '}
+                              &middot; Correct:{' '}
+                              <span className="font-semibold text-accent-600">
+                                {String.fromCharCode(
+                                  65 + q.options.indexOf(correctOpt)
+                                )}
+                                . {correctOpt.text}
+                              </span>
+                            </p>
+                          )}
 
                         {q.explanation && (
                           <button
-                            onClick={() => toggleAi(q.id)}
+                            onClick={() => toggleAi(q._id)}
                             className="mt-2 flex items-center gap-1 text-xs font-medium text-primary-500 hover:text-primary-600"
                           >
                             <Brain size={12} />
-                            {expandedAi[q.id]
+                            {expandedAi[q._id]
                               ? 'Hide'
                               : 'Ask AI for Detailed Explanation'}
                             <ChevronRight
                               size={10}
                               className={cn(
                                 'transition-transform',
-                                expandedAi[q.id] && 'rotate-90'
+                                expandedAi[q._id] && 'rotate-90'
                               )}
                             />
                           </button>
                         )}
 
-                        {expandedAi[q.id] && (
+                        {expandedAi[q._id] && (
                           <div className="mt-2 rounded-lg border border-primary-200 bg-primary-50/50 p-3 dark:border-primary-800 dark:bg-primary-950/50">
                             <div className="flex items-start gap-2">
                               <Brain
@@ -602,8 +596,7 @@ export default function ExamResultPage() {
                                   AI Explanation
                                 </p>
                                 <p className="mt-1 text-xs leading-relaxed text-[rgb(var(--color-text-secondary))]">
-                                  {mockAiExplanations[q.id] ||
-                                    q.explanation ||
+                                  {q.explanation ||
                                     'No detailed explanation available.'}
                                 </p>
                               </div>

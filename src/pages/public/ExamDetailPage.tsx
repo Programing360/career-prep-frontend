@@ -217,14 +217,14 @@ export default function ExamDetailPage({
 
     getExamSyllabus(slug)
       .then((res) => {
-        if (!cancelled) setSyllabus(res.data.syllabus);
+        if (!cancelled && res) setSyllabus(res.data.syllabus);
       })
       .catch(() => {
         // No published syllabus for this exam yet — fall back to mock data.
       });
     getExamRoadmap(slug)
       .then((res) => {
-        if (!cancelled) setRoadmap(res.data.roadmap);
+        if (!cancelled && res) setRoadmap(res.data.roadmap);
       })
       .catch(() => {
         // No published roadmap for this exam yet — fall back to mock data.

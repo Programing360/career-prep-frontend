@@ -1,5 +1,7 @@
-﻿import { useState, useMemo, useCallback } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, useSearchParams } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Check,
   X,
@@ -15,25 +17,45 @@ import {
   AlertTriangle,
   Sparkles,
   XIcon,
+  Loader2,
+  Trophy,
+  Zap,
+  RotateCcw,
+  LayoutDashboard,
+  CheckCircle2,
+  Target,
+  TrendingUp,
+  Send,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import {
+  getMcqs,
+  getTopics,
+  submitMcqExamProgress,
+} from '@/services/mcqService';
 import { Button } from '@/components/ui/Button';
 import { AdaptiveRevisionBanner } from '@/components/widgets/AdaptiveRevisionBanner';
 import type { MCQ } from '@/types';
 import type { RootState } from '@/store/store';
 import type { FilterMode } from '@/store/slices/practiceSlice';
 import {
-  setSubject,
   setFilterMode,
-  goToNextQuestion,
-  goToPreviousQuestion,
-  answerQuestion,
   toggleBookmark,
   setNote,
   toggleExplanation,
+  answerQuestion,
+  resetPractice,
 } from '@/store/slices/practiceSlice';
+import { updateUserProgress } from '@/store/slices/authSlice';
+import { useAppSelector } from '@/store/hooks';
+import { ROUTES } from '@/constants/routes';
+import ArmyTestPracticePage from './ArmyTestPracticePage';
 
-const subjects = [
+// ─── constants ─────────────────────────────────────────────────────────────
+const ALL_SUBJECTS_TAB = { id: '__all__', label: 'All Subjects' };
+
+const DEFAULT_SUBJECTS = [
+  ALL_SUBJECTS_TAB,
   { id: 'verbal-reasoning', label: 'Verbal Reasoning' },
   { id: 'non-verbal', label: 'Non-Verbal' },
   { id: 'general-knowledge', label: 'General Knowledge' },
@@ -42,262 +64,375 @@ const subjects = [
   { id: 'everyday-science', label: 'Everyday Science' },
 ];
 
-const mockQuestions: MCQ[] = [
-  {
-    id: 'pq-1',
-    examId: 'practice',
-    subjectId: 'verbal-reasoning',
-    question: 'Find the odd one out: Apple, Mango, Potato, Banana',
-    options: ['Apple', 'Mango', 'Potato', 'Banana'],
-    correctAnswer: 2,
-    explanation:
-      'Apple, Mango, and Banana are all fruits. Potato is a vegetable, making it the odd one out.',
-    difficulty: 'easy',
-  },
-  {
-    id: 'pq-2',
-    examId: 'practice',
-    subjectId: 'verbal-reasoning',
-    question:
-      'If in a certain code language, COMPUTER is written as DNPQVUFS, how is MACHINE written in that code?',
-    options: ['NBDIJOF', 'NBIFJOG', 'NBDIJOG', 'NBDIOJF'],
-    correctAnswer: 0,
-    explanation:
-      'Each letter is shifted forward by 1 position in the alphabet: C+1=D, O+1=P, M+1=N, etc. So MACHINE becomes NBDIJOF.',
-    difficulty: 'medium',
-  },
-  {
-    id: 'pq-3',
-    examId: 'practice',
-    subjectId: 'verbal-reasoning',
-    question:
-      'A is the brother of B. C is the daughter of B. D is the brother of C. How is A related to D?',
-    options: ['Uncle', 'Father', 'Brother', 'Grandfather'],
-    correctAnswer: 0,
-    explanation:
-      "B is D's parent (since C is B's daughter and D is C's brother). A is B's brother, so A is D's uncle.",
-    difficulty: 'medium',
-  },
-  {
-    id: 'pq-4',
-    examId: 'practice',
-    subjectId: 'general-knowledge',
-    question: 'Which planet is known as the "Red Planet"?',
-    options: ['Venus', 'Mars', 'Jupiter', 'Saturn'],
-    correctAnswer: 1,
-    explanation:
-      'Mars is called the Red Planet because of iron oxide (rust) on its surface, giving it a reddish appearance.',
-    difficulty: 'easy',
-  },
-  {
-    id: 'pq-5',
-    examId: 'practice',
-    subjectId: 'general-knowledge',
-    question: 'What is the largest ocean on Earth?',
-    options: [
-      'Atlantic Ocean',
-      'Indian Ocean',
-      'Pacific Ocean',
-      'Arctic Ocean',
-    ],
-    correctAnswer: 2,
-    explanation:
-      'The Pacific Ocean is the largest and deepest ocean, covering more than 60 million square miles.',
-    difficulty: 'easy',
-  },
-  {
-    id: 'pq-6',
-    examId: 'practice',
-    subjectId: 'pakistan-affairs',
-    question: 'In which year did Pakistan become a republic?',
-    options: ['1947', '1956', '1962', '1973'],
-    correctAnswer: 1,
-    explanation:
-      'Pakistan became a republic on March 23, 1956, when the first Constitution was adopted, changing the country from a dominion to a republic.',
-    difficulty: 'easy',
-  },
-  {
-    id: 'pq-7',
-    examId: 'practice',
-    subjectId: 'pakistan-affairs',
-    question: 'Who was the first Governor-General of Pakistan?',
-    options: [
-      'Liaquat Ali Khan',
-      'Muhammad Ali Jinnah',
-      'Khawaja Nazimuddin',
-      'Ghulam Muhammad',
-    ],
-    correctAnswer: 1,
-    explanation:
-      'Muhammad Ali Jinnah (Quaid-e-Azam) served as the first Governor-General of Pakistan from August 14, 1947 until his death on September 11, 1948.',
-    difficulty: 'easy',
-  },
-  {
-    id: 'pq-8',
-    examId: 'practice',
-    subjectId: 'english',
-    question: 'Choose the correctly spelled word:',
-    options: ['Accomodation', 'Accommodation', 'Acomodation', 'Accommadation'],
-    correctAnswer: 1,
-    explanation:
-      '"Accommodation" is the correct spelling. It has double "c" and double "m".',
-    difficulty: 'easy',
-  },
-  {
-    id: 'pq-9',
-    examId: 'practice',
-    subjectId: 'english',
-    question: 'Identify the synonym of "Benevolent":',
-    options: ['Malevolent', 'Kind', 'Cruel', 'Hostile'],
-    correctAnswer: 1,
-    explanation:
-      '"Benevolent" means well-meaning, kindly, and generous. "Kind" is the closest synonym.',
-    difficulty: 'medium',
-  },
-  {
-    id: 'pq-10',
-    examId: 'practice',
-    subjectId: 'everyday-science',
-    question: 'What is the chemical formula for water?',
-    options: ['H2O', 'CO2', 'NaCl', 'O2'],
-    correctAnswer: 0,
-    explanation:
-      'Water is composed of two hydrogen atoms and one oxygen atom, giving it the chemical formula H2O.',
-    difficulty: 'easy',
-  },
-  {
-    id: 'pq-11',
-    examId: 'practice',
-    subjectId: 'non-verbal',
-    question:
-      'In a series of shapes: Circle, Square, Triangle, Circle, Square, ___. What comes next?',
-    options: ['Circle', 'Square', 'Triangle', 'Rectangle'],
-    correctAnswer: 2,
-    explanation:
-      'The pattern repeats every three shapes: Circle, Square, Triangle. After the second Square, the next shape is Triangle.',
-    difficulty: 'easy',
-  },
-  {
-    id: 'pq-12',
-    examId: 'practice',
-    subjectId: 'general-knowledge',
-    question: 'Which is the smallest continent by area?',
-    options: ['Europe', 'Antarctica', 'Australia', 'South America'],
-    correctAnswer: 2,
-    explanation:
-      'Australia is the smallest continent by land area, at approximately 7.7 million square kilometers.',
-    difficulty: 'easy',
-  },
-];
-
-const difficultyColors: Record<string, string> = {
+const DIFFICULTY_COLORS: Record<string, string> = {
   easy: 'bg-accent-100 text-accent-700 dark:bg-accent-900 dark:text-accent-300',
   medium:
     'bg-primary-100 text-primary-700 dark:bg-primary-900 dark:text-primary-300',
   hard: 'bg-danger-100 text-danger-700 dark:bg-danger-900 dark:text-danger-300',
 };
 
-export default function PracticePage() {
-  const dispatch = useDispatch();
-  const {
-    selectedSubject,
-    filterMode,
-    currentIndex,
-    answers,
-    bookmarks,
-    notes,
-    showExplanation,
-  } = useSelector((state: RootState) => state.practice);
+interface SubmitResult {
+  totalQuestions: number;
+  correctAnswers: number;
+  incorrectAnswers: number;
+  scorePercentage: number;
+  xpEarned: number;
+}
 
+// ─── PracticePage ──────────────────────────────────────────────────────────
+export default function PracticePage() {
+  const [searchParams] = useSearchParams();
+  const category = searchParams.get('category');
+
+  // If the user navigated to the army-test category, show the dedicated page.
+  if (category === 'army-test') {
+    return <ArmyTestPracticePage />;
+  }
+
+  return <StandardPractice />;
+}
+
+function StandardPractice() {
+  const dispatch = useDispatch();
+  const { isAuthenticated } = useAppSelector((s) => s.auth);
+
+  // Redux: bookmarks, notes, explanations & answers
+  const { filterMode, answers, bookmarks, notes, showExplanation } =
+    useSelector((state: RootState) => state.practice);
+
+  // ── subjects / topics ──────────────────────────────────────────────────
+  const [subjectsList, setSubjectsList] = useState(DEFAULT_SUBJECTS);
+  const [selectedSubject, setSelectedSubject] = useState(ALL_SUBJECTS_TAB.id);
+  const [selectedSubjectLabel, setSelectedSubjectLabel] = useState(
+    ALL_SUBJECTS_TAB.label
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+    getTopics()
+      .then((topics) => {
+        if (cancelled || topics.length === 0) return;
+        // Prepend the "All Subjects" tab so users can see all MCQs
+        const list = [
+          ALL_SUBJECTS_TAB,
+          ...topics.map((t) => ({ id: t.id, label: t.name })),
+        ];
+        setSubjectsList(list);
+        // Keep 'All Subjects' selected by default
+        setSelectedSubject(ALL_SUBJECTS_TAB.id);
+        setSelectedSubjectLabel(ALL_SUBJECTS_TAB.label);
+      })
+      .catch(() => {
+        /* keep defaults */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // ── questions ──────────────────────────────────────────────────────────
+  const [questions, setQuestions] = useState<MCQ[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // ── submission state ───────────────────────────────────────────────────
+  const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitResult, setSubmitResult] = useState<SubmitResult | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const submitFiredRef = useRef(false);
+
+  // ── local navigation ───────────────────────────────────────────────────
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  // ── notes modal ────────────────────────────────────────────────────────
   const [noteModalOpen, setNoteModalOpen] = useState(false);
   const [noteText, setNoteText] = useState('');
   const [noteTargetId, setNoteTargetId] = useState<string | null>(null);
 
-  const filteredQuestions = useMemo(() => {
-    let qs = mockQuestions.filter((q) => q.subjectId === selectedSubject);
+  // Fetch MCQs whenever subject changes
+  useEffect(() => {
+    let cancelled = false;
+    submitFiredRef.current = false;
+    dispatch(resetPractice());
 
-    if (filterMode === 'bookmarked') {
-      qs = qs.filter((q) => bookmarks.includes(q.id));
-    } else if (filterMode === 'weak') {
-      qs = qs.filter((q) => {
-        const ans = answers[q.id];
-        return ans && !ans.isCorrect;
+    // Build filter: if '__all__' or a slug-style id use topicId for text search;
+    // if it looks like a MongoDB ObjectId, use subjectId for direct match.
+    const isObjectId = /^[0-9a-fA-F]{24}$/.test(selectedSubject);
+    const filters =
+      selectedSubject === ALL_SUBJECTS_TAB.id
+        ? { limit: 50 } // no filter — return all active MCQs
+        : isObjectId
+          ? { subjectId: selectedSubject, limit: 50 } // explicit subject match
+          : { topicId: selectedSubject, limit: 50 }; // text/slug based fallback
+
+    Promise.resolve()
+      .then(() => {
+        if (cancelled) return;
+        setLoading(true);
+        setError(null);
+        setCurrentIndex(0);
+        setSubmitted(false);
+        setSubmitResult(null);
+        setSubmitError(null);
+        return getMcqs(filters);
+      })
+      .then((res) => {
+        if (cancelled) return;
+        setQuestions(res?.data ?? []);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        setQuestions([]);
+        setError(
+          err instanceof Error ? err.message : 'Failed to load questions.'
+        );
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
       });
-    }
 
-    return qs;
-  }, [selectedSubject, filterMode, bookmarks, answers]);
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedSubject, dispatch]);
 
-  const totalForSubject = useMemo(
-    () => mockQuestions.filter((q) => q.subjectId === selectedSubject).length,
-    [selectedSubject]
-  );
+  // ── derived / filtered questions ───────────────────────────────────────
+  const filteredQuestions = useMemo(() => {
+    if (filterMode === 'bookmarked')
+      return questions.filter((q) => bookmarks.includes(q._id));
+    if (filterMode === 'weak')
+      return questions.filter(
+        (q) => answers[q._id] && !answers[q._id].isCorrect
+      );
+    return questions;
+  }, [questions, filterMode, bookmarks, answers]);
 
+  const totalForSubject = questions.length;
   const bookmarkCount = useMemo(
-    () =>
-      mockQuestions.filter(
-        (q) => q.subjectId === selectedSubject && bookmarks.includes(q.id)
-      ).length,
-    [selectedSubject, bookmarks]
+    () => questions.filter((q) => bookmarks.includes(q._id)).length,
+    [questions, bookmarks]
   );
-
   const weakCount = useMemo(
     () =>
-      mockQuestions.filter(
-        (q) =>
-          q.subjectId === selectedSubject &&
-          answers[q.id] &&
-          !answers[q.id].isCorrect
-      ).length,
-    [selectedSubject, answers]
+      questions.filter((q) => answers[q._id] && !answers[q._id].isCorrect)
+        .length,
+    [questions, answers]
   );
 
-  const currentQuestion = filteredQuestions[currentIndex];
+  // Completion detection — all filtered questions answered
+  const answeredCount = useMemo(
+    () => filteredQuestions.filter((q) => !!answers[q._id]).length,
+    [filteredQuestions, answers]
+  );
+  const allAnswered =
+    filteredQuestions.length > 0 && answeredCount >= filteredQuestions.length;
+  const correctCount = useMemo(
+    () => filteredQuestions.filter((q) => answers[q._id]?.isCorrect).length,
+    [filteredQuestions, answers]
+  );
 
-  const handleAnswer = useCallback(
-    (selectedIndex: number) => {
-      if (!currentQuestion || answers[currentQuestion.id]) return;
+  // Clamp index
+  const safeIndex = Math.min(
+    currentIndex,
+    Math.max(0, filteredQuestions.length - 1)
+  );
+  const currentQuestion = filteredQuestions[safeIndex];
+
+  // ── submit handler ─────────────────────────────────────────────────────
+  const handleSubmit = useCallback(async () => {
+    if (submitting || submitted) return;
+    setSubmitting(true);
+    setSubmitError(null);
+
+    const payload = filteredQuestions
+      .filter((q) => answers[q._id])
+      .map((q) => ({
+        questionId: q._id,
+        selectedOptionId: answers[q._id].selectedOptionId,
+      }));
+
+    try {
+      // Build a clean URL-safe slug for this practice session.
+      // - '__all__'  → 'all'
+      // - ObjectId   → slug from the subject label (e.g. "Verbal Reasoning" → "verbal-reasoning")
+      // - slug text  → use as-is (already URL-safe)
+      const isObjectId = /^[0-9a-fA-F]{24}$/.test(selectedSubject);
+      const slugBase =
+        selectedSubject === ALL_SUBJECTS_TAB.id
+          ? 'all'
+          : isObjectId
+            ? selectedSubjectLabel
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/^-|-$/g, '')
+            : selectedSubject.replace(/[^a-z0-9-]+/g, '-');
+      const practiceSlug = `subject-practice-${slugBase}`;
+      const res = await submitMcqExamProgress(practiceSlug, payload);
+
+      const result: SubmitResult = {
+        totalQuestions: res?.totalQuestions ?? payload.length,
+        correctAnswers: res?.correctAnswers ?? correctCount,
+        incorrectAnswers:
+          res?.incorrectAnswers ?? payload.length - correctCount,
+        scorePercentage:
+          res?.scorePercentage ??
+          Math.round((correctCount / Math.max(1, payload.length)) * 100),
+        xpEarned: res?.xpEarned ?? correctCount * 10,
+      };
+
+      console.log(correctCount);
+
+      setSubmitResult(result);
+      setSubmitted(true);
+
+      // Update Redux + localStorage
+      if (isAuthenticated) {
+        dispatch(
+          updateUserProgress({
+            xp: result.xpEarned,
+            readinessScore: result.scorePercentage,
+          })
+        );
+      }
+    } catch {
+      // Even if API fails, show local results
+      const localResult: SubmitResult = {
+        totalQuestions: payload.length,
+        correctAnswers: correctCount,
+        incorrectAnswers: payload.length - correctCount,
+        scorePercentage: Math.round(
+          (correctCount / Math.max(1, payload.length)) * 100
+        ),
+        xpEarned: correctCount * 10,
+      };
+      setSubmitResult(localResult);
+      setSubmitted(true);
+      setSubmitError(
+        'Could not save to server, but your local results are shown below.'
+      );
       dispatch(
-        answerQuestion({
-          questionId: currentQuestion.id,
-          selectedIndex,
-          correctAnswer: currentQuestion.correctAnswer,
+        updateUserProgress({
+          xp: localResult.xpEarned,
+          readinessScore: localResult.scorePercentage,
         })
       );
-    },
-    [currentQuestion, answers, dispatch]
-  );
+    } finally {
+      setSubmitting(false);
+    }
+  }, [
+    submitting,
+    submitted,
+    filteredQuestions,
+    answers,
+    selectedSubject,
+    selectedSubjectLabel,
+    correctCount,
+    isAuthenticated,
+    dispatch,
+  ]);
 
+  // ── re-exam handler ────────────────────────────────────────────────────
+  const handleReExam = useCallback(() => {
+    setSubmitted(false);
+    setSubmitResult(null);
+    setSubmitError(null);
+    setCurrentIndex(0);
+    submitFiredRef.current = false;
+    dispatch(resetPractice());
+  }, [dispatch]);
+
+  // ── navigation ─────────────────────────────────────────────────────────
+  const goToNext = useCallback(() => {
+    setCurrentIndex((prev) => Math.min(prev + 1, filteredQuestions.length - 1));
+  }, [filteredQuestions.length]);
+
+  const goToPrev = useCallback(() => {
+    setCurrentIndex((prev) => Math.max(prev - 1, 0));
+  }, []);
+
+  const handleSubjectSelect = useCallback((id: string, label: string) => {
+    setSelectedSubject(id);
+    setSelectedSubjectLabel(label);
+  }, []);
+
+  // ── notes handlers ─────────────────────────────────────────────────────
   const handleOpenNote = useCallback(() => {
     if (!currentQuestion) return;
-    setNoteTargetId(currentQuestion.id);
-    setNoteText(notes[currentQuestion.id] || '');
+    setNoteTargetId(currentQuestion._id);
+    setNoteText(notes[currentQuestion._id] || '');
     setNoteModalOpen(true);
   }, [currentQuestion, notes]);
 
   const handleSaveNote = useCallback(() => {
-    if (noteTargetId) {
+    if (noteTargetId)
       dispatch(setNote({ questionId: noteTargetId, note: noteText }));
-    }
     setNoteModalOpen(false);
     setNoteTargetId(null);
     setNoteText('');
   }, [noteTargetId, noteText, dispatch]);
 
+  // ── loading / error states ─────────────────────────────────────────────
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <SubjectTabs
+          subjects={subjectsList}
+          selected={selectedSubject}
+          onSelect={handleSubjectSelect}
+        />
+        <div className="flex flex-col items-center justify-center rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] py-20">
+          <Loader2 size={32} className="animate-spin text-primary-500" />
+          <p className="mt-4 text-sm text-[rgb(var(--color-text-muted))]">
+            Loading questions…
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <SubjectTabs
+          subjects={subjectsList}
+          selected={selectedSubject}
+          onSelect={handleSubjectSelect}
+        />
+        <div className="flex flex-col items-center justify-center rounded-xl border border-danger-200 bg-danger-50/40 py-16 text-center dark:border-danger-800">
+          <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+            {error}
+          </p>
+          <Button
+            variant="outline"
+            size="sm"
+            className="mt-4"
+            onClick={() => setError(null)}
+          >
+            Retry
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   if (filteredQuestions.length === 0) {
     return (
       <div className="space-y-6">
         <SubjectTabs
-          subjects={subjects}
+          subjects={subjectsList}
           selected={selectedSubject}
-          onSelect={(id) => dispatch(setSubject(id))}
+          onSelect={handleSubjectSelect}
         />
         <FilterBar
           filterMode={filterMode}
           allCount={totalForSubject}
           weakCount={weakCount}
           bookmarkCount={bookmarkCount}
-          onFilterChange={(mode) => dispatch(setFilterMode(mode))}
+          onFilterChange={(mode) => {
+            dispatch(setFilterMode(mode));
+            setCurrentIndex(0);
+          }}
         />
         <div className="flex flex-col items-center justify-center rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] py-16">
           <Filter
@@ -312,7 +447,7 @@ export default function PracticePage() {
               ? "You haven't bookmarked any questions in this subject yet."
               : filterMode === 'weak'
                 ? 'No weak topics found. Keep practicing!'
-                : 'No questions available for this subject.'}
+                : 'No questions available for this subject yet.'}
           </p>
         </div>
       </div>
@@ -321,30 +456,57 @@ export default function PracticePage() {
 
   if (!currentQuestion) return null;
 
-  const answer = answers[currentQuestion.id];
+  const answer = answers[currentQuestion._id];
   const isRevealed = !!answer;
-  const isBookmarked = bookmarks.includes(currentQuestion.id);
-  const explanationVisible = showExplanation[currentQuestion.id];
-  const hasNote = !!notes[currentQuestion.id];
+  const isBookmarked = bookmarks.includes(currentQuestion._id);
+  const explanationVisible = showExplanation[currentQuestion._id];
+  const hasNote = !!notes[currentQuestion._id];
 
   return (
     <div className="space-y-6">
+      {/* Subject tabs */}
       <SubjectTabs
-        subjects={subjects}
+        subjects={subjectsList}
         selected={selectedSubject}
-        onSelect={(id) => dispatch(setSubject(id))}
+        onSelect={handleSubjectSelect}
       />
 
+      {/* Filter bar */}
       <FilterBar
         filterMode={filterMode}
         allCount={totalForSubject}
         weakCount={weakCount}
         bookmarkCount={bookmarkCount}
-        onFilterChange={(mode) => dispatch(setFilterMode(mode))}
+        onFilterChange={(mode) => {
+          dispatch(setFilterMode(mode));
+          setCurrentIndex(0);
+        }}
       />
 
       <AdaptiveRevisionBanner />
 
+      {/* Progress overview strip */}
+      <div className="flex items-center justify-between rounded-lg border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] px-4 py-2.5">
+        <span className="text-xs font-medium text-[rgb(var(--color-text-muted))]">
+          <span className="font-bold text-primary-500">{answeredCount}</span> /{' '}
+          {filteredQuestions.length} answered
+        </span>
+        <div className="flex items-center gap-3 text-xs">
+          <span className="flex items-center gap-1 text-accent-600 dark:text-accent-400">
+            <Check size={12} /> {correctCount} correct
+          </span>
+          <span className="flex items-center gap-1 text-danger-600 dark:text-danger-400">
+            <X size={12} /> {answeredCount - correctCount} wrong
+          </span>
+        </div>
+        {allAnswered && !submitted && (
+          <span className="animate-pulse text-xs font-semibold text-primary-500">
+            ✓ All done — submit below!
+          </span>
+        )}
+      </div>
+
+      {/* Question card */}
       <div
         className={cn(
           'rounded-xl border p-6 transition-all',
@@ -355,6 +517,7 @@ export default function PracticePage() {
               : 'border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))]'
         )}
       >
+        {/* Question header */}
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-start gap-3">
             <span
@@ -374,39 +537,39 @@ export default function PracticePage() {
                   <X size={16} />
                 )
               ) : (
-                currentIndex + 1
+                safeIndex + 1
               )}
             </span>
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-xs font-medium text-[rgb(var(--color-text-muted))]">
-                  Question {currentIndex + 1} of {filteredQuestions.length}
+                  Question {safeIndex + 1} of {filteredQuestions.length}
                 </span>
                 <span
                   className={cn(
                     'rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase',
-                    difficultyColors[currentQuestion.difficulty]
+                    DIFFICULTY_COLORS[currentQuestion.difficulty] ?? ''
                   )}
                 >
                   {currentQuestion.difficulty}
                 </span>
               </div>
               <p className="mt-2 text-[15px] font-medium leading-relaxed text-[rgb(var(--color-text-primary))]">
-                {currentQuestion.question}
+                {currentQuestion.questionText ?? currentQuestion.question}
               </p>
             </div>
           </div>
 
           <div className="flex shrink-0 items-center gap-1">
             <button
-              onClick={() => dispatch(toggleBookmark(currentQuestion.id))}
+              onClick={() => dispatch(toggleBookmark(currentQuestion._id))}
               className={cn(
                 'rounded-lg p-2 transition-colors',
                 isBookmarked
                   ? 'text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-950'
-                  : 'text-[rgb(var(--color-text-muted))] hover:bg-[rgb(var(--color-surface-elevated))] hover:text-[rgb(var(--color-text-primary))]'
+                  : 'text-[rgb(var(--color-text-muted))] hover:bg-[rgb(var(--color-surface-elevated))]'
               )}
-              title={isBookmarked ? 'Remove bookmark' : 'Bookmark question'}
+              title={isBookmarked ? 'Remove bookmark' : 'Bookmark'}
             >
               {isBookmarked ? (
                 <BookmarkCheck size={18} className="fill-current" />
@@ -420,7 +583,7 @@ export default function PracticePage() {
                 'rounded-lg p-2 transition-colors',
                 hasNote
                   ? 'text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-950'
-                  : 'text-[rgb(var(--color-text-muted))] hover:bg-[rgb(var(--color-surface-elevated))] hover:text-[rgb(var(--color-text-primary))]'
+                  : 'text-[rgb(var(--color-text-muted))] hover:bg-[rgb(var(--color-surface-elevated))]'
               )}
               title={hasNote ? 'Edit note' : 'Add note'}
             >
@@ -429,30 +592,41 @@ export default function PracticePage() {
           </div>
         </div>
 
+        {/* Note preview */}
         {hasNote && (
           <div className="mt-3 ml-11 rounded-lg border border-primary-200 bg-primary-50/50 px-3 py-2 dark:border-primary-800 dark:bg-primary-950/50">
             <p className="text-xs font-medium text-primary-600 dark:text-primary-400">
               Your Note:
             </p>
             <p className="mt-0.5 text-sm text-[rgb(var(--color-text-secondary))]">
-              {notes[currentQuestion.id]}
+              {notes[currentQuestion._id]}
             </p>
           </div>
         )}
 
+        {/* Options */}
         <div className="mt-5 grid gap-2.5 sm:grid-cols-2">
           {currentQuestion.options.map((option, optIndex) => {
             const isOptionSelected =
-              isRevealed && answer.selectedIndex === optIndex;
-            const isCorrectOption = optIndex === currentQuestion.correctAnswer;
+              isRevealed && answer.selectedOptionId === option.id;
+            const isCorrectOption = !!option.isCorrect;
             const showAsCorrect = isRevealed && isCorrectOption;
             const showAsWrong = isOptionSelected && !answer.isCorrect;
 
             return (
               <button
-                key={optIndex}
+                key={option.id}
                 disabled={isRevealed}
-                onClick={() => handleAnswer(optIndex)}
+                onClick={() => {
+                  if (!currentQuestion || answers[currentQuestion._id]) return;
+                  dispatch(
+                    answerQuestion({
+                      questionId: currentQuestion._id,
+                      optionId: option.id,
+                      isCorrect: !!option.isCorrect,
+                    })
+                  );
+                }}
                 className={cn(
                   'flex items-center gap-3 rounded-lg border px-4 py-3 text-left text-sm transition-all',
                   showAsCorrect
@@ -482,12 +656,13 @@ export default function PracticePage() {
                     String.fromCharCode(65 + optIndex)
                   )}
                 </span>
-                <span className="flex-1">{option}</span>
+                <span className="flex-1">{option.text}</span>
               </button>
             );
           })}
         </div>
 
+        {/* Result + explanation */}
         {isRevealed && (
           <div className="mt-5 space-y-3">
             <div
@@ -500,26 +675,27 @@ export default function PracticePage() {
             >
               {answer.isCorrect ? (
                 <>
-                  <Check size={16} />
-                  Correct! Well done.
+                  <Check size={16} /> Correct! Well done.
                 </>
               ) : (
                 <>
-                  <X size={16} />
-                  Incorrect. The correct answer is{' '}
+                  <X size={16} /> Incorrect. The correct answer is{' '}
                   <span className="font-bold">
-                    {String.fromCharCode(65 + currentQuestion.correctAnswer)}.{' '}
-                    {currentQuestion.options[currentQuestion.correctAnswer]}
+                    {(() => {
+                      const idx = currentQuestion.options.findIndex(
+                        (o) => o.isCorrect
+                      );
+                      return `${String.fromCharCode(65 + idx)}. ${currentQuestion.options[idx]?.text ?? ''}`;
+                    })()}
                   </span>
                 </>
               )}
             </div>
-
             {currentQuestion.explanation && (
               <div>
                 <button
                   onClick={() =>
-                    dispatch(toggleExplanation(currentQuestion.id))
+                    dispatch(toggleExplanation(currentQuestion._id))
                   }
                   className="flex items-center gap-1.5 text-sm font-medium text-primary-500 hover:text-primary-600"
                 >
@@ -554,29 +730,282 @@ export default function PracticePage() {
         )}
       </div>
 
+      {/* Navigation */}
       <div className="flex items-center justify-between">
         <Button
           variant="outline"
           leftIcon={<ChevronLeft size={16} />}
-          disabled={currentIndex === 0}
-          onClick={() => dispatch(goToPreviousQuestion())}
+          disabled={safeIndex === 0}
+          onClick={goToPrev}
         >
           Previous
         </Button>
-
         <span className="text-sm font-medium text-[rgb(var(--color-text-muted))]">
-          {currentIndex + 1} / {filteredQuestions.length}
+          {safeIndex + 1} / {filteredQuestions.length}
         </span>
-
         <Button
           rightIcon={<ChevronRight size={16} />}
-          disabled={currentIndex === filteredQuestions.length - 1}
-          onClick={() => dispatch(goToNextQuestion())}
+          disabled={safeIndex >= filteredQuestions.length - 1}
+          onClick={goToNext}
         >
           Next
         </Button>
       </div>
 
+      {/* ── Submit / Results panel ─────────────────────────────────────── */}
+      <AnimatePresence>
+        {allAnswered && !submitted && (
+          <motion.div
+            key="submit-banner"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.35 }}
+            className="rounded-xl border-2 border-primary-400 bg-gradient-to-br from-primary-50 to-violet-50 p-6 text-center shadow-lg dark:border-primary-700 dark:from-primary-950/60 dark:to-violet-950/60"
+          >
+            <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-primary-100 dark:bg-primary-900">
+              <CheckCircle2
+                size={28}
+                className="text-primary-600 dark:text-primary-300"
+              />
+            </div>
+            <h3 className="text-xl font-bold font-heading text-[rgb(var(--color-text-primary))]">
+              All {filteredQuestions.length} Questions Answered!
+            </h3>
+            <p className="mt-1 text-sm text-[rgb(var(--color-text-secondary))]">
+              You got{' '}
+              <span className="font-semibold text-accent-600 dark:text-accent-400">
+                {correctCount}
+              </span>{' '}
+              correct out of{' '}
+              <span className="font-semibold">{filteredQuestions.length}</span>.
+              Submit to save your progress to your profile.
+            </p>
+            <div className="mt-5 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+              <Button
+                size="lg"
+                onClick={handleSubmit}
+                disabled={submitting}
+                leftIcon={
+                  submitting ? (
+                    <Loader2 size={18} className="animate-spin" />
+                  ) : (
+                    <Send size={18} />
+                  )
+                }
+                className="w-full sm:w-auto bg-primary-600 hover:bg-primary-700 shadow-md"
+              >
+                {submitting ? 'Submitting…' : 'Submit & Save Results'}
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={handleReExam}
+                leftIcon={<RotateCcw size={18} />}
+                className="w-full sm:w-auto"
+              >
+                Re-Exam (Start Over)
+              </Button>
+            </div>
+          </motion.div>
+        )}
+
+        {submitted && submitResult && (
+          <motion.div
+            key="results"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.4, type: 'spring', stiffness: 180 }}
+            className="rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] p-6 shadow-xl"
+          >
+            {/* Header */}
+            <div className="text-center">
+              <div
+                className={cn(
+                  'mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full',
+                  submitResult.scorePercentage >= 70
+                    ? 'bg-accent-100 dark:bg-accent-900'
+                    : submitResult.scorePercentage >= 40
+                      ? 'bg-primary-100 dark:bg-primary-900'
+                      : 'bg-danger-100 dark:bg-danger-900'
+                )}
+              >
+                <Trophy
+                  size={32}
+                  className={cn(
+                    submitResult.scorePercentage >= 70
+                      ? 'text-accent-600 dark:text-accent-300'
+                      : submitResult.scorePercentage >= 40
+                        ? 'text-primary-600 dark:text-primary-300'
+                        : 'text-danger-600 dark:text-danger-300'
+                  )}
+                />
+              </div>
+              <h3 className="text-2xl font-bold font-heading text-[rgb(var(--color-text-primary))]">
+                {submitResult.scorePercentage >= 70
+                  ? '🎉 Great Work!'
+                  : submitResult.scorePercentage >= 40
+                    ? '📈 Keep It Up!'
+                    : '💪 Keep Practicing!'}
+              </h3>
+              <p className="mt-1 text-sm text-[rgb(var(--color-text-secondary))]">
+                Subject:{' '}
+                <span className="font-semibold">{selectedSubjectLabel}</span>
+              </p>
+            </div>
+
+            {/* Score ring */}
+            <div className="my-6 flex justify-center">
+              <div className="relative h-36 w-36">
+                <svg viewBox="0 0 120 120" className="h-full w-full -rotate-90">
+                  <circle
+                    cx="60"
+                    cy="60"
+                    r="52"
+                    fill="none"
+                    strokeWidth="10"
+                    className="stroke-[rgb(var(--color-surface-elevated))]"
+                  />
+                  <circle
+                    cx="60"
+                    cy="60"
+                    r="52"
+                    fill="none"
+                    strokeWidth="10"
+                    strokeLinecap="round"
+                    strokeDasharray={2 * Math.PI * 52}
+                    strokeDashoffset={
+                      2 *
+                      Math.PI *
+                      52 *
+                      (1 - submitResult.scorePercentage / 100)
+                    }
+                    className={cn(
+                      'transition-all duration-1000',
+                      submitResult.scorePercentage >= 70
+                        ? 'stroke-accent-500'
+                        : submitResult.scorePercentage >= 40
+                          ? 'stroke-primary-500'
+                          : 'stroke-danger-500'
+                    )}
+                  />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span
+                    className={cn(
+                      'text-3xl font-bold font-heading',
+                      submitResult.scorePercentage >= 70
+                        ? 'text-accent-600 dark:text-accent-400'
+                        : submitResult.scorePercentage >= 40
+                          ? 'text-primary-600 dark:text-primary-400'
+                          : 'text-danger-600 dark:text-danger-400'
+                    )}
+                  >
+                    {submitResult.scorePercentage}%
+                  </span>
+                  <span className="text-xs text-[rgb(var(--color-text-muted))]">
+                    Score
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Stats grid */}
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {[
+                {
+                  icon: Target,
+                  label: 'Total',
+                  value: submitResult.totalQuestions,
+                  color: 'text-primary-500',
+                  bg: 'bg-primary-50 dark:bg-primary-950',
+                },
+                {
+                  icon: CheckCircle2,
+                  label: 'Correct',
+                  value: submitResult.correctAnswers,
+                  color: 'text-accent-600',
+                  bg: 'bg-accent-50 dark:bg-accent-950',
+                },
+                {
+                  icon: X,
+                  label: 'Wrong',
+                  value: submitResult.incorrectAnswers,
+                  color: 'text-danger-600',
+                  bg: 'bg-danger-50 dark:bg-danger-950',
+                },
+                {
+                  icon: Zap,
+                  label: 'XP Earned',
+                  value: `+${submitResult.xpEarned}`,
+                  color: 'text-violet-600',
+                  bg: 'bg-violet-50 dark:bg-violet-950',
+                },
+              ].map(({ icon: Icon, label, value, color, bg }) => (
+                <div
+                  key={label}
+                  className={cn('rounded-lg p-3 text-center', bg)}
+                >
+                  <Icon size={20} className={cn('mx-auto mb-1', color)} />
+                  <p className="text-lg font-bold text-[rgb(var(--color-text-primary))]">
+                    {value}
+                  </p>
+                  <p className="text-xs text-[rgb(var(--color-text-muted))]">
+                    {label}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            {/* Readiness bar */}
+            <div className="mt-4">
+              <div className="flex items-center justify-between text-xs text-[rgb(var(--color-text-muted))] mb-1">
+                <span className="flex items-center gap-1">
+                  <TrendingUp size={12} /> Readiness Score Updated
+                </span>
+                <span className="font-semibold text-primary-500">
+                  {submitResult.scorePercentage}%
+                </span>
+              </div>
+              <div className="h-2 overflow-hidden rounded-full bg-[rgb(var(--color-surface-elevated))]">
+                <motion.div
+                  className="h-full rounded-full bg-gradient-to-r from-primary-500 to-violet-500"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${submitResult.scorePercentage}%` }}
+                  transition={{ duration: 1, ease: 'easeOut', delay: 0.3 }}
+                />
+              </div>
+            </div>
+
+            {submitError && (
+              <p className="mt-3 text-center text-xs text-[rgb(var(--color-text-muted))]">
+                ⚠️ {submitError}
+              </p>
+            )}
+
+            {/* Actions */}
+            <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+              <Button
+                size="lg"
+                onClick={handleReExam}
+                leftIcon={<RotateCcw size={18} />}
+                className="w-full sm:w-auto"
+              >
+                Re-Exam (Same Subject)
+              </Button>
+              <Link
+                to={ROUTES.DASHBOARD}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] px-5 py-2.5 text-sm font-semibold text-[rgb(var(--color-text-primary))] shadow-sm transition-colors hover:bg-[rgb(var(--color-surface-elevated))] sm:w-auto"
+              >
+                <LayoutDashboard size={16} />
+                View Dashboard
+              </Link>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Note modal */}
       {noteModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="w-full max-w-md rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] p-6 shadow-xl">
@@ -598,7 +1027,7 @@ export default function PracticePage() {
             <textarea
               value={noteText}
               onChange={(e) => setNoteText(e.target.value)}
-              placeholder="Write your personal notes about this question..."
+              placeholder="Write your personal notes about this question…"
               rows={4}
               className="mt-4 w-full rounded-lg border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] px-3 py-2.5 text-sm text-[rgb(var(--color-text-primary))] placeholder:text-[rgb(var(--color-text-muted))] focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
             />
@@ -625,14 +1054,15 @@ export default function PracticePage() {
   );
 }
 
+// ─── SubjectTabs ───────────────────────────────────────────────────────────
 function SubjectTabs({
-  subjects: subs,
+  subjects,
   selected,
   onSelect,
 }: {
   subjects: { id: string; label: string }[];
   selected: string;
-  onSelect: (id: string) => void;
+  onSelect: (id: string, label: string) => void;
 }) {
   return (
     <div>
@@ -643,10 +1073,10 @@ function SubjectTabs({
         </h2>
       </div>
       <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
-        {subs.map((sub) => (
+        {subjects.map((sub) => (
           <button
             key={sub.id}
-            onClick={() => onSelect(sub.id)}
+            onClick={() => onSelect(sub.id, sub.label)}
             className={cn(
               'shrink-0 rounded-lg border px-4 py-2 text-sm font-medium transition-all',
               selected === sub.id
@@ -662,6 +1092,7 @@ function SubjectTabs({
   );
 }
 
+// ─── FilterBar ─────────────────────────────────────────────────────────────
 function FilterBar({
   filterMode,
   allCount,
@@ -692,7 +1123,7 @@ function FilterBar({
   ];
 
   return (
-    <div className="flex gap-2">
+    <div className="flex gap-2 flex-wrap">
       {filters.map((f) => {
         const Icon = f.icon;
         return (

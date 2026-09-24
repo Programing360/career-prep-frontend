@@ -1,5 +1,4 @@
 export { default as Home } from './public/Home';
-export { default as ExamDetail } from './public/ExamDetail';
 export { default as Login } from './auth/Login';
 export { default as Register } from './auth/Register';
 export { default as DashboardHome } from './dashboard/DashboardHome';

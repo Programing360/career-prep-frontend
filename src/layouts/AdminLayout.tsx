@@ -54,27 +54,30 @@ function SidebarInner({ collapsed, onNavigate }: SidebarInnerProps) {
 
   return (
     <>
-      <div className="flex h-16 items-center justify-between border-b border-[rgb(var(--color-border))] px-4">
+      <div className="flex h-16 items-center justify-between border-b border-slate-200 px-4 dark:border-slate-800">
         <Link
           to={ROUTES.HOME}
           onClick={onNavigate}
           className="flex items-center gap-2 overflow-hidden"
         >
-          <GraduationCap size={24} className="shrink-0 text-primary-500" />
+          <GraduationCap
+            size={24}
+            className="shrink-0 text-indigo-600 dark:text-indigo-400"
+          />
           {!collapsed && (
-            <span className="text-lg font-bold font-heading text-white">
+            <span className="font-heading text-lg font-bold text-slate-900 dark:text-white">
               MeritPrep
             </span>
           )}
         </Link>
         {!collapsed && (
-          <span className="rounded-full bg-primary-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary-700 dark:bg-primary-900 dark:text-primary-300">
+          <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-indigo-700 dark:bg-indigo-950/70 dark:text-indigo-300">
             Admin
           </span>
         )}
       </div>
 
-      <nav className="flex-1 space-y-1 px-3 py-4">
+      <nav className="flex-1 space-y-1 px-3 py-4 bg-[#221f4a] text-white">
         {adminSidebarLinks.map((link) => {
           const Icon = link.icon;
           const active = isActive(link.to);
@@ -84,10 +87,10 @@ function SidebarInner({ collapsed, onNavigate }: SidebarInnerProps) {
               to={link.to}
               onClick={onNavigate}
               className={cn(
-                'flex items-center gap-3  rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors',
+                'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm  transition-colors',
                 active
-                  ? 'bg-primary-50 text-primary-600 dark:bg-white dark:text-primary-600'
-                  : 'text-white hover:bg-white hover:text-black'
+                  ? 'bg-indigo-50 text-indigo-600 dark:bg-indigo-600/15 dark:text-indigo-400 border-r-4 border-blue-600 transition-all duration-75'
+                  : ' hover:bg-[#ffffff48] hover:text-white dark:text-slate-400 dark:hover:bg-slate-800/60 dark:hover:text-slate-100'
               )}
               title={collapsed ? link.label : undefined}
             >
@@ -98,13 +101,13 @@ function SidebarInner({ collapsed, onNavigate }: SidebarInnerProps) {
         })}
       </nav>
 
-      <div className="border-t border-[rgb(var(--color-border))] p-3">
+      <div className="border-t border-slate-200 p-3 dark:border-slate-800">
         <button
           onClick={() => {
             logout();
             onNavigate();
           }}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-white transition-colors hover:bg-danger-50 hover:text-danger-600 dark:hover:bg-danger-950"
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-rose-50 hover:text-rose-600 dark:text-slate-400 dark:hover:bg-rose-950/30 dark:hover:text-rose-400"
           title={collapsed ? 'Logout' : undefined}
         >
           <LogOut size={20} className="shrink-0" />
@@ -129,7 +132,7 @@ function SidebarWrapper({
   return (
     <aside
       className={cn(
-        'flex flex-col border-r border-[#221f4a] bg-[#221f4a] transition-all duration-300',
+        'flex flex-col border-r border-slate-200 bg-white transition-all duration-300 dark:border-slate-800 dark:bg-slate-900',
         collapsed ? 'w-[68px]' : 'w-64',
         className
       )}
@@ -147,12 +150,12 @@ export function AdminLayout({ children }: { children?: ReactNode }) {
   const navigate = useNavigate();
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[hsl(var(--background))] bg-slate-400/30">
+    <div className="flex h-screen overflow-hidden bg-slate-50 dark:bg-slate-950">
       <SidebarWrapper collapsed={collapsed} className="hidden lg:flex">
         <SidebarInner collapsed={collapsed} onNavigate={() => {}} />
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="hidden border-t border-[rgb(var(--color-border))] p-2 text-[rgb(var(--color-text-secondary))] hover:bg-[rgb(var(--color-surface-elevated))] lg:block"
+          className="hidden border-t border-slate-200 p-2 text-slate-500 hover:bg-slate-100 dark:border-slate-800 dark:text-slate-400 dark:hover:bg-slate-800 lg:block"
           aria-label="Toggle sidebar"
         >
           {collapsed ? (
@@ -166,27 +169,30 @@ export function AdminLayout({ children }: { children?: ReactNode }) {
       {mobileOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div
-            className="absolute inset-0 bg-black/50"
+            className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm dark:bg-black/70"
             onClick={() => setMobileOpen(false)}
           />
           <SidebarWrapper
             collapsed={false}
-            className="absolute left-0 top-0 h-full"
+            className="absolute left-0 top-0 h-full shadow-xl"
           >
-            <div className="flex h-16 items-center justify-between border-b border-[rgb(var(--color-border))] px-4">
+            <div className="flex h-16 items-center justify-between border-b border-slate-200 px-4 dark:border-slate-800">
               <Link
                 to={ROUTES.ADMIN_DASHBOARD}
                 onClick={() => setMobileOpen(false)}
                 className="flex items-center gap-2"
               >
-                <GraduationCap size={24} className="text-primary-500" />
-                <span className="text-lg font-bold font-heading text-[rgb(var(--color-text-primary))]">
+                <GraduationCap
+                  size={24}
+                  className="text-indigo-600 dark:text-indigo-400"
+                />
+                <span className="font-heading text-lg font-bold text-slate-900 dark:text-white">
                   MeritPrep
                 </span>
               </Link>
               <button
                 onClick={() => setMobileOpen(false)}
-                className="rounded-md p-1 text-[rgb(var(--color-text-secondary))]"
+                className="rounded-md p-1 text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
               >
                 <X size={18} />
               </button>
@@ -200,25 +206,25 @@ export function AdminLayout({ children }: { children?: ReactNode }) {
       )}
 
       <div className="flex flex-1 flex-col overflow-hidden">
-        <header className="flex h-16 items-center justify-between border-b border-[rgb(var(--color-border))] bg-[#221f4a] px-4 sm:px-6">
+        <header className="flex h-16 items-center justify-between border-b border-slate-200 bg-white px-4 sm:px-6 dark:border-slate-800 dark:bg-slate-900">
           <div className="flex items-center gap-4">
             <button
               onClick={() => setMobileOpen(true)}
-              className="rounded-md p-2 text-[rgb(var(--color-text-secondary))] lg:hidden"
+              className="rounded-md p-2 text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 lg:hidden"
               aria-label="Open menu"
             >
               <Menu size={20} />
             </button>
 
-            <div className="hidden items-center gap-4 sm:flex">
-              <div className="flex items-center gap-1.5 rounded-lg bg-accent-50 px-2.5 py-1 text-xs font-medium text-accent-700 dark:bg-accent-950 dark:text-accent-300">
-                <span className="h-1.5 w-1.5 rounded-full bg-accent-500" />
+            <div className="hidden items-center gap-3 sm:flex">
+              <div className="flex items-center gap-1.5 rounded-lg bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
                 142 Online
               </div>
-              <div className="flex items-center gap-1.5 rounded-lg bg-primary-50 px-2.5 py-1 text-xs font-medium text-primary-700 dark:bg-primary-950 dark:text-primary-300">
+              <div className="flex items-center gap-1.5 rounded-lg bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300">
                 <BookOpen size={12} />8 Active Exams
               </div>
-              <div className="flex items-center gap-1.5 rounded-lg bg-primary-50 px-2.5 py-1 text-xs font-medium text-primary-700 dark:bg-primary-950 dark:text-primary-300">
+              <div className="flex items-center gap-1.5 rounded-lg bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700 dark:bg-amber-950/60 dark:text-amber-300">
                 <Settings size={12} />3 Pending Reviews
               </div>
             </div>
@@ -227,7 +233,7 @@ export function AdminLayout({ children }: { children?: ReactNode }) {
           <div className="flex items-center gap-3">
             <button
               onClick={() => navigate(ROUTES.DASHBOARD)}
-              className="hidden items-center gap-2 rounded-lg bg-[#5c66ab] px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-[#454f8b] hover:text-[rgb(var(--color-text-primary))] sm:flex"
+              className="hidden items-center gap-2 rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 sm:flex"
             >
               <Eye size={16} />
               Switch to Student View
@@ -235,21 +241,21 @@ export function AdminLayout({ children }: { children?: ReactNode }) {
 
             <button
               onClick={toggleTheme}
-              className="rounded-md p-2 text-[rgb(var(--color-text-secondary))] transition-colors hover:bg-[rgb(var(--color-surface-elevated))]"
+              className="rounded-md p-2 text-slate-500 transition-colors hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
               aria-label="Toggle theme"
             >
               {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
             </button>
 
-            <div className="flex items-center gap-3 border-l border-[rgb(var(--color-border))] pl-3">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-100 text-sm font-medium text-primary-700 dark:bg-primary-900 dark:text-primary-300">
+            <div className="flex items-center gap-3 border-l border-slate-200 pl-3 dark:border-slate-800">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100 text-sm font-semibold text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300">
                 {user?.name?.charAt(0)?.toUpperCase() || 'A'}
               </div>
               <div className="hidden text-left sm:block">
-                <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
+                <p className="text-sm font-medium text-slate-900 dark:text-slate-100">
                   {user?.name || 'Admin'}
                 </p>
-                <p className="text-xs text-[rgb(var(--color-text-muted))]">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   {user?.role === 'admin'
                     ? 'Admin'
                     : user?.role === 'moderator'
@@ -261,7 +267,7 @@ export function AdminLayout({ children }: { children?: ReactNode }) {
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 bg-[#16152b]">
+        <main className="flex-1 overflow-y-auto bg-slate-50 p-4 sm:p-6 dark:bg-slate-950">
           {children ?? <Outlet />}
         </main>
       </div>

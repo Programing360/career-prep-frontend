@@ -33,6 +33,7 @@ export const ROUTES = {
   ADMIN_DASHBOARD: '/admin',
   ADMIN_EXAMS: '/admin/exams',
   ADMIN_EXAMS_NEW: '/admin/exams/new',
+  ADMIN_EXAM_MCQ: '/admin/exams/:slug/mcq',
   ADMIN_USERS: '/admin/users',
   ADMIN_TAXONOMY: '/admin/taxonomy',
   ADMIN_SYLLABUS: '/admin/syllabus',

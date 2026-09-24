@@ -1,4 +1,4 @@
-﻿import { motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
   BarChart3,
   CheckCircle2,
@@ -96,7 +96,7 @@ export function MockTestResultsView({
       ? Math.round((result.correctCount / result.totalQuestions) * 100)
       : 0;
   const isVerbalNonVerbal = testType === 'verbal_nonverbal';
-
+  console.log(result);
   return (
     <motion.div
       initial={{ opacity: 0, y: 24 }}
@@ -127,7 +127,7 @@ export function MockTestResultsView({
             ) : (
               <Lock size={10} aria-hidden="true" />
             )}
-            {isVerbalNonVerbal ? 'Verbal & Non-Verbal' : 'Demo'} Â· Final
+            {isVerbalNonVerbal ? 'Verbal & Non-Verbal' : 'Demo'} A· Final
           </span>
         </div>
       </div>
@@ -198,7 +198,7 @@ export function MockTestResultsView({
       </div>
 
       {/* Subject-wise performance breakdown */}
-      {result.subjectBreakdown.length > 0 && (
+      {result?.subjectBreakdown?.length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -217,7 +217,7 @@ export function MockTestResultsView({
           </div>
 
           <div className="mt-5 space-y-5">
-            {result.subjectBreakdown.map((subject, index) => {
+            {result?.subjectBreakdown?.map((subject, index) => {
               const correctPct =
                 subject.totalQuestions > 0
                   ? (subject.correctCount / subject.totalQuestions) * 100

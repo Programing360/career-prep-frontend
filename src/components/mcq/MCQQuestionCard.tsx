@@ -10,6 +10,8 @@ interface MCQQuestionCardProps {
   questionNumber: number;
   selectedOptionId: string | null;
   isRevealed: boolean;
+  correctOptionId?: string | null;
+  explanation?: string;
   onSelectOption: (questionId: string, optionId: string) => void;
 }
 
@@ -38,22 +40,32 @@ export function MCQQuestionCard({
   questionNumber,
   selectedOptionId,
   isRevealed,
+  correctOptionId,
+  explanation,
   onSelectOption,
 }: MCQQuestionCardProps) {
   const selectedOption = selectedOptionId
     ? question.options.find((o) => o.id === selectedOptionId)
     : null;
-
+  // The revealed correct option id: prefer the server-graded value, falling
+  // back to the locally-marked correct option (used in offline/mock flows).
+  const revealedCorrectId =
+    correctOptionId !== undefined
+      ? correctOptionId
+      : (question.options.find((o) => o.isCorrect)?.id ?? null);
+  const isAnswerCorrect =
+    isRevealed && selectedOption?.id === revealedCorrectId;
+  // console.log(question);
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent, option: MCQOption) => {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
         if (!isRevealed) {
-          onSelectOption(question.id, option.id);
+          onSelectOption(question._id, option.id);
         }
       }
     },
-    [isRevealed, onSelectOption, question.id]
+    [isRevealed, onSelectOption, question._id]
   );
 
   const cardRef = useRef<HTMLDivElement>(null);
@@ -66,9 +78,9 @@ export function MCQQuestionCard({
       animate="show"
       className={cn(
         'rounded-xl border p-5 transition-all',
-        isRevealed && selectedOption?.isCorrect
+        isRevealed && isAnswerCorrect
           ? 'border-accent-300 bg-accent-50/50 dark:border-accent-700 dark:bg-accent-950/50'
-          : isRevealed && selectedOption && !selectedOption.isCorrect
+          : isRevealed && selectedOption && !isAnswerCorrect
             ? 'border-danger-300 bg-danger-50/50 dark:border-danger-700 dark:bg-danger-950/50'
             : 'border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))]'
       )}
@@ -77,15 +89,15 @@ export function MCQQuestionCard({
         <span
           className={cn(
             'flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold',
-            isRevealed && selectedOption?.isCorrect
+            isRevealed && isAnswerCorrect
               ? 'bg-accent-500 text-white'
-              : isRevealed && selectedOption && !selectedOption.isCorrect
+              : isRevealed && selectedOption && !isAnswerCorrect
                 ? 'bg-danger-500 text-white'
                 : 'bg-[rgb(var(--color-surface-elevated))] text-[rgb(var(--color-text-secondary))]'
           )}
         >
           {isRevealed && selectedOption ? (
-            selectedOption.isCorrect ? (
+            isAnswerCorrect ? (
               <Check size={14} />
             ) : (
               <X size={14} />
@@ -114,11 +126,11 @@ export function MCQQuestionCard({
         <span
           className={cn(
             'shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium',
-            question.difficulty === 'Easy' &&
+            question.difficulty === 'easy' &&
               'bg-accent-100 text-accent-700 dark:bg-accent-900 dark:text-accent-300',
-            question.difficulty === 'Medium' &&
+            question.difficulty === 'medium' &&
               'bg-primary-100 text-primary-700 dark:bg-primary-900 dark:text-primary-300',
-            question.difficulty === 'Hard' &&
+            question.difficulty === 'hard' &&
               'bg-danger-100 text-danger-700 dark:bg-danger-900 dark:text-danger-300'
           )}
         >
@@ -133,10 +145,11 @@ export function MCQQuestionCard({
       >
         {question.options.map((option, optIndex) => {
           const isSelected = selectedOptionId === option.id;
-          const isCorrectOption = option.isCorrect === true;
+          const isCorrectOption =
+            revealedCorrectId !== null && option.id === revealedCorrectId;
           const showAsCorrect = isRevealed && isCorrectOption;
           const showAsWrong = isRevealed && isSelected && !isCorrectOption;
-
+          // console.log(isRevealed, isCorrectOption, option);
           return (
             <motion.button
               key={option.id}
@@ -150,7 +163,7 @@ export function MCQQuestionCard({
               aria-disabled={isRevealed}
               disabled={isRevealed}
               tabIndex={isRevealed ? -1 : 0}
-              onClick={() => onSelectOption(question.id, option.id)}
+              onClick={() => onSelectOption(question._id, option.id)}
               onKeyDown={(e) => handleKeyDown(e, option)}
               className={cn(
                 'flex items-center gap-2 rounded-lg border px-3 py-2.5 text-left text-sm transition-all focus-ring',
@@ -192,7 +205,7 @@ export function MCQQuestionCard({
       </div>
 
       <MCQExplanationPanel
-        explanation={question.explanation}
+        explanation={explanation ?? question.explanation}
         isRevealed={isRevealed}
       />
     </motion.div>

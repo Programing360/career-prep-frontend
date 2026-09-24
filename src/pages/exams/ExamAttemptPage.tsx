@@ -1,4 +1,4 @@
-﻿import { useEffect, useCallback, useState, useMemo, useRef } from 'react';
+import { useEffect, useCallback, useState, useMemo, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import {
@@ -21,6 +21,9 @@ import {
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/Button';
 import { ROUTES } from '@/constants/routes';
+import { getExamBySlug } from '@/services/examService';
+import { getExamMcqs, startAttempt, submitAttempt } from '@/services/examApi';
+import type { ExamSessionData } from '@/services/examApi';
 import type { MCQ } from '@/types';
 import type { RootState } from '@/store/store';
 import type { QuestionStatus } from '@/store/slices/examAttemptSlice';
@@ -35,164 +38,6 @@ import {
   submitExam,
   resetExam,
 } from '@/store/slices/examAttemptSlice';
-
-const mockExamData: Record<
-  string,
-  { title: string; durationMinutes: number; questions: MCQ[] }
-> = {
-  'css-preliminary': {
-    title: 'CSS Preliminary Exam 2025',
-    durationMinutes: 120,
-    questions: [
-      {
-        id: 'eq-1',
-        examId: 'css-preliminary',
-        subjectId: 'gk',
-        question: 'Which of the following is the capital of Turkey?',
-        options: ['Istanbul', 'Ankara', 'Izmir', 'Antalya'],
-        correctAnswer: 1,
-        difficulty: 'easy',
-      },
-      {
-        id: 'eq-2',
-        examId: 'css-preliminary',
-        subjectId: 'english',
-        question: 'Choose the antonym of "Ephemeral":',
-        options: ['Fleeting', 'Permanent', 'Transient', 'Brief'],
-        correctAnswer: 1,
-        difficulty: 'medium',
-      },
-      {
-        id: 'eq-3',
-        examId: 'css-preliminary',
-        subjectId: 'reasoning',
-        question: 'If 5x + 3 = 28, what is the value of x?',
-        options: ['5', '6', '7', '8'],
-        correctAnswer: 1,
-        difficulty: 'easy',
-      },
-      {
-        id: 'eq-4',
-        examId: 'css-preliminary',
-        subjectId: 'gk',
-        question:
-          'The Great Wall of China was primarily built to protect against invasions from which direction?',
-        options: ['South', 'East', 'North', 'West'],
-        correctAnswer: 2,
-        difficulty: 'easy',
-      },
-      {
-        id: 'eq-5',
-        examId: 'css-preliminary',
-        subjectId: 'english',
-        question:
-          'Which figure of speech is used in: "The wind whispered through the trees"?',
-        options: ['Simile', 'Metaphor', 'Personification', 'Hyperbole'],
-        correctAnswer: 2,
-        difficulty: 'medium',
-      },
-      {
-        id: 'eq-6',
-        examId: 'css-preliminary',
-        subjectId: 'gk',
-        question: 'What is the smallest prime number?',
-        options: ['0', '1', '2', '3'],
-        correctAnswer: 2,
-        difficulty: 'easy',
-      },
-      {
-        id: 'eq-7',
-        examId: 'css-preliminary',
-        subjectId: 'reasoning',
-        question: 'Find the next number in the series: 3, 7, 15, 31, 63, ?',
-        options: ['96', '127', '125', '128'],
-        correctAnswer: 1,
-        difficulty: 'medium',
-      },
-      {
-        id: 'eq-8',
-        examId: 'css-preliminary',
-        subjectId: 'gk',
-        question: 'Which organ in the human body produces insulin?',
-        options: ['Liver', 'Kidney', 'Pancreas', 'Heart'],
-        correctAnswer: 2,
-        difficulty: 'easy',
-      },
-      {
-        id: 'eq-9',
-        examId: 'css-preliminary',
-        subjectId: 'english',
-        question:
-          'Identify the correct sentence: "Neither the teacher nor the students ___ present."',
-        options: ['was', 'is', 'were', 'has been'],
-        correctAnswer: 2,
-        difficulty: 'medium',
-      },
-      {
-        id: 'eq-10',
-        examId: 'css-preliminary',
-        subjectId: 'reasoning',
-        question:
-          'A clock shows 3:15. What is the angle between the hour and minute hands?',
-        options: ['0 degrees', '7.5 degrees', '15 degrees', '22.5 degrees'],
-        correctAnswer: 1,
-        difficulty: 'hard',
-      },
-    ],
-  },
-  default: {
-    title: 'General Practice Test',
-    durationMinutes: 30,
-    questions: [
-      {
-        id: 'dq-1',
-        examId: 'default',
-        subjectId: 'gk',
-        question: 'What is the largest planet in our solar system?',
-        options: ['Earth', 'Mars', 'Jupiter', 'Saturn'],
-        correctAnswer: 2,
-        difficulty: 'easy',
-      },
-      {
-        id: 'dq-2',
-        examId: 'default',
-        subjectId: 'gk',
-        question: 'How many continents are there on Earth?',
-        options: ['5', '6', '7', '8'],
-        correctAnswer: 2,
-        difficulty: 'easy',
-      },
-      {
-        id: 'dq-3',
-        examId: 'default',
-        subjectId: 'english',
-        question: 'What is the plural of "child"?',
-        options: ['Childs', 'Childes', 'Children', 'Childern'],
-        correctAnswer: 2,
-        difficulty: 'easy',
-      },
-      {
-        id: 'dq-4',
-        examId: 'default',
-        subjectId: 'reasoning',
-        question:
-          'If all Bloops are Razzies and all Razzies are Lazzies, are all Bloops definitely Lazzies?',
-        options: ['Yes', 'No', 'Cannot be determined', 'Only some'],
-        correctAnswer: 0,
-        difficulty: 'easy',
-      },
-      {
-        id: 'dq-5',
-        examId: 'default',
-        subjectId: 'gk',
-        question: 'What is the boiling point of water at sea level in Celsius?',
-        options: ['90Â°C', '95Â°C', '100Â°C', '110Â°C'],
-        correctAnswer: 2,
-        difficulty: 'easy',
-      },
-    ],
-  },
-};
 
 function formatTime(seconds: number): string {
   const h = Math.floor(seconds / 3600);
@@ -232,25 +77,81 @@ export default function ExamAttemptPage() {
     status,
     result,
     showSubmitModal,
+    durationMinutes,
   } = useSelector((state: RootState) => state.examAttempt);
 
   const [paletteOpen, setPaletteOpen] = useState(false);
-  const initializedRef = useRef(false);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [retryKey, setRetryKey] = useState(0);
+  const handleSubmitRef = useRef<() => void>(() => {});
 
   useEffect(() => {
-    if (!initializedRef.current) {
-      initializedRef.current = true;
-      const data = mockExamData[id || ''] || mockExamData.default;
-      dispatch(
-        initExam({
-          examId: id || 'default',
-          examTitle: data.title,
-          questions: data.questions,
-          durationMinutes: data.durationMinutes,
-        })
-      );
+    let cancelled = false;
+    async function load() {
+      setLoading(true);
+      setLoadError(null);
+      try {
+        const slug = id || 'army-test';
+        let sessionData: ExamSessionData | null = null;
+        try {
+          sessionData = await startAttempt(slug);
+        } catch {
+          // fallback to standard exam lookup
+        }
+
+        if (cancelled) return;
+
+        if (
+          sessionData &&
+          sessionData.questions &&
+          sessionData.questions.length > 0
+        ) {
+          setSessionId(sessionData.sessionId || sessionData.attemptId || null);
+          dispatch(
+            initExam({
+              examId: sessionData.sessionId || slug,
+              examTitle:
+                sessionData.examTitle || 'Army Initial Test (ISSB Preparation)',
+              questions: sessionData.questions,
+              durationMinutes: sessionData.durationMinutes || 30,
+            })
+          );
+        } else {
+          const [examRes, mcqsRes] = await Promise.all([
+            slug ? getExamBySlug(slug) : Promise.resolve(null),
+            getExamMcqs(slug),
+          ]);
+          if (cancelled) return;
+          const exam = examRes?.data;
+          dispatch(
+            initExam({
+              examId: slug || 'default',
+              examTitle: exam?.title || 'Army Initial Test (ISSB Preparation)',
+              questions: mcqsRes?.data || [],
+              durationMinutes: exam?.examPattern?.durationMinutes || 30,
+            })
+          );
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setLoadError(
+            err instanceof Error
+              ? err.message
+              : 'Failed to load exam. Please try again.'
+          );
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
     }
-  }, [id, dispatch]);
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [id, dispatch, retryKey]);
 
   useEffect(() => {
     if (status !== 'in_progress') return;
@@ -259,6 +160,12 @@ export default function ExamAttemptPage() {
     }, 1000);
     return () => clearInterval(interval);
   }, [status, dispatch]);
+
+  useEffect(() => {
+    if (timeRemaining <= 0 && status === 'in_progress') {
+      handleSubmitRef.current();
+    }
+  }, [timeRemaining, status]);
 
   useEffect(() => {
     if (status === 'submitted' && !showSubmitModal && result) {
@@ -282,7 +189,7 @@ export default function ExamAttemptPage() {
     let marked = 0;
     let notVisited = 0;
     for (const q of questions) {
-      const s = questionStatus[q.id];
+      const s = questionStatus[q._id];
       if (s?.answered) answered++;
       if (s?.markedForReview) marked++;
       if (!s?.visited) notVisited++;
@@ -297,12 +204,12 @@ export default function ExamAttemptPage() {
   }, [questions, questionStatus]);
 
   const handleSelectOption = useCallback(
-    (optionIndex: number) => {
+    (optionId: string) => {
       if (!currentQuestion || status !== 'in_progress') return;
       dispatch(
         selectOption({
-          questionId: currentQuestion.id,
-          optionIndex,
+          questionId: currentQuestion._id,
+          optionId,
         })
       );
     },
@@ -311,24 +218,86 @@ export default function ExamAttemptPage() {
 
   const handleClear = useCallback(() => {
     if (!currentQuestion || status !== 'in_progress') return;
-    dispatch(clearResponse(currentQuestion.id));
+    dispatch(clearResponse(currentQuestion._id));
   }, [currentQuestion, status, dispatch]);
 
   const handleMarkReview = useCallback(() => {
     if (!currentQuestion || status !== 'in_progress') return;
-    dispatch(toggleMarkForReview(currentQuestion.id));
+    dispatch(toggleMarkForReview(currentQuestion._id));
   }, [currentQuestion, status, dispatch]);
 
-  const handleSubmit = useCallback(() => {
-    dispatch(submitExam());
-  }, [dispatch]);
+  const handleSubmit = useCallback(async () => {
+    if (submitting) return;
+    setSubmitting(true);
+    try {
+      const formattedAnswers = questions.map((q) => ({
+        questionId: q._id,
+        selectedOptionId: answers[q._id] || '',
+      }));
+      const timeSpent = durationMinutes * 60 - timeRemaining;
+
+      const res = await submitAttempt(sessionId || 'army-test', {
+        examId: id || 'army-test',
+        answers: formattedAnswers,
+        timeTaken: timeSpent,
+      });
+
+      const targetId = res?.sessionId || res?.attempt?.id;
+      if (targetId) {
+        navigate(`/exams/${targetId}/result`);
+        return;
+      }
+    } catch {
+      // fallback to local calculations if submit fail
+    } finally {
+      setSubmitting(false);
+      dispatch(submitExam());
+    }
+  }, [
+    submitting,
+    questions,
+    answers,
+    durationMinutes,
+    timeRemaining,
+    sessionId,
+    id,
+    navigate,
+    dispatch,
+  ]);
+
+  useEffect(() => {
+    handleSubmitRef.current = handleSubmit;
+  }, [handleSubmit]);
 
   const handleExit = useCallback(() => {
     dispatch(resetExam());
     navigate(ROUTES.EXAMS);
   }, [dispatch, navigate]);
 
-  if (!currentQuestion || questions.length === 0) {
+  if (loadError) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-[hsl(var(--background))] px-4">
+        <div className="w-full max-w-md rounded-xl border border-danger-200 bg-danger-50/40 p-8 text-center dark:border-danger-800">
+          <p className="text-sm text-[rgb(var(--color-text-secondary))]">
+            {loadError}
+          </p>
+          <Button
+            variant="outline"
+            size="sm"
+            className="mt-4"
+            onClick={() => {
+              setLoadError(null);
+              setRetryKey((k) => k + 1);
+            }}
+          >
+            Retry
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (loading || !currentQuestion || questions.length === 0) {
     return (
       <div className="flex h-screen items-center justify-center bg-[hsl(var(--background))]">
         <div className="text-center">
@@ -344,8 +313,8 @@ export default function ExamAttemptPage() {
     );
   }
 
-  const currentAnswer = answers[currentQuestion.id];
-  const currentStatus = questionStatus[currentQuestion.id];
+  const currentAnswer = answers[currentQuestion._id];
+  const currentStatus = questionStatus[currentQuestion._id];
   const isTimeLow = timeRemaining <= 300;
   const isTimeCritical = timeRemaining <= 60;
 
@@ -418,12 +387,12 @@ export default function ExamAttemptPage() {
 
               <div className="mt-5 space-y-2.5">
                 {currentQuestion.options.map((option, optIndex) => {
-                  const isSelected = currentAnswer === optIndex;
+                  const isSelected = currentAnswer === option.id;
                   return (
                     <button
-                      key={optIndex}
+                      key={option.id}
                       disabled={status !== 'in_progress'}
-                      onClick={() => handleSelectOption(optIndex)}
+                      onClick={() => handleSelectOption(option.id)}
                       className={cn(
                         'flex w-full items-center gap-3 rounded-lg border px-4 py-3 text-left text-sm transition-all',
                         isSelected
@@ -442,7 +411,7 @@ export default function ExamAttemptPage() {
                       >
                         {String.fromCharCode(65 + optIndex)}
                       </span>
-                      <span className="flex-1">{option}</span>
+                      <span className="flex-1">{option.text}</span>
                     </button>
                   );
                 })}
@@ -551,11 +520,7 @@ export default function ExamAttemptPage() {
       {showSubmitModal && status === 'in_progress' && (
         <SubmitModal
           stats={stats}
-          timeUsed={
-            (mockExamData[id || ''] || mockExamData.default).durationMinutes *
-              60 -
-            timeRemaining
-          }
+          timeUsed={durationMinutes * 60 - timeRemaining}
           onConfirm={handleSubmit}
           onCancel={() => dispatch(setShowSubmitModal(false))}
         />
@@ -620,11 +585,11 @@ function QuestionPalette({
 
       <div className="flex flex-wrap gap-1.5 overflow-y-auto">
         {questions.map((q, idx) => {
-          const st = questionStatus[q.id];
+          const st = questionStatus[q._id];
           const isCurrent = idx === currentIndex;
           return (
             <button
-              key={q.id}
+              key={q._id}
               onClick={() => onSelect(idx)}
               disabled={!isInteractive}
               className={cn(

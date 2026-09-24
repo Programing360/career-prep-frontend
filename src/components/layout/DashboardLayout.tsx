@@ -80,7 +80,7 @@ function SidebarInner({ collapsed, onNavigate }: SidebarInnerProps) {
                 'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors',
                 active
                   ? 'bg-primary-50 text-primary-600 dark:bg-white dark:text-primary-700'
-                  : 'text-white hover:bg-[#ffffff] hover:text-black'
+                  : 'text-white hover:bg-[#ffffff50] hover:text-white'
               )}
               title={collapsed ? link.label : undefined}
             >

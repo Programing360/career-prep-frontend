@@ -1,5 +1,7 @@
 import api from '@/lib/axios';
+import { API_ENDPOINTS } from '@/constants/apiEndpoints';
 import type { UserRole } from '@/types/auth';
+import type { AdminQuestion } from '@/types/exam';
 
 // ==========================================
 // TYPES (mirror the backend API contracts)
@@ -162,7 +164,7 @@ export interface GetExamsQueueResponse {
   success: boolean;
   message?: string;
   data: QueueExam[];
-  meta: Omit<AdminPagination, 'totalPages'>;
+  meta: AdminPagination;
 }
 
 /** Payload for POST /exams (CreateExamSchema from the backend) */
@@ -170,7 +172,14 @@ export interface CreateExamPayload {
   title: string;
   slug: string;
   conductingAuthority: string;
-  category: 'federal' | 'provincial' | 'armed_forces' | 'testing_service';
+  category:
+    | 'federal'
+    | 'provincial'
+    | 'armed-forces'
+    | 'armed_forces'
+    | 'banking'
+    | 'testing_service'
+    | 'others';
   province: string;
   bpsScale: number;
   departmentName: string;
@@ -205,6 +214,7 @@ export interface CreateExamPayload {
   targetSubjects?: string[];
   sourceUrl?: string;
   officialNotificationUrl?: string;
+  imageUrl?: string;
 }
 
 interface ApiSuccessResponse {
@@ -223,7 +233,10 @@ interface ApiSuccessResponse {
 export async function getUsers(
   params?: GetUsersParams
 ): Promise<GetUsersResponse> {
-  const { data } = await api.get<GetUsersResponse>('/admin/users', { params });
+  const { data } = await api.get<GetUsersResponse>(
+    API_ENDPOINTS.ADMIN_USERS.BASE,
+    { params }
+  );
   return data;
 }
 
@@ -236,7 +249,7 @@ export async function updateUserRole(
   role: UserRole
 ): Promise<ApiSuccessResponse> {
   const { data } = await api.patch<ApiSuccessResponse>(
-    `/admin/users/${userId}/role`,
+    API_ENDPOINTS.ADMIN_USERS.ROLE(userId),
     { role }
   );
   return data;
@@ -251,7 +264,7 @@ export async function banUser(
   reason?: string
 ): Promise<ApiSuccessResponse> {
   const { data } = await api.patch<ApiSuccessResponse>(
-    `/admin/users/${userId}/ban`,
+    API_ENDPOINTS.ADMIN_USERS.BAN(userId),
     { isBanned: true, banReason: reason }
   );
   return data;
@@ -263,7 +276,7 @@ export async function banUser(
  */
 export async function unbanUser(userId: string): Promise<ApiSuccessResponse> {
   const { data } = await api.patch<ApiSuccessResponse>(
-    `/admin/users/${userId}/ban`,
+    API_ENDPOINTS.ADMIN_USERS.BAN(userId),
     { isBanned: false }
   );
   return data;
@@ -278,7 +291,7 @@ export async function resetUserPassword(
   newPassword: string
 ): Promise<ApiSuccessResponse> {
   const { data } = await api.post<ApiSuccessResponse>(
-    `/admin/users/${userId}/reset-password`,
+    API_ENDPOINTS.ADMIN_USERS.RESET_PASSWORD(userId),
     { newPassword }
   );
   return data;
@@ -293,7 +306,7 @@ export async function updateUserSubscription(
   payload: UpdateSubscriptionPayload
 ): Promise<ApiSuccessResponse> {
   const { data } = await api.patch<ApiSuccessResponse>(
-    `/admin/users/${userId}/subscription`,
+    API_ENDPOINTS.ADMIN_USERS.SUBSCRIPTION(userId),
     payload
   );
   return data;
@@ -307,7 +320,7 @@ export async function getUserById(
   userId: string
 ): Promise<{ success: boolean; data: AdminUserDetail }> {
   const { data } = await api.get<{ success: boolean; data: AdminUserDetail }>(
-    `/admin/users/${userId}`
+    API_ENDPOINTS.ADMIN_USERS.BY_ID(userId)
   );
   return data;
 }
@@ -322,7 +335,7 @@ export async function getUserLearningHistory(
   const { data } = await api.get<{
     success: boolean;
     data: UserLearningHistory;
-  }>(`/admin/users/${userId}/history`);
+  }>(API_ENDPOINTS.ADMIN_USERS.HISTORY(userId));
   return data;
 }
 
@@ -335,7 +348,7 @@ export async function updateUserPreferences(
   payload: UpdateUserPreferencesPayload
 ): Promise<ApiSuccessResponse> {
   const { data } = await api.patch<ApiSuccessResponse>(
-    `/admin/users/${userId}/preferences`,
+    API_ENDPOINTS.ADMIN_USERS.PREFERENCES(userId),
     payload
   );
   return data;
@@ -349,9 +362,12 @@ export async function getExamsQueue(params?: {
   page?: number;
   limit?: number;
 }): Promise<GetExamsQueueResponse> {
-  const { data } = await api.get<GetExamsQueueResponse>('/exams/admin/queue', {
-    params,
-  });
+  const { data } = await api.get<GetExamsQueueResponse>(
+    API_ENDPOINTS.EXAMS.ADMIN_QUEUE,
+    {
+      params,
+    }
+  );
   return data;
 }
 
@@ -364,7 +380,7 @@ export async function verifyExam(
   overrides?: Record<string, unknown>
 ): Promise<ApiSuccessResponse> {
   const { data } = await api.patch<ApiSuccessResponse>(
-    `/exams/admin/${examId}/verify`,
+    API_ENDPOINTS.EXAMS.ADMIN_VERIFY(examId),
     { overrides: overrides ?? {} }
   );
   return data;
@@ -377,9 +393,10 @@ export async function verifyExam(
 export async function createExam(
   payload: CreateExamPayload
 ): Promise<ApiSuccessResponse> {
-  console.log(payload);
-  const { data } = await api.post<ApiSuccessResponse>('/exams', payload);
-  console.log(data);
+  const { data } = await api.post<ApiSuccessResponse>(
+    API_ENDPOINTS.EXAMS.BASE,
+    payload
+  );
   return data;
 }
 
@@ -390,6 +407,30 @@ export async function createExam(
 export async function getAdminDashboardWelcome(): Promise<
   ApiSuccessResponse & { data?: unknown }
 > {
-  const { data } = await api.get('/auth/admin-dashboard');
+  const { data } = await api.get(API_ENDPOINTS.AUTH.ADMIN_DASHBOARD);
+  return data;
+}
+
+// ==========================================
+// EXAM MCQ MANAGEMENT
+// ==========================================
+
+/** Payload for POST /exams/:slug/questions */
+export interface PostQuestionsPayload {
+  questions: Omit<AdminQuestion, 'questionId'>[];
+}
+
+/**
+ * Bulk-save MCQs for an exam.
+ * POST /api/v1/exams/:slug/questions
+ */
+export async function postExamQuestions(
+  slug: string,
+  payload: PostQuestionsPayload
+): Promise<ApiSuccessResponse> {
+  const { data } = await api.post<ApiSuccessResponse>(
+    API_ENDPOINTS.EXAMS.QUESTIONS_BY_SLUG(slug),
+    payload
+  );
   return data;
 }

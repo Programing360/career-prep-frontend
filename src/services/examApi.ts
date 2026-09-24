@@ -1,5 +1,5 @@
 import api from '@/lib/axios';
-import type { Exam, ExamAttempt, MCQ } from '@/types';
+import type { Exam, ExamAttempt, MCQ, MCQSubmissionAnswer } from '@/types';
 
 export interface ExamListParams {
   category?: string;
@@ -18,11 +18,13 @@ export interface PaginatedResponse<T> {
 
 export interface SubmitAttemptPayload {
   examId: string;
-  answers: { mcqId: string; selectedOption: number }[];
+  /** Standard canonical answer payload (questionId + selectedOptionId). */
+  answers: MCQSubmissionAnswer[];
   timeTaken: number;
 }
 
 export interface ExamResult {
+  sessionId?: string;
   attempt: ExamAttempt;
   score: number;
   percentage: number;
@@ -39,7 +41,7 @@ export interface ExamResult {
   }[];
   questionReview: {
     mcq: MCQ;
-    selectedOption: number | null;
+    selectedOptionId: string | null;
     isCorrect: boolean;
   }[];
 }
@@ -66,40 +68,48 @@ export async function getExamById(examId: string): Promise<Exam> {
   return data;
 }
 
+export interface ExamSessionData {
+  sessionId?: string;
+  attemptId?: string;
+  examId?: string;
+  examTitle?: string;
+  durationMinutes?: number;
+  questions?: MCQ[];
+}
+
 /**
- * Start a new exam attempt (returns attempt metadata + first batch of MCQs).
- * POST /exams/:examId/attempts
+ * Start a new exam attempt / session (returns session metadata + MCQs).
+ * POST /exam-sessions/:examId/start
  */
-export async function startAttempt(examId: string): Promise<ExamAttempt> {
-  const { data } = await api.post<ExamAttempt>(`/exams/${examId}/attempts`);
-  console.log(data);
-  return data;
+export async function startAttempt(examId: string): Promise<ExamSessionData> {
+  const response = await api.post(`/exam-sessions/${examId}/start`);
+  return response.data?.data || response.data;
 }
 
 /**
  * Submit answers for an exam attempt and receive results.
- * POST /exams/attempts/:attemptId/submit
+ * POST /exam-sessions/submit
  */
 export async function submitAttempt(
   attemptId: string,
   payload: SubmitAttemptPayload
 ): Promise<ExamResult> {
-  const { data } = await api.post<ExamResult>(
-    `/exams/attempts/${attemptId}/submit`,
-    payload
-  );
-  return data;
+  const response = await api.post(`/exam-sessions/submit`, {
+    sessionId: attemptId,
+    examId: payload.examId,
+    answers: payload.answers,
+    timeTaken: payload.timeTaken,
+  });
+  return response.data?.data || response.data;
 }
 
 /**
  * Fetch results for a completed attempt.
- * GET /exams/attempts/:attemptId/result
+ * GET /exam-sessions/:attemptId/result
  */
 export async function getResult(attemptId: string): Promise<ExamResult> {
-  const { data } = await api.get<ExamResult>(
-    `/exams/attempts/${attemptId}/result`
-  );
-  return data;
+  const response = await api.get(`/exam-sessions/${attemptId}/result`);
+  return response.data?.data || response.data;
 }
 
 /**

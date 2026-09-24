@@ -1,3 +1,4 @@
+import { API_ENDPOINTS } from '@/constants/apiEndpoints';
 import api from '@/lib/axios';
 import type { DirectoryExam } from '@/types';
 
@@ -63,16 +64,18 @@ export interface JoinedTopicRef {
   _id: string;
   title: string;
   subjectId: string;
-  isVerbalOrNonVerbal?: string;
+  isVerbalOrNonVerbal?: 'verbal' | 'non_verbal' | 'analytical' | 'none';
 }
 
 export interface ExamSyllabusData {
   _id?: string;
-  syllabusVersion: number;
+  examId?: string;
+  versionNumber: number;
+  isActive?: boolean;
   effectiveFrom: string;
   totalPapers: number;
   physicalStandards?: Array<{
-    gender: 'male' | 'female' | 'both';
+    gender: 'male' | 'female' | 'other';
     minHeightInches: number;
     chestUnexpandedInches?: number;
     chestExpandedInches?: number;
@@ -188,8 +191,8 @@ export interface PublishSyllabusResponse {
   message?: string;
   data: {
     _id: string;
-    syllabusVersion: number;
-    isCurrentActive: boolean;
+    versionNumber: number;
+    isActive: boolean;
   };
 }
 
@@ -217,7 +220,14 @@ export interface UpdateExamPayload {
   title?: string;
   slug?: string;
   conductingAuthority?: string;
-  category?: 'federal' | 'provincial' | 'armed_forces' | 'testing_service';
+  category?:
+    | 'federal'
+    | 'provincial'
+    | 'armed-forces'
+    | 'armed_forces'
+    | 'banking'
+    | 'testing_service'
+    | 'others';
   province?: string;
   bpsScale?: number;
   departmentName?: string;
@@ -265,7 +275,9 @@ export interface UpdateExamPayload {
 export async function getPublicExams(
   params?: ExamListParams
 ): Promise<ExamListResponse> {
-  const { data } = await api.get<ExamListResponse>('/exams', { params });
+  const { data } = await api.get<ExamListResponse>(API_ENDPOINTS.EXAMS.BASE, {
+    params,
+  });
   return data;
 }
 
@@ -275,7 +287,7 @@ export async function getPublicExams(
  */
 export async function getExamBySlug(slug: string): Promise<ExamDetailResponse> {
   const { data } = await api.get<ExamDetailResponse>(
-    `/exams/${encodeURIComponent(slug)}`
+    API_ENDPOINTS.EXAMS.BY_SLUG(encodeURIComponent(slug))
   );
   return data;
 }
@@ -283,26 +295,32 @@ export async function getExamBySlug(slug: string): Promise<ExamDetailResponse> {
 /**
  * Fetch the active, verified syllabus for an exam.
  * GET /api/v1/exams/:slug/syllabus
+ * Returns null when the endpoint returns 404 (no syllabus published yet).
  */
 export async function getExamSyllabus(
   slug: string
-): Promise<ExamSyllabusResponse> {
-  const { data } = await api.get<ExamSyllabusResponse>(
-    `/exams/${encodeURIComponent(slug)}/syllabus`
+): Promise<ExamSyllabusResponse | null> {
+  const { data, status } = await api.get<ExamSyllabusResponse>(
+    API_ENDPOINTS.EXAMS.SYLLABUS_BY_SLUG(encodeURIComponent(slug)),
+    { validateStatus: () => true }
   );
+  if (status === 404) return null;
   return data;
 }
 
 /**
  * Fetch the published preparation roadmap for an exam.
  * GET /api/v1/exams/:slug/roadmap
+ * Returns null when the endpoint returns 404 (no roadmap published yet).
  */
 export async function getExamRoadmap(
   slug: string
-): Promise<ExamRoadmapResponse> {
-  const { data } = await api.get<ExamRoadmapResponse>(
-    `/exams/${encodeURIComponent(slug)}/roadmap`
+): Promise<ExamRoadmapResponse | null> {
+  const { data, status } = await api.get<ExamRoadmapResponse>(
+    API_ENDPOINTS.EXAMS.ROADMAP_BY_SLUG(encodeURIComponent(slug)),
+    { validateStatus: () => true }
   );
+  if (status === 404) return null;
   return data;
 }
 
@@ -319,7 +337,7 @@ export async function updateExam(
   payload: UpdateExamPayload
 ): Promise<ExamDetailResponse> {
   const { data } = await api.patch<ExamDetailResponse>(
-    `/exams/${examId}`,
+    API_ENDPOINTS.EXAMS.BY_ID(examId),
     payload
   );
   return data;
@@ -330,7 +348,9 @@ export async function updateExam(
  * DELETE /api/v1/exams/:id
  */
 export async function deleteExam(examId: string): Promise<ApiSuccessResponse> {
-  const { data } = await api.delete<ApiSuccessResponse>(`/exams/${examId}`);
+  const { data } = await api.delete<ApiSuccessResponse>(
+    API_ENDPOINTS.EXAMS.BY_ID(examId)
+  );
   return data;
 }
 
@@ -342,9 +362,12 @@ export async function getStagedExamsQueue(params?: {
   page?: number;
   limit?: number;
 }): Promise<ExamListResponse> {
-  const { data } = await api.get<ExamListResponse>('/exams/admin/queue', {
-    params,
-  });
+  const { data } = await api.get<ExamListResponse>(
+    API_ENDPOINTS.EXAMS.ADMIN_QUEUE,
+    {
+      params,
+    }
+  );
   return data;
 }
 
@@ -357,7 +380,7 @@ export async function verifyStagedExam(
   overrides?: Record<string, unknown>
 ): Promise<ExamDetailResponse> {
   const { data } = await api.patch<ExamDetailResponse>(
-    `/exams/admin/${examId}/verify`,
+    API_ENDPOINTS.EXAMS.ADMIN_VERIFY(examId),
     { overrides: overrides ?? {} }
   );
   return data;
@@ -372,7 +395,7 @@ export async function publishSyllabusVersion(
   payload: PublishSyllabusPayload
 ): Promise<PublishSyllabusResponse> {
   const { data } = await api.post<PublishSyllabusResponse>(
-    `/exams/admin/${examId}/syllabus`,
+    API_ENDPOINTS.EXAMS.ADMIN_SYLLABUS(examId),
     payload
   );
   return data;
@@ -387,7 +410,7 @@ export async function publishExamRoadmap(
   payload: PublishRoadmapPayload
 ): Promise<PublishRoadmapResponse> {
   const { data } = await api.post<PublishRoadmapResponse>(
-    `/exams/admin/${examId}/roadmap`,
+    API_ENDPOINTS.EXAMS.ADMIN_ROADMAP(examId),
     payload
   );
   return data;

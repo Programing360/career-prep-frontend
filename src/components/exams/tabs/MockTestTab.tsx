@@ -12,10 +12,6 @@ import {
 } from 'lucide-react';
 import { Spinner } from '@/components/ui/Spinner';
 import { ROUTES } from '@/constants/routes';
-import {
-  sampleMCQs,
-  samplePastPapers,
-} from '@/components/exams/examDetailData';
 import type { ExamData } from '@/components/exams/examDetailData';
 
 const MCQPracticeContainer = lazy(() =>
@@ -52,13 +48,14 @@ export function MockTestTab({ exam }: { exam: ExamData }) {
         variants={fadeInUp}
         className="mb-2 text-lg font-bold font-heading text-gray-900 dark:text-white"
       >
-        Mock Test & Practice
+        Practice MCQs & Mock Test — {exam.title}
       </motion.h3>
       <motion.p
         variants={fadeInUp}
         className="mb-6 text-sm text-gray-500 dark:text-gray-400"
       >
-        Practice with free sample questions and full-length mock tests.
+        Practice exam-specific MCQs for {exam.title}. Your responses are saved
+        automatically to your profile.
       </motion.p>
 
       <motion.div
@@ -68,7 +65,7 @@ export function MockTestTab({ exam }: { exam: ExamData }) {
         {stats.map((s) => (
           <div
             key={s.label}
-            className="rounded-xl border border-white/20 bg-white/70 p-4 backdrop-blur-md dark:border-gray-800/50 dark:bg-gray-900/70"
+            className="rounded-xl shadow-lg border-white/20 bg-white/70 p-4 backdrop-blur-md dark:border-gray-800/50 dark:bg-gray-900/70"
           >
             <div className="flex items-center gap-2">
               <s.icon size={14} className="text-primary-500" />
@@ -85,13 +82,18 @@ export function MockTestTab({ exam }: { exam: ExamData }) {
 
       <motion.div
         variants={fadeInUp}
-        className="mb-6 rounded-xl border border-white/20 bg-white/70 p-5 backdrop-blur-md dark:border-gray-800/50 dark:bg-gray-900/70"
+        className="mb-6 rounded-xl border shadow-lg border-white/20 bg-white/70 p-5 backdrop-blur-md dark:border-gray-800/50 dark:bg-gray-900/70"
       >
-        <div className="mb-4 flex items-center gap-2">
-          <Brain size={18} className="text-primary-500" />
-          <h4 className="text-sm font-semibold text-gray-900 dark:text-white">
-            Sample MCQs ({sampleMCQs.length} questions)
-          </h4>
+        <div className="mb-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Brain size={18} className="text-primary-500" />
+            <h4 className="text-sm font-semibold text-gray-900 dark:text-white">
+              {exam.title} — Exam MCQs
+            </h4>
+          </div>
+          <span className="rounded-full bg-primary-100 px-2.5 py-0.5 text-xs font-medium text-primary-700 dark:bg-primary-950 dark:text-primary-300">
+            Slug: {exam.slug}
+          </span>
         </div>
         <Suspense
           fallback={
@@ -105,7 +107,7 @@ export function MockTestTab({ exam }: { exam: ExamData }) {
       </motion.div>
 
       <motion.div variants={fadeInUp}>
-        <div className="rounded-xl border border-white/20 bg-white/70 p-5 backdrop-blur-md dark:border-gray-800/50 dark:bg-gray-900/70">
+        <div className="rounded-xl border shadow-lg border-white/20 bg-white/70 p-5 backdrop-blur-md dark:border-gray-800/50 dark:bg-gray-900/70">
           <div className="flex items-center gap-2">
             <Zap size={18} className="text-primary-500" />
             <h4 className="text-sm font-semibold text-gray-900 dark:text-white">
@@ -130,28 +132,25 @@ export function MockTestTab({ exam }: { exam: ExamData }) {
       {/* Past Papers Preview Teaser */}
       <motion.div variants={fadeInUp} className="mt-6">
         <h4 className="mb-3 text-base font-bold font-heading text-gray-900 dark:text-white">
-          Past Papers Preview
+          Past Papers
         </h4>
-        <div className="grid gap-3 sm:grid-cols-2">
-          {samplePastPapers.slice(0, 2).map((paper) => (
-            <div
-              key={paper.id}
-              className="rounded-xl border border-white/20 bg-white/70 p-4 backdrop-blur-md transition-all hover:shadow-md dark:border-gray-800/50 dark:bg-gray-900/70"
-            >
-              <div className="flex items-center gap-2">
-                <FileText size={16} className="text-primary-500" />
-                <span className="text-sm font-semibold text-gray-900 dark:text-white">
-                  {paper.title}
-                </span>
-              </div>
-              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                {paper.year} · {paper.questionCount} questions
-              </p>
-              <button className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-gray-900 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-gray-800 dark:bg-primary-600 dark:hover:bg-primary-700">
-                Try Free Preview
-              </button>
-            </div>
-          ))}
+        <div className="rounded-xl border shadow-lg border-white/20 bg-white/70 p-5 backdrop-blur-md dark:border-gray-800/50 dark:bg-gray-900/70">
+          <div className="flex items-center gap-2">
+            <FileText size={18} className="text-primary-500" />
+            <h5 className="text-sm font-semibold text-gray-900 dark:text-white">
+              Browse previous years' papers
+            </h5>
+          </div>
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+            Download and preview previous year question papers for {exam.title}{' '}
+            in the Past Papers tab.
+          </p>
+          <Link
+            to={ROUTES.MOCK_TEST_DEMO}
+            className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-gray-900 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-gray-800 dark:bg-primary-600 dark:hover:bg-primary-700"
+          >
+            Go to Past Papers
+          </Link>
         </div>
       </motion.div>
     </motion.div>

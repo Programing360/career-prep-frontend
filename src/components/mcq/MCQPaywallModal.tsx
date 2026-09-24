@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { X, Sparkles, ArrowRight, Shield, Trophy } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { ROUTES } from '@/constants/routes';
+import { useAuth } from '@/hooks/useAuth'; // 👈 আপনার প্রজেক্টের useAuth বা AuthContext Hook ইমপোর্ট করুন
 
 interface MCQPaywallModalProps {
   isOpen: boolean;
@@ -18,6 +19,9 @@ export function MCQPaywallModal({
   const navigate = useNavigate();
   const overlayRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+
+  // 1. Auth স্টেট চেক
+  const { isAuthenticated } = useAuth(); // আপনার Auth hook অনুযায়ী এটি টিউন করুন (যেমন: const { user } = useAuth();)
 
   useEffect(() => {
     if (!isOpen) return;
@@ -37,12 +41,19 @@ export function MCQPaywallModal({
     };
   }, [isOpen, onClose]);
 
-  const handleRegister = useCallback(() => {
-    const currentPath = `${window.location.pathname}${window.location.hash}`;
-    navigate(
-      `${ROUTES.REGISTER}?redirectTo=${encodeURIComponent(currentPath)}`
-    );
-  }, [navigate]);
+  // 2. ডাইনামিক অ্যাকশন বাটন হ্যান্ডলার
+  const handlePrimaryAction = useCallback(() => {
+    if (isAuthenticated) {
+      // ইউজার লগইন থাকলে ড্যাশবোর্ডে বা সাবস্ক্রিপশন পেজে রিডাইরেক্ট করবে
+      navigate(ROUTES.DASHBOARD || '/dashboard');
+    } else {
+      // ইউজার লগইন না থাকলে রেজিস্টার পেজে নিয়ে যাবে
+      const currentPath = `${window.location.pathname}${window.location.hash}`;
+      navigate(
+        `${ROUTES.REGISTER}?redirectTo=${encodeURIComponent(currentPath)}`
+      );
+    }
+  }, [isAuthenticated, navigate]);
 
   if (!isOpen) return null;
 
@@ -79,16 +90,29 @@ export function MCQPaywallModal({
             id="paywall-title"
             className="text-2xl font-bold font-heading text-[rgb(var(--color-text-primary))]"
           >
-            Great Progress!
+            {isAuthenticated ? 'Ready for More?' : 'Great Progress!'}
           </h2>
+
+          {/* 3. ডাইনামিক ডিসক্রিপশন টেক্সট */}
           <p className="mt-2 text-sm text-[rgb(var(--color-text-secondary))]">
             You've completed{' '}
             <span className="font-semibold text-primary-600 dark:text-primary-400">
               {answeredCount} free preview questions
             </span>{' '}
-            — Register to access{' '}
-            <span className="font-semibold">2,000+ full question bank</span>{' '}
-            with detailed AI explanations.
+            —{' '}
+            {isAuthenticated ? (
+              <>
+                Go to your dashboard to unlock the{' '}
+                <span className="font-semibold">full 2,000+ question bank</span>
+                .
+              </>
+            ) : (
+              <>
+                Register to access{' '}
+                <span className="font-semibold">2,000+ full question bank</span>{' '}
+                with detailed AI explanations.
+              </>
+            )}
           </p>
         </div>
 
@@ -119,15 +143,19 @@ export function MCQPaywallModal({
           ))}
         </div>
 
+        {/* 4. ডাইনামিক বাটন টেক্সট ও অ্যাকশন */}
         <div className="mt-6 space-y-3">
-          <Button fullWidth size="lg" onClick={handleRegister}>
+          <Button fullWidth size="lg" onClick={handlePrimaryAction}>
             <span className="flex items-center justify-center gap-2">
-              Register for Free
+              {isAuthenticated ? 'Go to Dashboard' : 'Register for Free'}
               <ArrowRight size={16} />
             </span>
           </Button>
+
           <p className="text-center text-xs text-[rgb(var(--color-text-muted))]">
-            No credit card required. Start preparing in 30 seconds.
+            {isAuthenticated
+              ? 'Access all premium features instantly from your dashboard.'
+              : 'No credit card required. Start preparing in 30 seconds.'}
           </p>
         </div>
       </div>

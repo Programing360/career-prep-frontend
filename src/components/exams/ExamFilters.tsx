@@ -2,7 +2,12 @@ import { Search, SlidersHorizontal, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export type Jurisdiction =
-  'all' | 'federal' | 'provincial' | 'testing-services' | 'armed-forces';
+  | 'all'
+  | 'federal'
+  | 'provincial'
+  | 'testing-services'
+  | 'armed-forces'
+  | 'army-test';
 
 export type PostGrade =
   | 'all'
@@ -26,6 +31,7 @@ const jurisdictions: { id: Jurisdiction; label: string }[] = [
   { id: 'provincial', label: 'Provincial (PPSC, KPPSC, BPSC, SPSC)' },
   { id: 'testing-services', label: 'Testing Services (NTS, OTS, PTS, ETEA)' },
   { id: 'armed-forces', label: 'Armed Forces & Police' },
+  { id: 'army-test', label: '✨ Army Test (Initial)' },
 ];
 
 const postGrades: { id: PostGrade; label: string }[] = [

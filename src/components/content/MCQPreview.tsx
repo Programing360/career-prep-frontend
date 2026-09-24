@@ -8,7 +8,7 @@ import type { MCQ } from '@/types';
 const FREE_QUESTION_LIMIT = 3;
 
 interface AnswerState {
-  selectedIndex: number;
+  selectedOptionId: string;
   isCorrect: boolean;
 }
 
@@ -28,14 +28,14 @@ export function MCQPreview({
   const answeredCount = Object.keys(answers).length;
 
   const handleAnswer = useCallback(
-    (questionId: string, selectedIndex: number, correctAnswer: number) => {
+    (questionId: string, optionId: string, isCorrect: boolean) => {
       if (answers[questionId]) return;
 
       setAnswers((prev) => ({
         ...prev,
         [questionId]: {
-          selectedIndex,
-          isCorrect: selectedIndex === correctAnswer,
+          selectedOptionId: optionId,
+          isCorrect,
         },
       }));
     },
@@ -92,7 +92,7 @@ export function MCQPreview({
       </div>
 
       {visibleQuestions.map((question, index) => {
-        const answer = answers[question.id];
+        const answer = answers[question._id];
         const isLocked = isQuestionLocked(index);
         const isRevealed = !!answer;
         const isLastUnlocked =
@@ -100,7 +100,7 @@ export function MCQPreview({
 
         return (
           <div
-            key={question.id}
+            key={question._id}
             className={cn(
               'rounded-xl border p-5 transition-all',
               isLocked
@@ -143,21 +143,17 @@ export function MCQPreview({
             <div className="mt-4 grid gap-2 sm:grid-cols-2">
               {question.options.map((option, optIndex) => {
                 const isOptionSelected =
-                  isRevealed && answer.selectedIndex === optIndex;
-                const isCorrectOption = optIndex === question.correctAnswer;
+                  isRevealed && answer.selectedOptionId === option.id;
+                const isCorrectOption = !!option.isCorrect;
                 const showAsCorrect = isRevealed && isCorrectOption;
                 const showAsWrong = isOptionSelected && !answer.isCorrect;
 
                 return (
                   <button
-                    key={optIndex}
+                    key={option.id}
                     disabled={isRevealed || isLocked}
                     onClick={() =>
-                      handleAnswer(
-                        question.id,
-                        optIndex,
-                        question.correctAnswer
-                      )
+                      handleAnswer(question._id, option.id, isCorrectOption)
                     }
                     className={cn(
                       'flex items-center gap-2 rounded-lg border px-3 py-2.5 text-left text-sm transition-all',
@@ -190,7 +186,7 @@ export function MCQPreview({
                         String.fromCharCode(65 + optIndex)
                       )}
                     </span>
-                    <span className="flex-1">{option}</span>
+                    <span className="flex-1">{option.text}</span>
                   </button>
                 );
               })}

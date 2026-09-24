@@ -97,9 +97,7 @@ function AdjustTokenModal({
             <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
               {student.name ?? student.email}
             </p>
-            <p className="text-xs text-[rgb(var(--color-text-muted))]">
-              {student.email}
-            </p>
+            <p className="text-xs ">{student.email}</p>
             <p className="mt-1 text-xs text-[rgb(var(--color-text-secondary))]">
               Current Balance:{' '}
               <span className="font-semibold text-primary-500">
@@ -229,9 +227,7 @@ function BanModal({
             <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
               {student.name ?? student.email}
             </p>
-            <p className="text-xs text-[rgb(var(--color-text-muted))]">
-              {student.email}
-            </p>
+            <p className="text-xs ">{student.email}</p>
           </div>
 
           <Textarea
@@ -328,9 +324,7 @@ function ResetPasswordModal({
             <p className="text-sm font-medium text-[rgb(var(--color-text-primary))]">
               {student.name ?? student.email}
             </p>
-            <p className="text-xs text-[rgb(var(--color-text-muted))]">
-              {student.email}
-            </p>
+            <p className="text-xs ">{student.email}</p>
             <p className="mt-1 text-xs text-danger-500">
               All active sessions will be revoked.
             </p>
@@ -733,7 +727,7 @@ export default function AdminUsersPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold font-heading text-white">
+        <h1 className="text-2xl font-bold font-heading dark:text-white">
           User Management
         </h1>
         <p className="mt-1 text-sm text-gray-400">
@@ -786,7 +780,7 @@ export default function AdminUsersPage() {
                 'rounded-lg px-3 py-1.5 text-xs font-medium transition-colors',
                 statusFilter === status
                   ? 'bg-primary-50 text-primary-600 dark:bg-primary-950 dark:text-primary-400'
-                  : 'text-white hover:bg-[rgb(var(--color-surface-elevated))] hover:text-black'
+                  : 'dark:text-white hover:bg-[rgb(var(--color-surface-elevated))] hover:text-black'
               )}
             >
               {status === 'all'
@@ -813,26 +807,26 @@ export default function AdminUsersPage() {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-[rgb(var(--color-border))]">
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[rgb(var(--color-text-muted))]">
+                <tr className="border-b border-[rgb(var(--color-border))] bg-purple-400 text-white">
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider ">
                     Name
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[rgb(var(--color-text-muted))]">
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">
                     Email
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[rgb(var(--color-text-muted))]">
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider ">
                     Joined
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[rgb(var(--color-text-muted))]">
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider ">
                     Role
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[rgb(var(--color-text-muted))]">
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider ">
                     Tokens
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[rgb(var(--color-text-muted))]">
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider ">
                     Status
                   </th>
-                  <th className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-[rgb(var(--color-text-muted))]">
+                  <th className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider ">
                     Actions
                   </th>
                 </tr>
@@ -840,10 +834,7 @@ export default function AdminUsersPage() {
               <tbody className="divide-y divide-[rgb(var(--color-border))]">
                 {users.length === 0 ? (
                   <tr>
-                    <td
-                      colSpan={7}
-                      className="px-6 py-12 text-center text-sm text-[rgb(var(--color-text-muted))]"
-                    >
+                    <td colSpan={7} className="px-6 py-12 text-center text-sm ">
                       No users found matching your filters.
                     </td>
                   </tr>
@@ -866,7 +857,7 @@ export default function AdminUsersPage() {
                       <td className="whitespace-nowrap px-6 py-4 text-sm text-[rgb(var(--color-text-secondary))]">
                         {user.email}
                       </td>
-                      <td className="whitespace-nowrap px-6 py-4 text-sm text-[rgb(var(--color-text-muted))]">
+                      <td className="whitespace-nowrap px-6 py-4 text-sm ">
                         {user.createdAt
                           ? new Date(user.createdAt).toLocaleDateString(
                               'en-US',
@@ -962,7 +953,7 @@ export default function AdminUsersPage() {
         )}
 
         <div className="flex items-center justify-between border-t border-[rgb(var(--color-border))] px-6 py-3">
-          <p className="text-xs text-[rgb(var(--color-text-muted))]">
+          <p className="text-xs ">
             Showing {users.length} of {totalUsers} users
           </p>
         </div>

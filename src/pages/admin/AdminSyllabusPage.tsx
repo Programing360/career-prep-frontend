@@ -210,7 +210,7 @@ function SyllabusForm({
             : undefined,
       });
       showToast(
-        `Syllabus version ${res.data.syllabusVersion} published successfully`
+        `Syllabus version ${res.data.versionNumber} published successfully`
       );
       onPublished(res.data._id);
     } catch (err) {
@@ -240,7 +240,7 @@ function SyllabusForm({
             </h3>
           </div>
           <p className="mt-1 text-sm text-[rgb(var(--color-text-secondary))]">
-            Version {currentSyllabus.syllabusVersion} ·{' '}
+            Version {currentSyllabus.versionNumber} ·{' '}
             {currentSyllabus.totalPapers} paper
             {currentSyllabus.totalPapers === 1 ? '' : 's'} ·{' '}
             {currentSyllabus.subjectsBreakdown.length} subject
@@ -880,10 +880,10 @@ export default function AdminSyllabusPage() {
         setExams(examRes.value.data);
       }
       if (subjectRes.status === 'fulfilled') {
-        setSubjects(subjectRes.value.data.subjects ?? []);
+        setSubjects(subjectRes.value.data ?? []);
       }
-      if (topicRes.status === 'fulfilled') {
-        setTopics(topicRes.value.data.topics ?? []);
+      if (topicRes.status === 'fulfilled' && topicRes.value.data) {
+        setTopics(topicRes.value.data ?? []);
       }
     } finally {
       setExamsLoading(false);
@@ -898,7 +898,7 @@ export default function AdminSyllabusPage() {
     setLoadingSyllabus(true);
     try {
       const res = await getExamSyllabus(exam.slug);
-      setCurrentSyllabus(res.data.syllabus);
+      setCurrentSyllabus(res?.data.syllabus ?? null);
     } catch {
       setCurrentSyllabus(null);
     } finally {
@@ -936,7 +936,7 @@ export default function AdminSyllabusPage() {
     const options: Array<{ label: string; value: string }> = [];
     if (currentSyllabus?._id) {
       options.push({
-        label: `Version ${currentSyllabus.syllabusVersion} (active, effective ${new Date(
+        label: `Version ${currentSyllabus.versionNumber} (active, effective ${new Date(
           currentSyllabus.effectiveFrom
         ).toLocaleDateString('en-US', {
           month: 'short',
@@ -959,7 +959,7 @@ export default function AdminSyllabusPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold font-heading text-white">
+          <h1 className="text-2xl font-bold font-heading dark:text-white">
             Syllabus & Roadmap Publisher
           </h1>
           <p className="mt-1 text-sm text-gray-400">
@@ -989,7 +989,7 @@ export default function AdminSyllabusPage() {
           <Select
             value={selectedExamId}
             onChange={(e) => handleExamChange(e.target.value)}
-            className=""
+            className="w-full rounded-xl border border-slate-300 bg-white text-slate-900 shadow-sm transition-colors hover:border-slate-400 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100 dark:hover:border-slate-700 dark:focus:border-purple-400 dark:focus:ring-purple-400/20"
             placeholder="Choose an exam to manage"
             options={exams.map((exam) => ({
               label: exam.title,

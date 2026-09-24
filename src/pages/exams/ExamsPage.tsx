@@ -1,5 +1,5 @@
-﻿import { useState, useMemo } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { useState, useMemo } from 'react';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import {
   BookOpen,
   Clock,
@@ -155,13 +155,18 @@ const mockExams: ExamCard[] = [
   },
 ];
 
-const categories: { id: ExamCategory | 'all'; label: string }[] = [
+const categories: {
+  id: ExamCategory | 'all' | 'army-test';
+  label: string;
+  emoji?: string;
+}[] = [
   { id: 'all', label: 'All Exams' },
   { id: 'css', label: 'CSS' },
   { id: 'fpsc', label: 'FPSC' },
   { id: 'ppsc', label: 'PPSC' },
   { id: 'nts', label: 'NTS' },
   { id: 'pcs', label: 'PCS' },
+  { id: 'army-test', label: '✨ Army Test', emoji: '🎖️' },
 ];
 
 const difficulties: { id: string; label: string }[] = [
@@ -190,12 +195,14 @@ const difficultyConfig: Record<string, { color: string; icon: typeof Target }> =
     },
   };
 
-const categoryColors: Record<ExamCategory, string> = {
+const categoryColors: Record<string, string> = {
   css: 'bg-primary-100 text-primary-700 dark:bg-primary-900 dark:text-primary-300',
   fpsc: 'bg-violet-100 text-violet-700 dark:bg-violet-900 dark:text-violet-300',
   ppsc: 'bg-primary-100 text-primary-700 dark:bg-primary-900 dark:text-primary-300',
   nts: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900 dark:text-cyan-300',
   pcs: 'bg-rose-100 text-rose-700 dark:bg-rose-900 dark:text-rose-300',
+  'army-test':
+    'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
   other:
     'bg-secondary-100 text-secondary-700 dark:bg-secondary-900 dark:text-secondary-300',
 };
@@ -203,13 +210,23 @@ const categoryColors: Record<ExamCategory, string> = {
 export default function ExamsPage() {
   const { isAuthenticated } = useAuth();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const initialCategory =
-    (searchParams.get('category') as ExamCategory | 'all') || 'all';
+    (searchParams.get('category') as ExamCategory | 'all' | 'army-test') ||
+    'all';
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<
-    ExamCategory | 'all'
+    ExamCategory | 'all' | 'army-test'
   >(initialCategory);
   const [selectedDifficulty, setSelectedDifficulty] = useState('all');
+
+  function handleCategoryChange(value: string) {
+    if (value === 'army-test') {
+      navigate('/practice?category=army-test');
+      return;
+    }
+    setSelectedCategory(value as ExamCategory | 'all');
+  }
 
   const filtered = useMemo(() => {
     return mockExams.filter((exam) => {
@@ -269,9 +286,7 @@ export default function ExamsPage() {
             <Filter size={14} className="text-[rgb(var(--color-text-muted))]" />
             <select
               value={selectedCategory}
-              onChange={(e) =>
-                setSelectedCategory(e.target.value as ExamCategory | 'all')
-              }
+              onChange={(e) => handleCategoryChange(e.target.value)}
               className="bg-transparent text-sm text-[rgb(var(--color-text-primary))] focus:outline-none"
             >
               {categories.map((c) => (

@@ -159,7 +159,7 @@ export default function AdminTokenSettingsPage() {
   return (
     <div className="space-y-8 ">
       <div>
-        <h1 className="text-2xl font-bold font-heading text-white">
+        <h1 className="text-2xl font-bold font-heading dark:text-white">
           Token Economy & System Settings
         </h1>
         <p className="mt-1 text-sm text-gray-400">

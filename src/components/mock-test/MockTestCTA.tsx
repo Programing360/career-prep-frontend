@@ -1,12 +1,14 @@
-﻿import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import {
   ArrowRight,
   BarChart3,
   ClipboardCheck,
   FileText,
+  LayoutDashboard,
   Sparkles,
 } from 'lucide-react';
 import { ROUTES } from '@/constants/routes';
+import { useAuth } from '@/hooks/useAuth';
 
 const BENEFITS = [
   { icon: ClipboardCheck, label: '100+ Full Mock Tests' },
@@ -19,8 +21,12 @@ const BENEFITS = [
  * results page. Carries the current location through a `redirect` query
  * parameter so the user returns here after registering.
  */
-export function MockTestCTA() {
+export function MockTestCTA({
+  isAuthenticated: propIsAuthenticated,
+}: { isAuthenticated?: boolean } = {}) {
   const location = useLocation();
+  const { isAuthenticated: authIsAuthenticated } = useAuth();
+  const isAuthenticated = propIsAuthenticated ?? authIsAuthenticated;
   const redirectTo = `${location.pathname}${location.search}`;
   const registerHref = `${ROUTES.REGISTER}?redirect=${encodeURIComponent(redirectTo)}`;
 
@@ -65,16 +71,28 @@ export function MockTestCTA() {
         </ul>
 
         <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
-          <Link
-            to={registerHref}
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-white px-6 py-3 text-sm font-bold text-gray-900 shadow-lg transition-colors hover:bg-gray-100 focus-ring dark:bg-primary-500 dark:text-white dark:hover:bg-primary-400"
-          >
-            Register Now for Free
-            <ArrowRight size={16} aria-hidden="true" />
-          </Link>
-          <span className="text-xs text-gray-400">
-            No credit card required Â· Instant access
-          </span>
+          {isAuthenticated ? (
+            <Link
+              to={ROUTES.DASHBOARD}
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-white px-6 py-3 text-sm font-bold text-gray-900 shadow-lg transition-colors hover:bg-gray-100 focus-ring dark:bg-primary-500 dark:text-white dark:hover:bg-primary-400"
+            >
+              Go to Dashboard
+              <LayoutDashboard size={16} aria-hidden="true" />
+            </Link>
+          ) : (
+            <Link
+              to={registerHref}
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-white px-6 py-3 text-sm font-bold text-gray-900 shadow-lg transition-colors hover:bg-gray-100 focus-ring dark:bg-primary-500 dark:text-white dark:hover:bg-primary-400"
+            >
+              Register Now for Free
+              <ArrowRight size={16} aria-hidden="true" />
+            </Link>
+          )}
+          {!isAuthenticated && (
+            <span className="text-xs text-gray-400">
+              No credit card required &middot; Instant access
+            </span>
+          )}
         </div>
       </div>
     </section>

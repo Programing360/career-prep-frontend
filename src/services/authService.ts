@@ -1,4 +1,5 @@
 import api, { AUTH_TOKEN_KEY } from '@/lib/axios';
+import { API_ENDPOINTS } from '@/constants/apiEndpoints';
 import { setStorageItem } from '@/utils/storageHelpers';
 import type {
   ForgotPasswordInput,
@@ -74,8 +75,9 @@ function asUser(value: unknown): User | undefined {
 export async function registerUser(
   input: RegisterInput
 ): Promise<RegisterResponse> {
-  const { data } = await api.post<unknown>('/auth/register', input);
+  const { data } = await api.post<unknown>(API_ENDPOINTS.AUTH.REGISTER, input);
   const record = unwrap<UnknownRecord>(data);
+  console.log(record);
   const user = asUser(record);
   return {
     message:
@@ -93,7 +95,7 @@ export async function registerUser(
  * POST /auth/login, GET /auth/me
  */
 export async function loginUser(input: LoginInput): Promise<LoginResponse> {
-  const { data } = await api.post<unknown>('/auth/login', input);
+  const { data } = await api.post<unknown>(API_ENDPOINTS.AUTH.LOGIN, input);
   const record = unwrap<UnknownRecord>(data);
   const accessToken = readString(record, [
     'accessToken',
@@ -119,7 +121,10 @@ export async function loginUser(input: LoginInput): Promise<LoginResponse> {
 export async function verifyEmail(
   input: VerifyOtpInput
 ): Promise<{ message: string; user?: User }> {
-  const { data } = await api.post<unknown>('/auth/verify-email', input);
+  const { data } = await api.post<unknown>(
+    API_ENDPOINTS.AUTH.VERIFY_EMAIL,
+    input
+  );
   const record = unwrap<UnknownRecord>(data);
   return {
     message: readString(record, ['message']) ?? 'Email verified successfully.',
@@ -134,7 +139,10 @@ export async function verifyEmail(
 export async function resendOtp(
   input: ResendOtpInput
 ): Promise<{ message: string; expiresInSeconds?: number }> {
-  const { data } = await api.post<unknown>('/auth/resend-otp', input);
+  const { data } = await api.post<unknown>(
+    API_ENDPOINTS.AUTH.RESEND_OTP,
+    input
+  );
   const record = unwrap<UnknownRecord>(data);
   return {
     message:
@@ -151,7 +159,10 @@ export async function resendOtp(
 export async function forgotPassword(
   input: ForgotPasswordInput
 ): Promise<{ message: string }> {
-  const { data } = await api.post<unknown>('/auth/forgot-password', input);
+  const { data } = await api.post<unknown>(
+    API_ENDPOINTS.AUTH.FORGOT_PASSWORD,
+    input
+  );
   const record = unwrap<UnknownRecord>(data);
   return {
     message:
@@ -169,7 +180,7 @@ export async function resetPassword(
   input: ResetPasswordInput
 ): Promise<{ message: string }> {
   const { data } = await api.post<unknown>(
-    `/auth/reset-password/${encodeURIComponent(token)}`,
+    API_ENDPOINTS.AUTH.RESET_PASSWORD(encodeURIComponent(token)),
     input
   );
   const record = unwrap<UnknownRecord>(data);
@@ -185,7 +196,7 @@ export async function resetPassword(
  * GET /auth/me
  */
 export async function getCurrentUser(): Promise<User> {
-  const { data } = await api.get<unknown>('/auth/me');
+  const { data } = await api.get<unknown>(API_ENDPOINTS.AUTH.ME);
   const record = unwrap<UnknownRecord>(data);
   const user = asUser(record);
   if (!user) {
@@ -199,7 +210,7 @@ export async function getCurrentUser(): Promise<User> {
  * POST /auth/logout
  */
 export async function logoutUser(): Promise<void> {
-  await api.post('/auth/logout');
+  await api.post(API_ENDPOINTS.AUTH.LOGOUT);
 }
 
 /**
@@ -209,7 +220,10 @@ export async function logoutUser(): Promise<void> {
 export async function updateProfile(
   payload: Partial<Pick<User, 'name' | 'phone' | 'avatar'>>
 ): Promise<User> {
-  const { data } = await api.patch<unknown>('/auth/profile', payload);
+  const { data } = await api.patch<unknown>(
+    API_ENDPOINTS.AUTH.PROFILE,
+    payload
+  );
   const record = unwrap<UnknownRecord>(data);
   const user = asUser(record);
   if (!user) {

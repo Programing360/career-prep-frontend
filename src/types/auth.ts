@@ -2,13 +2,15 @@ export type UserRole = 'admin' | 'moderator' | 'user';
 
 export interface User {
   id: string;
-  name: string;
+  name?: string; // Optional — backend does not persist name at registration; synthesized from email prefix
   email: string;
   phone?: string;
-  role: UserRole;
   avatar?: string;
+  role: UserRole;
   isEmailVerified: boolean;
   createdAt: string;
+  /** AI token balance stored on the backend user document */
+  aiTokenBalance?: number;
 }
 
 export interface StudentProgress {
@@ -34,11 +36,11 @@ export interface Streak {
 }
 
 export interface RegisterInput {
-  name: string;
+  name?: string; // Collected on FE but not yet in backend RegisterInputSchema — treated as optional
   email: string;
   password: string;
   passwordConfirm: string;
-  phone?: string;
+  phone?: string; // Collected on FE but not yet in backend RegisterInputSchema — treated as optional
 }
 
 export interface RegisterResponse {
@@ -78,12 +80,26 @@ export interface AuthMeResponse {
   user: User;
 }
 
+export interface UpdateProfileInput {
+  name?: string;
+  phone?: string;
+  avatar?: string;
+}
+
 // Legacy aliases kept for backward compatibility.
 export type LoginPayload = LoginInput;
 export type RegisterPayload = RegisterInput;
 
+/**
+ * @deprecated Use LoginResponse instead.
+ * This legacy shape assumed a refresh token in the response body.
+ * The backend now issues the refresh token as an HTTP-only cookie
+ * and returns `accessToken` (not `token`) in the JSON body.
+ */
 export interface AuthResponse {
   user: User;
+  /** @deprecated Use `accessToken` from LoginResponse */
   token: string;
-  refreshToken: string;
+  /** @deprecated Refresh token is now an HTTP-only cookie, never in the response body */
+  refreshToken?: string;
 }

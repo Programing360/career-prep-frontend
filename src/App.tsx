@@ -10,6 +10,7 @@ import { ROUTES } from '@/constants/routes';
 import TestMCQPage from './pages/TestMCQPage';
 
 const ComponentShowcase = lazy(() => import('@/pages/dev/ComponentShowcase'));
+const ExamEngineDemoPage = lazy(() => import('@/pages/dev/ExamEngineDemoPage'));
 const Home = lazy(() => import('@/pages/public/Home'));
 const ExamDetailWrapper = lazy(() => import('@/pages/exams/ExamDetailWrapper'));
 const Login = lazy(() => import('@/pages/auth/Login'));
@@ -36,6 +37,7 @@ const AdminTokenSettingsPage = lazy(
 const AdminTaxonomyPage = lazy(() => import('@/pages/admin/AdminTaxonomyPage'));
 const AdminSyllabusPage = lazy(() => import('@/pages/admin/AdminSyllabusPage'));
 const CreateExamPage = lazy(() => import('@/pages/admin/CreateExamPage'));
+const ExamMcqPage = lazy(() => import('@/pages/admin/ExamMcqPage'));
 const ExamCategoriesPage = lazy(
   () => import('@/pages/public/ExamCategoriesPage')
 );
@@ -65,9 +67,9 @@ export default function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path={ROUTES.VERIFY_EMAIL} element={<VerifyEmail />} />
         <Route element={<PublicLayout />}>
           <Route path="/" element={<Home />} />
-          <Route path={ROUTES.VERIFY_EMAIL} element={<VerifyEmail />} />
           <Route path={ROUTES.FORGOT_PASSWORD} element={<ForgotPassword />} />
           <Route
             path={ROUTES.RESET_PASSWORD_TOKEN}
@@ -124,6 +126,7 @@ export default function App() {
             <Route path={ROUTES.ADMIN_USERS} element={<AdminUsersPage />} />
             <Route path={ROUTES.ADMIN_EXAMS} element={<AdminExamsPage />} />
             <Route path={ROUTES.ADMIN_EXAMS_NEW} element={<CreateExamPage />} />
+            <Route path={ROUTES.ADMIN_EXAM_MCQ} element={<ExamMcqPage />} />
             <Route
               path={ROUTES.ADMIN_TAXONOMY}
               element={<AdminTaxonomyPage />}
@@ -140,6 +143,7 @@ export default function App() {
         </Route>
 
         <Route path="/dev/components" element={<ComponentShowcase />} />
+        <Route path="/dev/exam-engine" element={<ExamEngineDemoPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Suspense>

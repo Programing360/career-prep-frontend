@@ -23,7 +23,7 @@ interface ExamAttemptState {
   examId: string | null;
   examTitle: string;
   questions: MCQ[];
-  answers: Record<string, number>;
+  answers: Record<string, string>;
   questionStatus: Record<string, QuestionStatus>;
   currentQuestionIndex: number;
   timeRemaining: number;
@@ -49,19 +49,23 @@ const initialState: ExamAttemptState = {
 
 function buildQuestionStatus(
   questions: MCQ[],
-  answers: Record<string, number>,
+  answers: Record<string, string>,
   existingStatus: Record<string, QuestionStatus>
 ): Record<string, QuestionStatus> {
   const status: Record<string, QuestionStatus> = {};
   for (const q of questions) {
-    const prev = existingStatus[q.id];
-    status[q.id] = {
-      answered: q.id in answers,
+    const prev = existingStatus[q._id];
+    status[q._id] = {
+      answered: q._id in answers,
       markedForReview: prev?.markedForReview ?? false,
       visited: prev?.visited ?? false,
     };
   }
   return status;
+}
+
+function correctOptionId(q: MCQ): string | undefined {
+  return q.options.find((o) => o.isCorrect)?.id;
 }
 
 const examAttemptSlice = createSlice({
@@ -91,7 +95,7 @@ const examAttemptSlice = createSlice({
       state.showSubmitModal = false;
 
       if (questions.length > 0) {
-        const firstId = questions[0].id;
+        const firstId = questions[0]._id;
         state.questionStatus[firstId] = {
           ...state.questionStatus[firstId],
           visited: true,
@@ -101,10 +105,10 @@ const examAttemptSlice = createSlice({
 
     selectOption(
       state,
-      action: PayloadAction<{ questionId: string; optionIndex: number }>
+      action: PayloadAction<{ questionId: string; optionId: string }>
     ) {
-      const { questionId, optionIndex } = action.payload;
-      state.answers[questionId] = optionIndex;
+      const { questionId, optionId } = action.payload;
+      state.answers[questionId] = optionId;
       state.questionStatus[questionId] = {
         ...state.questionStatus[questionId],
         answered: true,
@@ -134,7 +138,7 @@ const examAttemptSlice = createSlice({
       const idx = action.payload;
       if (idx >= 0 && idx < state.questions.length) {
         state.currentQuestionIndex = idx;
-        const qId = state.questions[idx].id;
+        const qId = state.questions[idx]._id;
         state.questionStatus[qId] = {
           ...state.questionStatus[qId],
           visited: true,
@@ -162,9 +166,9 @@ const examAttemptSlice = createSlice({
       let answered = 0;
 
       for (const q of questions) {
-        if (q.id in answers) {
+        if (q._id in answers) {
           answered += 1;
-          if (answers[q.id] === q.correctAnswer) {
+          if (answers[q._id] === correctOptionId(q)) {
             correct += 1;
           }
         }

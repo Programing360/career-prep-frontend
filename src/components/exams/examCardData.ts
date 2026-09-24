@@ -4,7 +4,7 @@ export interface ExamCardData {
   id: string;
   slug: string;
   title: string;
-  // imageUrl: string;
+  imageUrl: string;
   agency: string;
   agencyKey: string;
   grade: string;
@@ -34,7 +34,7 @@ export function mapDirectoryExamToExamCard(exam: DirectoryExam): ExamCardData {
     id: exam._id,
     slug: exam.slug,
     title: exam.title,
-    // imageUrl.exam.imageUrl,
+    imageUrl: exam.imageUrl,
     agency: exam.conductingAuthority,
     agencyKey: exam.conductingAuthority,
     grade: exam.bpsScale ? `BPS-${exam.bpsScale}` : 'BPS-N/A',

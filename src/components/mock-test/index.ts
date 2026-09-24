@@ -5,3 +5,4 @@ export { MockTestHeader } from './MockTestHeader';
 export { QuestionCard } from './QuestionCard';
 export { MockTestResultsView } from './MockTestResultsView';
 export { MockTestCTA } from './MockTestCTA';
+export { ExamEnginePanel } from './ExamEnginePanel';

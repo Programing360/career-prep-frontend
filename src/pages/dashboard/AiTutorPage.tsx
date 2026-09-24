@@ -25,6 +25,7 @@ import {
   History,
   ListChecks,
   ArrowRight,
+  AlertCircle,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/Button';
@@ -33,18 +34,26 @@ import type { QuizQuestion } from '@/store/slices/aiTutorSlice';
 import {
   sendMessage,
   receiveResponse,
+  setChatError,
   setActiveView,
   setActiveFeature,
   clearChat,
   buyTokenPack,
   upgradeToPremium,
   logTokenUsage,
-  deductTokens,
   startQuiz,
   answerQuizQuestion,
   submitQuiz,
   closeQuiz,
+  setSessionId,
+  setTokensRemaining,
 } from '@/store/slices/aiTutorSlice';
+import { chatWithTutor, explainMcq } from '@/services/aiApi';
+import { Link } from 'react-router-dom';
+
+// ---------------------------------------------------------------------------
+// Static data
+// ---------------------------------------------------------------------------
 
 const quickPromptChips = [
   'Explain the CSS Officer Selection Process',
@@ -53,42 +62,10 @@ const quickPromptChips = [
   'Tips for Verbal Reasoning MCQs',
 ];
 
-const mockResponses: Record<string, string> = {
-  default:
-    "That's a great question! Here's a step-by-step breakdown:\n\n1. **Understanding the Core Concept**: The topic you've asked about is fundamental to Pakistan competitive exams.\n\n2. **Key Points to Remember**:\n   - This concept frequently appears in FPSC and PPSC exams\n   - Focus on the historical context and current implications\n   - Connect it with current affairs for a comprehensive answer\n\n3. **Exam Tip**: In CSS and PMS exams, always support your answer with relevant examples and constitutional references where applicable.\n\n4. **Practice Recommendation**: Try solving 10-15 MCQs on this topic to reinforce your understanding.",
-  css: 'The **CSS (Central Superior Services) Officer Selection Process** involves multiple stages:\n\n1. **Written Examination** (1200 marks):\n   - Compulsory subjects: English, Urdu, General Knowledge, Current Affairs\n   - Optional subjects: Choose from Group A & B (600 marks each)\n   - Minimum passing: 50% in each paper\n\n2. **Psychological Assessment**:\n   - Intelligence tests\n   - Personality assessment\n   - Projective tests\n\n3. **Viva Voce / Interview** (300 marks):\n   - Conducted by FPSC panel\n   - Tests communication, general awareness, and personality\n\n4. **Final Merit**:\n   - Combined marks of Written + Viva\n   - Medical fitness test\n   - Character verification\n\n**Pro Tip**: Start preparation 8-10 months before the exam. Focus on English essay writing and current affairs daily.',
-  constitution:
-    "**Pakistan's Constitution of 1973** - Key Highlights:\n\n1. **Adopted**: April 12, 1973 (unanimous consent)\n2. **Suspended**: July 5, 1977 (General Zia's coup)\n3. **Restored**: March 23, 1985 (partially), December 29, 2006 (fully)\n\n**Key Features**:\n- Parliamentary form of government\n- Federal structure with provincial autonomy\n- Fundamental Rights (Articles 8-28)\n- Principles of Policy (Articles 29-40)\n- Islamic provisions (Article 2 & 227)\n- Judiciary independence (Article 175)\n\n**Important Amendments to Remember**:\n- 8th Amendment (1985): Objectives Resolution became substantive part\n- 13th Amendment (2002): Reduced Presidential powers\n- 18th Amendment (2010): Removed concurrent list, restored parliamentary sovereignty\n- 21st Amendment (2015): Established military courts\n\n**Exam Focus**: The 18th Amendment is the most frequently tested amendment in CSS/PMS exams.",
-  tax: "**Direct vs Indirect Tax - Key Differences**:\n\n| Feature | Direct Tax | Indirect Tax |\n|---------|-----------|--------------|\n| **Definition** | Paid directly by the taxpayer to the government | Collected by an intermediary from the end consumer |\n| **Incidence** | Cannot be shifted | Can be shifted to others |\n| **Examples** | Income Tax, Wealth Tax, Property Tax | Sales Tax, GST, Custom Duty |\n| **Progressivity** | Usually progressive | Usually regressive |\n| **Collection** | Difficult to collect | Easier to collect |\n\n**Pakistan's Tax Structure**:\n- **FBR** (Federal Board of Revenue) collects both\n- Direct tax contributes ~40% of tax revenue\n- Indirect tax contributes ~60% of tax revenue\n- **WHT** (Withholding Tax) is the largest source\n\n**Exam Tip**: Remember that Pakistan has a high reliance on indirect taxes, making the tax system regressive.",
-  verbal:
-    '**Verbal Reasoning MCQ Preparation Tips**:\n\n1. **Analogy Questions**:\n   - Identify the relationship between the first pair\n   - Apply the same relationship to find the answer\n   - Practice: Book : Author :: Painting : ?\n\n2. **Series Completion**:\n   - Look for patterns (arithmetic, geometric, alternating)\n   - Check differences between consecutive terms\n   - Example: 2, 6, 12, 20, 30, ? (Answer: 42)\n\n3. **Coding-Decoding**:\n   - Find the coding pattern first\n   - Common patterns: reverse, shift, position-based\n   - Practice with 20+ questions daily\n\n4. **Blood Relations**:\n   - Draw a family tree diagram\n   - Use symbols: + for male, - for female\n   - Start from the known person\n\n5. **Direction Sense**:\n   - Draw diagrams for each movement\n   - Track both direction and distance\n   - Remember: Left = Anti-clockwise, Right = Clockwise\n\n**Daily Practice**: Solve 25 verbal reasoning questions every day. Track accuracy and focus on weak areas.',
-  revision:
-    "**AI Revision Planner** - Your Personalized Quick Review Schedule:\n\nBased on your weak areas, here's a focused 7-day revision plan:\n\n**Day 1-2: Pakistan Affairs**\n- Constitutional amendments (8th, 13th, 18th)\n- Pakistan Movement key events\n- Current political structure\n\n**Day 3: Current Affairs**\n- Last 6 months major events\n- International relations (Pakistan focus)\n- Economic indicators\n\n**Day 4: English**\n- Grammar rules & common errors\n- Sentence correction practice\n- Vocabulary building (50 words)\n\n**Day 5: General Knowledge**\n- Everyday science fundamentals\n- Geography (Pakistan + World)\n- Important dates and events\n\n**Day 6: Reasoning**\n- Series completion patterns\n- Analogy & classification\n- Coding-decoding rules\n\n**Day 7: Full Mock Test**\n- Take a timed 100-question mock test\n- Review mistakes\n- Focus on weak areas identified\n\n**Study Hours**: 4-5 hours/day with 15-min breaks every 90 minutes.",
-};
-
-function getMockResponse(prompt: string): string {
-  const lower = prompt.toLowerCase();
-  if (lower.includes('css') && lower.includes('selection'))
-    return mockResponses.css;
-  if (lower.includes('constitution') || lower.includes('1973'))
-    return mockResponses.constitution;
-  if (
-    lower.includes('tax') ||
-    lower.includes('direct') ||
-    lower.includes('indirect')
-  )
-    return mockResponses.tax;
-  if (lower.includes('verbal') || lower.includes('reasoning'))
-    return mockResponses.verbal;
-  if (
-    lower.includes('revision') ||
-    lower.includes('review') ||
-    lower.includes('schedule')
-  )
-    return mockResponses.revision;
-  return mockResponses.default;
-}
-
+/** Offline fallback quiz bank – shown when the quiz feature is triggered.
+ *  A real `/ai-tutor/generate-quiz` endpoint does not exist yet, so we ship
+ *  curated questions for the most common competitive exam topics.
+ */
 const mockQuizBank: Record<string, QuizQuestion[]> = {
   default: [
     {
@@ -202,7 +179,7 @@ const mockQuizBank: Record<string, QuizQuestion[]> = {
       question: 'Find the next number: 2, 6, 12, 20, 30, ?',
       options: ['36', '40', '42', '48'],
       correctAnswer: 2,
-      explanation: 'Pattern: n(n+1) where n starts from 1. 6Ã—7 = 42.',
+      explanation: 'Pattern: n(n+1) where n starts from 1. 6×7 = 42.',
     },
     {
       id: 'vr-2',
@@ -306,7 +283,7 @@ const featureCards: FeatureCardDef[] = [
       'Generate a customized study calendar based on your exam target date and current progress.',
     color:
       'bg-primary-50 text-primary-600 dark:bg-primary-950 dark:text-primary-400',
-    tokenCost: 15,
+    tokenCost: 10,
   },
   {
     id: 'flashcards',
@@ -316,7 +293,7 @@ const featureCards: FeatureCardDef[] = [
       'Create quick revision flashcards for your weak topics with spaced repetition scheduling.',
     color:
       'bg-primary-50 text-primary-600 dark:bg-primary-950 dark:text-primary-400',
-    tokenCost: 8,
+    tokenCost: 10,
   },
   {
     id: 'revision',
@@ -325,7 +302,7 @@ const featureCards: FeatureCardDef[] = [
     description:
       'Generates a quick review schedule for weak subjects before exams based on your progress.',
     color: 'bg-cyan-50 text-cyan-600 dark:bg-cyan-950 dark:text-cyan-400',
-    tokenCost: 12,
+    tokenCost: 10,
   },
   {
     id: 'quiz',
@@ -349,11 +326,28 @@ const featureCards: FeatureCardDef[] = [
   },
 ];
 
+// ---------------------------------------------------------------------------
+// Feature-specific system prompt prefixes sent to /ai-tutor/chat
+// ---------------------------------------------------------------------------
+const featurePromptPrefixes: Record<string, string> = {
+  planner:
+    '[AI Study Planner] Generate a detailed, day-by-day study plan for the following target: ',
+  flashcards:
+    '[AI Flashcards] Generate 10 concise flashcard Q&A pairs for the following topic: ',
+  revision:
+    '[AI Revision Planner] Create a focused revision schedule for the following weak areas: ',
+  explanation:
+    '[AI Explanation] Provide a thorough, exam-focused explanation for the following concept or MCQ: ',
+};
+
+// ---------------------------------------------------------------------------
+// Main Component
+// ---------------------------------------------------------------------------
+
 export default function AiTutorPage() {
   const dispatch = useDispatch();
   const {
-    dailyTokensRemaining,
-    dailyTokensTotal,
+    tokensRemaining,
     tokenCostPerQuery,
     isPremium,
     chatHistory,
@@ -365,7 +359,12 @@ export default function AiTutorPage() {
     quizTopic,
     quizAnswers,
     quizSubmitted,
+    sessionId,
+    chatError,
   } = useSelector((state: RootState) => state.aiTutor);
+
+  // Read the real token balance from the authenticated user profile on mount
+  const authUser = useSelector((state: RootState) => state.auth.user);
 
   const [promptInput, setPromptInput] = useState('');
   const [pricingOpen, setPricingOpen] = useState(false);
@@ -375,35 +374,93 @@ export default function AiTutorPage() {
   const chatEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Seed token balance from user profile once on mount (avoids a dedicated fetch)
+  useEffect(() => {
+    if (tokensRemaining === null && authUser?.aiTokenBalance !== undefined) {
+      dispatch(setTokensRemaining(authUser.aiTokenBalance));
+    }
+  }, [authUser, tokensRemaining, dispatch]);
+
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatHistory, isStreaming]);
 
+  // Resolved display tokens (fallback to 0 if not yet loaded)
+  const displayTokens = tokensRemaining ?? authUser?.aiTokenBalance ?? 0;
+  const tokenPercent = Math.round((displayTokens / 500) * 100);
+  const isLowTokens = displayTokens > 0 && tokenPercent <= 30;
+  const hasNoTokens = displayTokens <= 0 && tokensRemaining !== null;
+
+  // ---------------------------------------------------------------------------
+  // Chat send – calls real backend
+  // ---------------------------------------------------------------------------
   const handleSend = useCallback(
-    (text?: string) => {
+    async (text?: string) => {
       const content = text || promptInput.trim();
       if (!content || isStreaming) return;
-      if (dailyTokensRemaining < tokenCostPerQuery) {
+
+      if (!isPremium && displayTokens < tokenCostPerQuery) {
         setPricingOpen(true);
         return;
       }
 
+      // Optimistically add user message
       dispatch(sendMessage(content));
       setPromptInput('');
 
-      setTimeout(
-        () => {
-          const response = getMockResponse(content);
-          dispatch(receiveResponse(response));
-        },
-        1500 + Math.random() * 1000
-      );
+      try {
+        const data = await chatWithTutor({
+          prompt: content,
+          sessionId,
+        });
+
+        dispatch(
+          receiveResponse({
+            reply: data.reply,
+            tokensRemaining: data.tokensRemaining,
+          })
+        );
+        dispatch(setSessionId(data.sessionId));
+        dispatch(
+          logTokenUsage({
+            feature: 'AI Chat',
+            description: content.slice(0, 60),
+            tokenCost: tokenCostPerQuery,
+          })
+        );
+      } catch (err: unknown) {
+        const error = err as { message?: string; status?: number };
+        // 403 → out of tokens
+        if (
+          typeof error === 'object' &&
+          error !== null &&
+          (String(error.message).includes('403') ||
+            String(error.message).toLowerCase().includes('insufficient') ||
+            String(error.message).toLowerCase().includes('token'))
+        ) {
+          dispatch(
+            setChatError(
+              'You have run out of AI tokens. Please buy more to continue.'
+            )
+          );
+          setPricingOpen(true);
+        } else {
+          dispatch(
+            setChatError(
+              error?.message ||
+                'Failed to get a response. Please check your connection and try again.'
+            )
+          );
+        }
+      }
     },
     [
       promptInput,
       isStreaming,
-      dailyTokensRemaining,
+      displayTokens,
       tokenCostPerQuery,
+      isPremium,
+      sessionId,
       dispatch,
     ]
   );
@@ -418,66 +475,151 @@ export default function AiTutorPage() {
     [handleSend]
   );
 
+  // ---------------------------------------------------------------------------
+  // Quiz generation – uses local bank (no quiz endpoint on backend yet)
+  // ---------------------------------------------------------------------------
   const handleGenerateQuiz = useCallback(
     (topic: string) => {
-      const cost = 10;
-      if (dailyTokensRemaining < cost) {
+      if (!isPremium && displayTokens < tokenCostPerQuery) {
         setPricingOpen(true);
         return;
       }
-      dispatch(deductTokens(cost));
+
+      // Log usage optimistically (tokens will be deducted via chatWithTutor below)
       dispatch(
         logTokenUsage({
           feature: 'AI Quiz',
           description: `Quiz on "${topic.slice(0, 50)}"`,
-          tokenCost: cost,
+          tokenCost: tokenCostPerQuery,
         })
       );
+
       const questions = getQuizForTopic(topic);
       dispatch(startQuiz({ topic, questions }));
+
+      // Also send the topic to the AI for a richer explanation (fires in background)
+      void chatWithTutor({
+        prompt: `[AI Quiz] Generate exam-style insight and tips for the topic: ${topic}`,
+        sessionId,
+      })
+        .then((data) => {
+          dispatch(setTokensRemaining(data.tokensRemaining));
+          dispatch(setSessionId(data.sessionId));
+        })
+        .catch(() => {
+          // Silently ignore – quiz UI already shown from local bank
+        });
     },
-    [dailyTokensRemaining, dispatch]
+    [displayTokens, tokenCostPerQuery, isPremium, sessionId, dispatch]
   );
 
+  // ---------------------------------------------------------------------------
+  // Feature use – routes through chatWithTutor with a prefix
+  // ---------------------------------------------------------------------------
   const handleFeatureUse = useCallback(
-    (featureId: string, prompt: string) => {
+    async (featureId: string, userInput: string) => {
       const card = featureCards.find((f) => f.id === featureId);
       if (!card || card.comingSoon) return;
 
-      if (dailyTokensRemaining < card.tokenCost) {
+      if (!isPremium && displayTokens < card.tokenCost) {
         setPricingOpen(true);
         return;
       }
 
-      dispatch(deductTokens(card.tokenCost));
-      dispatch(
-        logTokenUsage({
-          feature: card.title,
-          description: prompt.slice(0, 60),
-          tokenCost: card.tokenCost,
-        })
-      );
-
       if (featureId === 'quiz') {
-        handleGenerateQuiz(prompt);
-      } else {
-        dispatch(setActiveView('chat'));
-        setLocalActiveFeature(null);
-        dispatch(setActiveFeature(null));
-        setPromptInput(prompt);
-        setTimeout(() => {
-          handleSend(prompt);
-        }, 200);
+        handleGenerateQuiz(userInput);
+        return;
+      }
+
+      // For explanation: detect MCQ pattern and try the dedicated endpoint first
+      if (featureId === 'explanation') {
+        const mcqPattern = /correct\s*answer\s*[:=]/i;
+        if (mcqPattern.test(userInput)) {
+          // User pasted a structured MCQ – call explain-mcq
+          dispatch(setActiveView('chat'));
+          setLocalActiveFeature(null);
+          dispatch(setActiveFeature(null));
+          dispatch(sendMessage(userInput));
+
+          try {
+            const data = await explainMcq({
+              question: userInput,
+              options: [],
+              correctAnswer: '',
+            });
+            dispatch(
+              receiveResponse({
+                reply: data.explanation,
+                tokensRemaining: data.tokensRemaining,
+              })
+            );
+            dispatch(
+              logTokenUsage({
+                feature: card.title,
+                description: userInput.slice(0, 60),
+                tokenCost: card.tokenCost,
+              })
+            );
+          } catch (err: unknown) {
+            const error = err as { message?: string };
+            dispatch(
+              setChatError(error?.message || 'Explanation request failed.')
+            );
+          }
+          return;
+        }
+      }
+
+      // Generic path – prefix the prompt and route through chat
+      const prefix = featurePromptPrefixes[featureId] || '';
+      const fullPrompt = prefix + userInput;
+
+      dispatch(setActiveView('chat'));
+      setLocalActiveFeature(null);
+      dispatch(setActiveFeature(null));
+      dispatch(sendMessage(fullPrompt));
+
+      try {
+        const data = await chatWithTutor({ prompt: fullPrompt, sessionId });
+        dispatch(
+          receiveResponse({
+            reply: data.reply,
+            tokensRemaining: data.tokensRemaining,
+          })
+        );
+        dispatch(setSessionId(data.sessionId));
+        dispatch(
+          logTokenUsage({
+            feature: card.title,
+            description: userInput.slice(0, 60),
+            tokenCost: card.tokenCost,
+          })
+        );
+      } catch (err: unknown) {
+        const error = err as { message?: string };
+        if (
+          String(error?.message).toLowerCase().includes('insufficient') ||
+          String(error?.message).toLowerCase().includes('token')
+        ) {
+          dispatch(
+            setChatError('Insufficient tokens. Please buy more to continue.')
+          );
+          setPricingOpen(true);
+        } else {
+          dispatch(
+            setChatError(
+              error?.message || 'AI request failed. Please try again.'
+            )
+          );
+        }
       }
     },
-    [dailyTokensRemaining, dispatch, handleGenerateQuiz, handleSend]
+    [displayTokens, isPremium, sessionId, dispatch, handleGenerateQuiz]
   );
 
-  const tokenPercent = Math.round(
-    (dailyTokensRemaining / dailyTokensTotal) * 100
-  );
-  const isLowTokens = tokenPercent <= 30;
-
+  // ---------------------------------------------------------------------------
+  // Render
+  // ---------------------------------------------------------------------------
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -490,7 +632,7 @@ export default function AiTutorPage() {
               AI Tutor
             </h1>
             <p className="text-xs text-[rgb(var(--color-text-secondary))]">
-              Powered by AI - Ask anything about your exam preparation
+              Powered by Google AI · Ask anything about your exam preparation
             </p>
           </div>
         </div>
@@ -510,10 +652,11 @@ export default function AiTutorPage() {
       </div>
 
       <TokenHeader
-        remaining={dailyTokensRemaining}
-        total={dailyTokensTotal}
-        percent={tokenPercent}
+        remaining={displayTokens}
+        total={500}
+        percent={isPremium ? 100 : Math.min(tokenPercent, 100)}
         isLow={isLowTokens}
+        hasNoTokens={hasNoTokens}
         isPremium={isPremium}
         costPerQuery={tokenCostPerQuery}
         onBuyTokens={() => setPricingOpen(true)}
@@ -636,7 +779,7 @@ export default function AiTutorPage() {
 
               <UsageStats
                 costPerQuery={tokenCostPerQuery}
-                remaining={dailyTokensRemaining}
+                remaining={displayTokens}
               />
             </>
           )}
@@ -648,7 +791,7 @@ export default function AiTutorPage() {
       {activeView === 'home' && activeFeature && (
         <FeatureDetail
           featureId={activeFeature}
-          dailyTokensRemaining={dailyTokensRemaining}
+          tokensRemaining={displayTokens}
           isStreaming={isStreaming}
           onUseFeature={(prompt) => handleFeatureUse(activeFeature, prompt)}
           onBack={() => {
@@ -660,7 +803,12 @@ export default function AiTutorPage() {
 
       {activeView === 'chat' && (
         <div className="space-y-4">
-          <ChatHistory messages={chatHistory} isStreaming={isStreaming} />
+          <ChatHistory
+            messages={chatHistory}
+            isStreaming={isStreaming}
+            chatError={chatError}
+            onDismissError={() => dispatch(setChatError(null))}
+          />
 
           <div className="rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] p-4">
             <div className="flex flex-wrap gap-2 mb-3">
@@ -672,7 +820,8 @@ export default function AiTutorPage() {
                     handleSend(chip);
                   }}
                   disabled={
-                    isStreaming || dailyTokensRemaining < tokenCostPerQuery
+                    isStreaming ||
+                    (!isPremium && displayTokens < tokenCostPerQuery)
                   }
                   className="rounded-full border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface-elevated))] px-3 py-1 text-[11px] font-medium text-[rgb(var(--color-text-secondary))] transition-all hover:border-primary-300 hover:text-primary-600 disabled:opacity-50 dark:hover:border-primary-700"
                 >
@@ -690,12 +839,13 @@ export default function AiTutorPage() {
                   onChange={(e) => setPromptInput(e.target.value)}
                   onKeyDown={handleKeyDown}
                   placeholder={
-                    dailyTokensRemaining < tokenCostPerQuery
+                    !isPremium && displayTokens < tokenCostPerQuery
                       ? 'No tokens remaining. Buy more to continue.'
                       : 'Ask the AI Tutor anything...'
                   }
                   disabled={
-                    isStreaming || dailyTokensRemaining < tokenCostPerQuery
+                    isStreaming ||
+                    (!isPremium && displayTokens < tokenCostPerQuery)
                   }
                   className="w-full rounded-lg border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] px-4 py-2.5 pr-12 text-sm text-[rgb(var(--color-text-primary))] placeholder:text-[rgb(var(--color-text-muted))] focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 disabled:opacity-50"
                 />
@@ -704,7 +854,7 @@ export default function AiTutorPage() {
                   disabled={
                     !promptInput.trim() ||
                     isStreaming ||
-                    dailyTokensRemaining < tokenCostPerQuery
+                    (!isPremium && displayTokens < tokenCostPerQuery)
                   }
                   className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md bg-primary-500 p-1.5 text-white transition-colors hover:bg-primary-600 disabled:opacity-40 disabled:hover:bg-primary-500"
                 >
@@ -744,9 +894,7 @@ export default function AiTutorPage() {
             )
           }
           onSubmit={() => dispatch(submitQuiz())}
-          onClose={() => {
-            dispatch(closeQuiz());
-          }}
+          onClose={() => dispatch(closeQuiz())}
         />
       )}
 
@@ -768,11 +916,16 @@ export default function AiTutorPage() {
   );
 }
 
+// ---------------------------------------------------------------------------
+// Sub-components
+// ---------------------------------------------------------------------------
+
 function TokenHeader({
   remaining,
   total,
   percent,
   isLow,
+  hasNoTokens,
   isPremium,
   costPerQuery,
   onBuyTokens,
@@ -781,6 +934,7 @@ function TokenHeader({
   total: number;
   percent: number;
   isLow: boolean;
+  hasNoTokens: boolean;
   isPremium: boolean;
   costPerQuery: number;
   onBuyTokens: () => void;
@@ -792,12 +946,14 @@ function TokenHeader({
           <div className="flex items-center gap-2">
             <Coins
               size={18}
-              className={cn(isLow ? 'text-danger-500' : 'text-primary-500')}
+              className={cn(
+                isLow || hasNoTokens ? 'text-danger-500' : 'text-primary-500'
+              )}
             />
             <h3 className="text-sm font-semibold text-[rgb(var(--color-text-primary))]">
               {isPremium
                 ? 'Unlimited'
-                : `${remaining} Free Tokens Remaining Today`}
+                : `${remaining.toLocaleString()} AI Tokens Remaining`}
             </h3>
             {isPremium && (
               <span className="flex items-center gap-1 rounded-full bg-primary-100 px-2 py-0.5 text-[10px] font-bold text-primary-700 dark:bg-primary-900 dark:text-primary-300">
@@ -812,19 +968,19 @@ function TokenHeader({
                 <span>
                   {remaining} / {total} tokens
                 </span>
-                <span>{percent}% remaining</span>
+                <span>{Math.min(percent, 100)}% remaining</span>
               </div>
               <div className="relative mt-1 h-2 w-full overflow-hidden rounded-full bg-[rgb(var(--color-surface-elevated))]">
                 <div
                   className={cn(
                     'absolute inset-y-0 left-0 rounded-full transition-all duration-500',
-                    isLow
+                    hasNoTokens
                       ? 'bg-danger-500'
-                      : percent <= 60
-                        ? 'bg-primary-500'
+                      : isLow
+                        ? 'bg-amber-500'
                         : 'bg-primary-500'
                   )}
-                  style={{ width: `${percent}%` }}
+                  style={{ width: `${Math.min(percent, 100)}%` }}
                 />
               </div>
             </div>
@@ -832,12 +988,12 @@ function TokenHeader({
           <p className="mt-2 text-[11px] text-[rgb(var(--color-text-muted))]">
             {isPremium
               ? 'Enjoy unlimited AI queries with no token limits.'
-              : `Each AI query costs ${costPerQuery} tokens. Resets daily at midnight.`}
+              : `Each AI query costs ${costPerQuery} tokens.`}
           </p>
         </div>
 
         <div className="flex items-center gap-2">
-          {isLow && !isPremium && (
+          {(isLow || hasNoTokens) && !isPremium && (
             <Button
               size="sm"
               variant="outline"
@@ -845,15 +1001,21 @@ function TokenHeader({
               onClick={onBuyTokens}
               className="border-danger-300 text-danger-600 hover:bg-danger-50 dark:border-danger-700 dark:text-danger-400 dark:hover:bg-danger-950"
             >
-              Tokens Low!
+              {hasNoTokens ? 'Out of Tokens!' : 'Tokens Low!'}
             </Button>
           )}
           <Button
             size="sm"
             leftIcon={<CreditCard size={14} />}
-            onClick={onBuyTokens}
+            // onClick={onBuyTokens}
           >
-            {isPremium ? 'Manage Plan' : 'Buy Token Pack'}
+            {isPremium ? (
+              'Manage Plan'
+            ) : (
+              <Link to={'/premium'}>
+                <span>Buy Token Pack</span>
+              </Link>
+            )}
           </Button>
         </div>
       </div>
@@ -868,7 +1030,8 @@ function UsageStats({
   costPerQuery: number;
   remaining: number;
 }) {
-  const estimatedQueries = Math.floor(remaining / costPerQuery);
+  const estimatedQueries =
+    costPerQuery > 0 ? Math.floor(remaining / costPerQuery) : 0;
 
   return (
     <div className="grid grid-cols-3 gap-3">
@@ -878,7 +1041,7 @@ function UsageStats({
           {estimatedQueries}
         </p>
         <p className="text-[10px] text-[rgb(var(--color-text-muted))]">
-          Queries Left Today
+          Queries Left
         </p>
       </div>
       <div className="rounded-xl border border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] p-4 text-center">
@@ -1020,11 +1183,21 @@ function UsageHistory({
 function ChatHistory({
   messages,
   isStreaming,
+  chatError,
+  onDismissError,
 }: {
   messages: { id: string; role: 'user' | 'assistant'; content: string }[];
   isStreaming: boolean;
+  chatError: string | null;
+  onDismissError: () => void;
 }) {
-  if (messages.length === 0 && !isStreaming) {
+  const endRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    endRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, isStreaming]);
+
+  if (messages.length === 0 && !isStreaming && !chatError) {
     return (
       <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-[rgb(var(--color-border))] bg-[rgb(var(--color-surface))] py-12">
         <Bot
@@ -1100,20 +1273,35 @@ function ChatHistory({
         </div>
       )}
 
-      <div />
+      {chatError && (
+        <div className="flex items-start gap-2 rounded-xl border border-danger-300 bg-danger-50 px-4 py-3 dark:border-danger-700 dark:bg-danger-950/40">
+          <AlertCircle size={16} className="mt-0.5 shrink-0 text-danger-500" />
+          <p className="flex-1 text-xs text-danger-700 dark:text-danger-300">
+            {chatError}
+          </p>
+          <button
+            onClick={onDismissError}
+            className="shrink-0 text-danger-400 hover:text-danger-600"
+          >
+            <XIcon size={14} />
+          </button>
+        </div>
+      )}
+
+      <div ref={endRef} />
     </div>
   );
 }
 
 function FeatureDetail({
   featureId,
-  dailyTokensRemaining,
+  tokensRemaining,
   isStreaming,
   onUseFeature,
   onBack,
 }: {
   featureId: string;
-  dailyTokensRemaining: number;
+  tokensRemaining: number;
   isStreaming: boolean;
   onUseFeature: (prompt: string) => void;
   onBack: () => void;
@@ -1201,7 +1389,7 @@ function FeatureDetail({
               disabled={
                 !input.trim() ||
                 isStreaming ||
-                dailyTokensRemaining < feature.tokenCost
+                tokensRemaining < feature.tokenCost
               }
               onClick={() => {
                 if (input.trim()) onUseFeature(input.trim());
@@ -1430,7 +1618,7 @@ function PricingModal({
           <div className="flex items-center gap-2">
             <Coins size={20} className="text-primary-500" />
             <h2 className="text-lg font-bold text-[rgb(var(--color-text-primary))]">
-              Token Packs & Premium
+              Token Packs &amp; Premium
             </h2>
           </div>
           <button
@@ -1458,14 +1646,7 @@ function PricingModal({
               )}
             >
               {plan.badge && (
-                <span
-                  className={cn(
-                    'absolute -top-2.5 left-4 rounded-full px-2 py-0.5 text-[10px] font-bold',
-                    plan.id === 'premium'
-                      ? 'bg-primary-500 text-white'
-                      : 'bg-primary-500 text-white'
-                  )}
-                >
+                <span className="absolute -top-2.5 left-4 rounded-full bg-primary-500 px-2 py-0.5 text-[10px] font-bold text-white">
                   {plan.badge}
                 </span>
               )}
@@ -1520,7 +1701,7 @@ function PricingModal({
             <div className="flex items-center gap-2">
               <Crown size={14} className="text-primary-500" />
               <p className="text-xs font-medium text-primary-700 dark:text-primary-300">
-                You&apos;re on the Premium plan with unlimited AI queries.
+                You're on the Premium plan with unlimited AI queries.
               </p>
             </div>
           </div>

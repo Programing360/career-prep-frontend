@@ -1,4 +1,5 @@
 import api from '@/lib/axios';
+import { API_ENDPOINTS } from '@/constants/apiEndpoints';
 
 // ==========================================
 // TYPES (mirror the backend taxonomy API)
@@ -36,7 +37,7 @@ export interface TaxonomySubject {
 
 export interface TaxonomyChapter {
   _id: string;
-  subjectId: string | { _id: string; title: string; code: string };
+  subjectId?: string | { _id: string; title: string; code: string };
   title: string;
   order: number;
   createdAt?: string;
@@ -57,17 +58,15 @@ export interface TaxonomyTopic {
 export interface TaxonomyPagination {
   total: number;
   page: number;
-  pages: number;
+  limit: number;
+  totalPages: number;
 }
 
 interface TaxonomyListResponse<T> {
   success: boolean;
   message?: string;
-  data: {
-    total: number;
-    page: number;
-    pages: number;
-  } & Partial<Record<string, T[]>>;
+  data: T[];
+  meta: TaxonomyPagination;
 }
 
 interface TaxonomySingleResponse<T> {
@@ -129,6 +128,50 @@ export interface TaxonomyTopicJoined extends TaxonomyTopic {
   subject?: { _id: string; title: string; code: string };
 }
 
+/**
+ * The taxonomy backend returns list pages shaped as
+ * `{ success, message, data: { <key>: T[], total, page, pages } }` — i.e. the
+ * list and pagination are nested inside `data`, and there is no `meta` field.
+ * This normalizes that response into the `{ data: T[], meta }` contract used
+ * by the rest of the app.
+ */
+function normalizeListResponse<T>(
+  body: { success: boolean; message?: string; data: unknown },
+  key: string,
+  fallbackLimit = 50
+): TaxonomyListResponse<T> {
+  const raw = body.data;
+  let items: T[] = [];
+  let total = 0;
+  let page = 1;
+  let totalPages = 1;
+  const limit = fallbackLimit;
+
+  if (Array.isArray(raw)) {
+    items = raw;
+    total = items.length;
+  } else if (raw && typeof raw === 'object') {
+    const rec = raw as Record<string, unknown>;
+    const nested = rec[key];
+    if (Array.isArray(nested)) items = nested as T[];
+    total = Number(rec.total) || items.length;
+    page = Number(rec.page) || 1;
+    totalPages = Number(rec.pages) || Math.ceil(total / limit) || 1;
+  }
+
+  return {
+    success: body.success ?? true,
+    message: body.message,
+    data: items,
+    meta: {
+      total,
+      page,
+      limit,
+      totalPages,
+    },
+  };
+}
+
 // ==========================================
 // SUBJECTS
 // ==========================================
@@ -136,18 +179,19 @@ export interface TaxonomyTopicJoined extends TaxonomyTopic {
 export async function getSubjects(
   params?: SubjectFilters
 ): Promise<TaxonomyListResponse<TaxonomySubject>> {
-  const { data } = await api.get<TaxonomyListResponse<TaxonomySubject>>(
-    '/taxonomy/subjects',
-    { params }
-  );
-  return data;
+  const { data } = await api.get<{
+    success: boolean;
+    message?: string;
+    data: unknown;
+  }>(API_ENDPOINTS.TAXONOMY.SUBJECTS, { params });
+  return normalizeListResponse<TaxonomySubject>(data, 'subjects');
 }
 
 export async function createSubject(
   payload: SubjectPayload
 ): Promise<TaxonomySingleResponse<TaxonomySubject>> {
   const { data } = await api.post<TaxonomySingleResponse<TaxonomySubject>>(
-    '/taxonomy/subjects',
+    API_ENDPOINTS.TAXONOMY.SUBJECTS,
     payload
   );
   return data;
@@ -158,7 +202,7 @@ export async function updateSubject(
   payload: Partial<SubjectPayload>
 ): Promise<TaxonomySingleResponse<TaxonomySubject>> {
   const { data } = await api.patch<TaxonomySingleResponse<TaxonomySubject>>(
-    `/taxonomy/subjects/${subjectId}`,
+    API_ENDPOINTS.TAXONOMY.SUBJECT_BY_ID(subjectId),
     payload
   );
   return data;
@@ -168,7 +212,7 @@ export async function deleteSubject(
   subjectId: string
 ): Promise<TaxonomyMessageResponse> {
   const { data } = await api.delete<TaxonomyMessageResponse>(
-    `/taxonomy/subjects/${subjectId}`
+    API_ENDPOINTS.TAXONOMY.SUBJECT_BY_ID(subjectId)
   );
   return data;
 }
@@ -180,19 +224,19 @@ export async function deleteSubject(
 export async function getChapters(
   params?: ChapterFilters
 ): Promise<TaxonomyListResponse<TaxonomyChapter>> {
-  const { data } = await api.get<TaxonomyListResponse<TaxonomyChapter>>(
-    '/taxonomy/chapters',
-    { params }
-  );
-  // console.log(params, data);
-  return data;
+  const { data } = await api.get<{
+    success: boolean;
+    message?: string;
+    data: unknown;
+  }>(API_ENDPOINTS.TAXONOMY.CHAPTERS, { params });
+  return normalizeListResponse<TaxonomyChapter>(data, 'chapters');
 }
 
 export async function createChapter(
   payload: ChapterPayload
 ): Promise<TaxonomySingleResponse<TaxonomyChapter>> {
   const { data } = await api.post<TaxonomySingleResponse<TaxonomyChapter>>(
-    '/taxonomy/chapters',
+    API_ENDPOINTS.TAXONOMY.CHAPTERS,
     payload
   );
   return data;
@@ -203,7 +247,7 @@ export async function updateChapter(
   payload: Partial<Omit<ChapterPayload, 'subjectId'>>
 ): Promise<TaxonomySingleResponse<TaxonomyChapter>> {
   const { data } = await api.patch<TaxonomySingleResponse<TaxonomyChapter>>(
-    `/taxonomy/chapters/${chapterId}`,
+    API_ENDPOINTS.TAXONOMY.CHAPTER_BY_ID(chapterId),
     payload
   );
   return data;
@@ -213,7 +257,7 @@ export async function deleteChapter(
   chapterId: string
 ): Promise<TaxonomyMessageResponse> {
   const { data } = await api.delete<TaxonomyMessageResponse>(
-    `/taxonomy/chapters/${chapterId}`
+    API_ENDPOINTS.TAXONOMY.CHAPTER_BY_ID(chapterId)
   );
   return data;
 }
@@ -225,18 +269,19 @@ export async function deleteChapter(
 export async function getTopics(
   params?: TopicFilters
 ): Promise<TaxonomyListResponse<TaxonomyTopic>> {
-  const { data } = await api.get<TaxonomyListResponse<TaxonomyTopic>>(
-    '/taxonomy/topics',
-    { params }
-  );
-  return data;
+  const { data } = await api.get<{
+    success: boolean;
+    message?: string;
+    data: unknown;
+  }>(API_ENDPOINTS.TAXONOMY.TOPICS, { params });
+  return normalizeListResponse<TaxonomyTopic>(data, 'topics');
 }
 
 export async function createTopic(
   payload: TopicPayload
 ): Promise<TaxonomySingleResponse<TaxonomyTopic>> {
   const { data } = await api.post<TaxonomySingleResponse<TaxonomyTopic>>(
-    '/taxonomy/topics',
+    API_ENDPOINTS.TAXONOMY.TOPICS,
     payload
   );
   return data;
@@ -247,7 +292,7 @@ export async function updateTopic(
   payload: Partial<Omit<TopicPayload, 'chapterId'>>
 ): Promise<TaxonomySingleResponse<TaxonomyTopic>> {
   const { data } = await api.patch<TaxonomySingleResponse<TaxonomyTopic>>(
-    `/taxonomy/topics/${topicId}`,
+    API_ENDPOINTS.TAXONOMY.TOPIC_BY_ID(topicId),
     payload
   );
   return data;
@@ -257,7 +302,7 @@ export async function deleteTopic(
   topicId: string
 ): Promise<TaxonomyMessageResponse> {
   const { data } = await api.delete<TaxonomyMessageResponse>(
-    `/taxonomy/topics/${topicId}`
+    API_ENDPOINTS.TAXONOMY.TOPIC_BY_ID(topicId)
   );
   return data;
 }

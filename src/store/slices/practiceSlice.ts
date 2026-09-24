@@ -2,7 +2,7 @@ import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import type { MCQ } from '@/types';
 
 export interface AnswerState {
-  selectedIndex: number;
+  selectedOptionId: string;
   isCorrect: boolean;
 }
 
@@ -64,15 +64,15 @@ const practiceSlice = createSlice({
       state,
       action: PayloadAction<{
         questionId: string;
-        selectedIndex: number;
-        correctAnswer: number;
+        optionId: string;
+        isCorrect: boolean;
       }>
     ) {
-      const { questionId, selectedIndex, correctAnswer } = action.payload;
+      const { questionId, optionId, isCorrect } = action.payload;
       if (state.answers[questionId]) return;
       state.answers[questionId] = {
-        selectedIndex,
-        isCorrect: selectedIndex === correctAnswer,
+        selectedOptionId: optionId,
+        isCorrect,
       };
     },
 

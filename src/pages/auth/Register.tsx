@@ -12,7 +12,8 @@ import { useToast } from '@/hooks/useToast';
 import { ROUTES } from '@/constants/routes';
 import { registerSchema } from '@/utils/validationHelpers';
 import { registerUser } from '@/services';
-import registerAnimation from '../../assets/Login verification.svg';
+import { isApiError } from '@/lib/axios';
+import registerAnimation from '../../assets/Business meeting in office.svg';
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
 export default function Register() {
@@ -40,16 +41,16 @@ export default function Register() {
 
   const onSubmit = async (data: RegisterFormValues) => {
     setIsLoading(true);
-    console.log(data);
+    // console.log(data);
     try {
-      await registerUser({
+      const user = await registerUser({
         name: data.name,
         email: data.email,
         phone: data.phone || undefined,
         password: data.password,
         passwordConfirm: data.passwordConfirm,
       });
-
+      console.log(user);
       const redirectQuery =
         redirectTo && redirectTo.startsWith('/')
           ? `&redirect=${encodeURIComponent(redirectTo)}`
@@ -62,12 +63,17 @@ export default function Register() {
         { replace: true }
       );
     } catch (err) {
-      showToast(
-        err instanceof Error
-          ? err.message
-          : 'Registration failed. Please try again.',
-        'error'
-      );
+      console.log(err);
+      let errorMessage = 'Registration failed. Please try again.';
+
+      if (isApiError(err) && err.errors && err.errors.length > 0) {
+        // Show all field-level validation errors from the backend
+        errorMessage = err.errors.map((e) => e.message).join('\n');
+      } else if (err instanceof Error && err.message) {
+        errorMessage = err.message;
+      }
+
+      showToast(errorMessage, 'error');
     } finally {
       setIsLoading(false);
     }

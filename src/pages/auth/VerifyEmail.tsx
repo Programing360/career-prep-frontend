@@ -21,7 +21,7 @@ export default function VerifyEmail() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const email = searchParams.get('email') ?? '';
-  const redirectTo = searchParams.get('redirect');
+  // const redirectTo = searchParams.get('redirect');
 
   const [otp, setOtp] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
@@ -49,10 +49,10 @@ export default function VerifyEmail() {
     setIsVerifying(true);
     try {
       await verifyEmail({ email, otp });
-      const target =
-        redirectTo && redirectTo.startsWith('/') ? redirectTo : ROUTES.LOGIN;
+      // const target =
+      //   redirectTo && redirectTo.startsWith('/') ? redirectTo : ROUTES.LOGIN;
       showToast('Email verified successfully! Please sign in.', 'success');
-      navigate(target, { replace: true });
+      navigate(ROUTES.HOME, { replace: true });
     } catch (err) {
       showToast(
         err instanceof Error

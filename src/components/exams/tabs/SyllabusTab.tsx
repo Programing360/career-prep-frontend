@@ -16,6 +16,8 @@ import {
   getTopicSubtopics,
 } from '@/components/exams/examDetailData';
 import type { ExamData } from '@/components/exams/examDetailData';
+import { Link } from 'react-router-dom';
+import { ROUTES } from '@/constants/routes';
 
 const fadeInUp: Variants = {
   hidden: { opacity: 0, y: 16 },
@@ -296,9 +298,12 @@ export function SyllabusTab({
             <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
               Preview free practice questions to gauge difficulty.
             </p>
-            <button className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-gray-900 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-gray-800 dark:bg-primary-600 dark:hover:bg-primary-700">
+            <Link
+              to={ROUTES.MOCK_TEST_DEMO}
+              className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-gray-900 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-gray-800 dark:bg-primary-600 dark:hover:bg-primary-700"
+            >
               Try Free Preview
-            </button>
+            </Link>
           </div>
 
           {/* Past Papers Teaser */}
@@ -312,9 +317,11 @@ export function SyllabusTab({
             <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
               Download previous years' papers and practice offline.
             </p>
-            <button className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-gray-900 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-gray-800 dark:bg-primary-600 dark:hover:bg-primary-700">
-              Try Free Preview
-            </button>
+            <Link to={ROUTES.MOCK_TEST_DEMO}>
+              <button className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-gray-900 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-gray-800 dark:bg-primary-600 dark:hover:bg-primary-700">
+                Try Free Preview
+              </button>
+            </Link>
           </div>
 
           {/* Demo Mock Test Teaser */}
@@ -328,9 +335,11 @@ export function SyllabusTab({
             <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
               Take a timed mini test with instant scoring.
             </p>
-            <button className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-gray-900 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-gray-800 dark:bg-primary-600 dark:hover:bg-primary-700">
-              Try Free Preview
-            </button>
+            <Link to={ROUTES.MOCK_TEST_DEMO}>
+              <button className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-gray-900 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-gray-800 dark:bg-primary-600 dark:hover:bg-primary-700">
+                Try Free Preview
+              </button>
+            </Link>
           </div>
         </div>
       </motion.div>

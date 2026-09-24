@@ -14,7 +14,8 @@ import { ROUTES } from '@/constants/routes';
 import { loginSchema } from '@/utils/validationHelpers';
 import type { LoginPayload } from '@/types';
 import { loginUser } from '@/services';
-import lottieLoginAnimation from '../../assets/Login verification.svg';
+import { isApiError } from '@/lib/axios';
+import lottieLoginAnimation from '../../assets/Business meeting in office.svg';
 
 export default function Login() {
   const { showToast } = useToast();
@@ -43,16 +44,22 @@ export default function Login() {
     // console.log(data);
     try {
       const res = await loginUser(data);
-      console.log(res, data);
+      // console.log(res, data);
       dispatch(setCredentials({ user: res.user, token: res.accessToken }));
       showToast('Welcome back!', 'success');
       navigate(redirectTo, { replace: true });
     } catch (err) {
-      console.log(err);
-      showToast(
-        err instanceof Error ? err.message : 'Login failed. Please try again.',
-        'error'
-      );
+      // console.log(err);
+      let errorMessage = 'Login failed. Please try again.';
+
+      if (isApiError(err) && err.errors && err.errors.length > 0) {
+        // Show all field-level validation errors from the backend
+        errorMessage = err.errors.map((e) => e.message).join('\n');
+      } else if (err instanceof Error && err.message) {
+        errorMessage = err.message;
+      }
+
+      showToast(errorMessage, 'error');
     } finally {
       setIsLoading(false);
     }
