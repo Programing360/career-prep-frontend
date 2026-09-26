@@ -267,7 +267,10 @@ export function AdminLayout({ children }: { children?: ReactNode }) {
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto bg-slate-50 p-4 sm:p-6 dark:bg-slate-950">
+        <main
+          className="flex-1 overflow-y-auto bg-slate-50 p-4 sm:p-6 dark:bg-slate-950"
+          data-lenis-prevent
+        >
           {children ?? <Outlet />}
         </main>
       </div>

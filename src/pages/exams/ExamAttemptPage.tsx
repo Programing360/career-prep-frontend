@@ -360,7 +360,10 @@ export default function ExamAttemptPage() {
       </header>
 
       <div className="flex flex-1 overflow-hidden">
-        <div className="flex flex-1 flex-col overflow-y-auto p-4 sm:p-6">
+        <div
+          className="flex flex-1 flex-col overflow-y-auto p-4 sm:p-6"
+          data-lenis-prevent
+        >
           <div className="mx-auto w-full max-w-3xl">
             <div className="mb-4 flex items-center justify-between">
               <span className="text-sm font-medium text-[rgb(var(--color-text-muted))]">

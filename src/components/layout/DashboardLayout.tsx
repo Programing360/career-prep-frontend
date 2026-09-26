@@ -244,7 +244,10 @@ export function DashboardLayout({ children }: { children?: ReactNode }) {
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 dark:bg-[#141131]">
+        <main
+          className="flex-1 overflow-y-auto p-4 sm:p-6 dark:bg-[#141131]"
+          data-lenis-prevent
+        >
           {children ?? <Outlet />}
         </main>
       </div>

@@ -357,7 +357,10 @@ export default function MockTestRunnerPage() {
 
   if (result) {
     return (
-      <div className="min-h-screen overflow-y-auto p-4 py-8 sm:p-6 sm:py-12">
+      <div
+        className="min-h-screen overflow-y-auto p-4 py-8 sm:p-6 sm:py-12"
+        data-lenis-prevent
+      >
         <MockTestResultsView
           result={result}
           testType={session.testType}
@@ -391,7 +394,10 @@ export default function MockTestRunnerPage() {
       )}
 
       <div className="flex flex-1 overflow-hidden">
-        <div className="flex flex-1 flex-col overflow-y-auto p-4 sm:p-6">
+        <div
+          className="flex flex-1 flex-col overflow-y-auto p-4 sm:p-6"
+          data-lenis-prevent
+        >
           <div className="mx-auto flex w-full max-w-3xl flex-col">
             <AnimatePresence mode="wait">
               <motion.div

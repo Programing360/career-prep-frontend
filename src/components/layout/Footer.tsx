@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useLenis } from 'lenis/react';
 import { GraduationCap, ArrowUp, Send } from 'lucide-react';
 import { ROUTES } from '@/constants/routes';
 import { cn } from '@/lib/utils';
@@ -48,8 +49,13 @@ export default function Footer({
     links: Array<{ label: string; to: string }>;
   }>;
 }) {
+  const lenis = useLenis();
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (lenis) {
+      lenis.scrollTo(0);
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   return (

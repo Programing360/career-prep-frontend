@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, type Variants } from 'framer-motion';
+import { useLenis } from 'lenis/react';
 import {
   ChevronRight,
   BookOpen,
@@ -164,6 +165,8 @@ export default function SubjectsLibrary() {
     string | undefined
   >(undefined);
 
+  const lenis = useLenis();
+
   const fetchSubjects = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -208,11 +211,18 @@ export default function SubjectsLibrary() {
     });
   }, [subjects, selectedCategory, searchQuery]);
 
-  const handleSelectSubject = useCallback((subject: TaxonomySubject) => {
-    setSelectedSubject(subject);
-    setSelectedDifficulty(undefined);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, []);
+  const handleSelectSubject = useCallback(
+    (subject: TaxonomySubject) => {
+      setSelectedSubject(subject);
+      setSelectedDifficulty(undefined);
+      if (lenis) {
+        lenis.scrollTo(0);
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    },
+    [lenis]
+  );
 
   const handleBack = useCallback(() => {
     setSelectedSubject(null);

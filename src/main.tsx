@@ -8,6 +8,7 @@ import { store } from '@/store/store';
 import { ThemeProvider } from '@/providers/ThemeProvider';
 import { AuthProvider } from '@/providers/AuthProvider';
 import { ToastProvider } from '@/providers/ToastProvider';
+import { SmoothScrollProvider } from '@/providers/SmoothScrollProvider';
 import App from './App';
 import './index.css';
 
@@ -25,7 +26,9 @@ createRoot(document.getElementById('root')!).render(
         <ThemeProvider>
           <AuthProvider>
             <ToastProvider>
-              <App />
+              <SmoothScrollProvider>
+                <App />
+              </SmoothScrollProvider>
             </ToastProvider>
           </AuthProvider>
         </ThemeProvider>
