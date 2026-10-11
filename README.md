@@ -1,32 +1,43 @@
-# React + TypeScript + Vite
+💻 CareerPrep Frontend — Exam Portal & AI Tutor UI
+A modern, high-performance web application built with Next.js (App Router) and Tailwind CSS, designed for competitive exam preparation (including ISSB, PMA, and Initial Army Tests). It features real-time countdown exam sessions, interactive analytics dashboards, token management, and structured AI-assisted MCQ explanations.
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+🛠️ Tech Stack & Libraries
+Framework: Next.js (React / App Router)
 
-Currently, two official plugins are available:
+Styling: Tailwind CSS & Lucide Icons
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+State Management: Redux Toolkit (examAttemptSlice, etc.)
 
-## React Compiler
+Markdown & Math Rendering: react-markdown for clean AI explanation rendering
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+API Integration: Axios / Fetch with Bearer Token Authorization
 
-## Expanding the Oxlint configuration
+✨ Core Features
+Army Test & Exam Navigation:
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+Category-based exam selection (/exams/army-test).
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
-```
+Dynamic question fetching and test session startup flows.
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Timed Exam Session & Auto-Submit:
+
+Strict 30-minute countdown timer enforcing automated submission when time expires (ExamAttemptPage).
+
+Prevention against accidental page-refresh/resubmission manipulation.
+
+Performance Analytics & Result View:
+
+Comprehensive result breakdown displaying overall scores, accuracy badges, and subject-wise accuracy (Verbal vs. Non-Verbal).
+
+Question-by-question review interface.
+
+Token-Gated AI Tutor Integration:
+
+"✨ Ask AI Tutor" feature integrated directly into exam reviews.
+
+Consumes user AI tokens (10 tokens per prompt) with clean Markdown and structured layout rendering.
+
+Admin Dashboard:
+
+Protected UI forms allowing administrators to ingest new Army Test questions seamlessly into the backend. 
+
