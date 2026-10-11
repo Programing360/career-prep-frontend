@@ -1,43 +1,131 @@
-💻 CareerPrep Frontend — Exam Portal & AI Tutor UI
-A modern, high-performance web application built with Next.js (App Router) and Tailwind CSS, designed for competitive exam preparation (including ISSB, PMA, and Initial Army Tests). It features real-time countdown exam sessions, interactive analytics dashboards, token management, and structured AI-assisted MCQ explanations.
+# 1. What Have I Worked on in the Career Prep Project?
 
-🛠️ Tech Stack & Libraries
-Framework: Next.js (React / App Router)
+## 🔐 1. Authentication System
 
-Styling: Tailwind CSS & Lucide Icons
+I worked on implementing an authentication system to help users securely access their accounts.
 
-State Management: Redux Toolkit (examAttemptSlice, etc.)
+Key features include:
 
-Markdown & Math Rendering: react-markdown for clean AI explanation rendering
+* User registration and login
+* JWT access and refresh token management
+* Password reset functionality
+* Email verification and OTP-related functionality
+* Securing protected routes and APIs through authentication
+* Managing user-specific data
 
-API Integration: Axios / Fetch with Bearer Token Authorization
+**Example:** When a user logs in, they can access their own account and personal information. They should not be able to access another user's private data without proper authorization.
 
-✨ Core Features
-Army Test & Exam Navigation:
+## 🤖 2. AI Tutor Integration
 
-Category-based exam selection (/exams/army-test).
+I worked on integrating multiple AI providers into the platform to support AI-powered learning assistance.
 
-Dynamic question fetching and test session startup flows.
+The AI integration involved:
 
-Timed Exam Session & Auto-Submit:
+* Google Gemini API
+* Groq API
+* OpenRouter API
+* Exploring a fallback mechanism to switch to another AI provider when the primary provider fails
 
-Strict 30-minute countdown timer enforcing automated submission when time expires (ExamAttemptPage).
+**How does it work?**
 
-Prevention against accidental page-refresh/resubmission manipulation.
+For example, suppose a student wants to understand JavaScript closures.
 
-Performance Analytics & Result View:
+1. The student submits a question to the AI tutor.
+2. The frontend sends the question to the backend API.
+3. The backend attempts to generate a response using an appropriate AI provider.
+4. The generated response is returned to the student.
 
-Comprehensive result breakdown displaying overall scores, accuracy badges, and subject-wise accuracy (Verbal vs. Non-Verbal).
+A fallback mechanism can improve reliability by attempting to use another AI provider when the primary provider encounters an error.
 
-Question-by-question review interface.
+## 📚 3. Career Preparation Features
 
-Token-Gated AI Tutor Integration:
+Career Prep is designed to help students prepare for their careers, improve their learning experience, and practice for exams.
 
-"✨ Ask AI Tutor" feature integrated directly into exam reviews.
+My work included:
 
-Consumes user AI tokens (10 tokens per prompt) with clean Markdown and structured layout rendering.
+* Working on the frontend and backend of the career preparation platform
+* Participating in feature planning
+* Implementing feature selection and UI components
+* Developing MCQ interfaces
+* Fixing bugs and testing application features
 
-Admin Dashboard:
+Features such as a resume builder, AI mock interviews, and AI-generated career roadmaps should only be included in the project description if they have actually been implemented.
 
-Protected UI forms allowing administrators to ingest new Army Test questions seamlessly into the backend. 
+## 📝 4. MCQ and Exam Support UI
 
+I worked on MCQ interfaces and components related to exam support and other platform features.
+
+My work involved developing user interfaces to improve the student experience.
+
+Key responsibilities included:
+
+* Displaying questions
+* Providing multiple answer options
+* Building interfaces for selecting and submitting answers
+* Improving the usability of exam-related features
+
+Features such as automatic scoring, exam timers, and result generation should be mentioned only if they have been implemented.
+
+## 🛠️ 5. Admin Dashboard
+
+I worked on admin dashboard features to support administrative tasks and improve the user interface.
+
+My responsibilities included:
+
+* Working on the interface or functionality for publishing new exams
+* Implementing user management features
+* Updating dashboard layouts and colors
+* Improving the UI based on feature requirements
+
+The admin dashboard is intended to help administrators manage users and exam-related activities.
+
+## 🔌 6. Backend Development and REST APIs
+
+I gained practical experience working with backend technologies and API integration.
+
+My work involved:
+
+* Using Node.js and Express.js for backend development
+* Writing backend code with TypeScript
+* Developing and integrating REST APIs
+* Working with MongoDB for data storage
+* Implementing JWT-based authentication
+* Debugging backend issues
+* Managing environment configurations
+
+**Example:**
+
+When a student logs in, the frontend sends a request to the backend. The backend validates the user's credentials and returns an appropriate response.
+
+## 🐛 7. Debugging, Testing, and Team Collaboration
+
+During my internship at CodeOnix, I worked on various development tasks and collaborated with team members.
+
+My responsibilities included:
+
+* Identifying and troubleshooting application bugs
+* Participating in feature planning meetings
+* Working on new features and improvements
+* Updating UI components and layouts
+* Using Git and GitHub for version control
+* Managing and troubleshooting environment configurations
+
+These experiences helped me improve my debugging, problem-solving, teamwork, and software development skills.
+
+---
+
+# 2. Technology Stack
+
+| Technology        | Purpose                                             |
+| ----------------- | --------------------------------------------------- |
+| React.js          | Building interactive frontend interfaces            |
+| TypeScript        | Improving type safety and code maintainability      |
+| Node.js           | Running the backend application                     |
+| Express.js        | Building REST APIs                                  |
+| MongoDB           | Storing and managing application data               |
+| JWT               | Authentication and token-based access control       |
+| Google Gemini API | AI integration                                      |
+| Groq API          | Alternative AI provider integration                 |
+| OpenRouter API    | Accessing AI models through an alternative provider |
+| Git and GitHub    | Version control and collaborative development       |
+| Vercel            | Frontend deployment                                 |
